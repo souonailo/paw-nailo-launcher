@@ -1,0 +1,116 @@
+# ==============================================================================
+# PAW Nailo - .gitignore
+# Mantém estritamente o necessário para o projeto GitHub e execução do usuário
+# ==============================================================================
+
+# Rust & Tauri Builds / Binários
+target/
+src-tauri/target/
+src-tauri/gen/
+src-tauri/examples/
+dist/
+build/
+out/
+*.exe
+*.dll
+*.so
+*.dylib
+*.pdb
+*.msi
+*.wixpdb
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+!icon.ico
+
+# WebView2 & Runtime Caches
+EBWebView/
+WebView2/
+.runtime/
+tempmediaStorage/
+*.tmp
+*.log
+logs/
+
+# Node.js & Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Dados Sensíveis & Credenciais do Usuário (NUNCA COMMITTAR)
+accounts.enc
+accounts.enc.*
+dom-dump.txt
+*.key
+*.secret
+.env
+.env.*
+*.pem
+*.crt
+
+# Dumps de Jogo, Engenharia Reversa & Spikes de Telemetria
+dump_*.js
+*.dump
+scratch/
+scratch_*.js
+telemetry-capture-*.js
+telemetry-*.test.*
+TELEMETRY-TESTING.md
+
+# Suítes de Teste Locais
+*.test.js
+*.test.cjs
+*.test.mjs
+*.spec.js
+
+# Backups & Arquivos de Benchmark
+backups/
+backup-*/
+ui-runtime-benchmark/
+*.bak
+*.orig
+
+# Python Cache & Ambientes Virtuais
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+env/
+venv/
+
+# Sistema Operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# IDEs & Editores
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.sublime-project
+*.sublime-workspace
+
+# Documentação Interna, Regras de Agentes & Auditorias
+AGENTS.MD
+AGENTS.md
+agents.md
+.agents/
+UI-AUDIT.md
+PIW-DESIGN-SYSTEM.md
+docs/
+pokeidle_maps/
+src/ui/themes/pokemon/**/*.json
+src/ui/themes/pokemon/**/*.md
+tools/

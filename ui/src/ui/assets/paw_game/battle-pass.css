@@ -1,0 +1,241 @@
+/* Expedição Prisma: emerald, crystal and royal monthly reward paths. */
+body .expedition-tools.has-battle-pass .resources{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}
+body .expedition-tools.has-battle-pass .resources button{min-width:0;padding:3px}
+body .battle-pass-launcher .benefit-emblem{width:27px;height:27px;filter:drop-shadow(0 0 4px #edb46370)}
+.battle-pass-launcher{position:relative}.bp-notice{display:none;position:absolute;right:1px;top:2px;width:6px;height:6px;border-radius:50%;background:#ffe39b;box-shadow:0 0 7px #ffc14b}.battle-pass-launcher.has-reward .bp-notice{display:block}
+#battle-pass-dialog{width:min(1230px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px);padding:23px;color:#e5f3ff;background:radial-gradient(ellipse at top left,#1b4359b0,transparent 65%),linear-gradient(135deg,#0c2638,#091827 70%,#171e35);border:2px solid #6ca3ba;border-radius:19px;box-shadow:0 0 0 5px #061723,0 0 0 7px #799bbc,0 25px 80px #000b;overflow-y:auto;font-family:Segoe UI,sans-serif;scrollbar-width:thin;scrollbar-color:#71a8bd #0b2333}
+#battle-pass-dialog::backdrop{background:#020b15ba;backdrop-filter:blur(5px)}
+#battle-pass-dialog button{font-family:inherit;cursor:var(--pw-cursor-interact,pointer);transition:background .18s,border-color .18s,box-shadow .18s,transform .18s;border:1px solid #59849b;color:#e1f2ff;border-radius:7px;background:linear-gradient(140deg,#294b60,#142d43);padding:9px 12px;font-weight:700}
+#battle-pass-dialog button:hover:not(:disabled){border-color:#b1eff8;box-shadow:0 0 13px #77cfec40;transform:translateY(-2px);background:linear-gradient(140deg,#376d83,#224259)}
+#battle-pass-dialog button:disabled{opacity:.48;cursor:default}#battle-pass-dialog button:focus-visible{outline:2px solid #ffe0a0;outline-offset:3px}
+#battle-pass-dialog .bp-header{padding-bottom:15px;margin-bottom:17px;border-bottom:1px solid #78a8bf55;display:flex;justify-content:space-between;align-items:center}#battle-pass-dialog .bp-header>div{display:flex;gap:13px;align-items:center}.bp-header .benefit-emblem{width:58px;height:58px}.bp-header small,.bp-track-heading small{letter-spacing:1.5px;color:#9fcadc;font-size:9px;font-weight:700}.bp-header h2{margin:2px 0;font-size:26px}.bp-header p{margin:3px 0;color:#b4cbd9;font-size:12px}.bp-header button{display:grid;place-items:center}.bp-header button svg{width:18px;height:18px}
+.bp-hero{display:flex;align-items:center;gap:20px;position:relative;overflow:hidden;padding:18px 24px;border:1px solid #658da2;border-radius:12px;background:radial-gradient(ellipse at 65% 0,#817b5033,transparent 70%),linear-gradient(120deg,#1d4a5e,#112b42 55%,#302840);box-shadow:inset 0 0 25px #59c3ed0d}
+.bp-hero:after{content:'';position:absolute;width:170px;height:170px;right:250px;transform:rotate(45deg);border:1px solid #b6a1e928;pointer-events:none}.bp-hero>img{height:142px;width:132px;object-fit:contain;filter:drop-shadow(0 6px 8px #0007)}.bp-season{flex:1}.bp-season>small{letter-spacing:1.2px;font-size:9px;color:#f1d99e;font-weight:700}.bp-season h3{font-size:27px;line-height:1.08;margin:8px 0}.bp-season h3 span{color:#ffd995}.bp-season p{font-size:12px;color:#b7d1df;margin:8px 0}.bp-season>span{font-size:10px;display:flex;gap:6px;align-items:center;color:#aadada}.bp-season svg{width:14px;height:14px}.bp-level{width:232px;text-align:center}.bp-level>.benefit-emblem{height:46px;width:46px;vertical-align:middle;margin-right:8px}.bp-level>strong{font-size:43px;vertical-align:middle;color:#ffe1a4}.bp-level strong small{font-size:19px;color:#9ebdd0}.bp-level>span{display:block;font-size:10px;letter-spacing:1.6px;margin:8px 0}.bp-level>small{display:block;font-size:10px;color:#bbcadc;margin-top:8px}.bp-meter{height:6px;overflow:hidden;background:#071c2c;border:1px solid #7595b033;border-radius:8px}.bp-meter i{display:block;height:100%;background:linear-gradient(90deg,#56d5e0,#c5a0f3,#ffe2a1);transition:width .3s}
+.bp-dailies{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0 21px}.bp-mission{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid #4c7d95;border-radius:10px;background:linear-gradient(120deg,#15394a,#102b40);min-width:0}.bp-mission>img{width:47px;height:47px;object-fit:contain}.bp-mission>div{flex:1}.bp-mission small{font-size:8px;letter-spacing:1.1px;color:#9bdfd8}.bp-mission h3{font-size:14px;margin:4px 0}.bp-mission p{font-size:11px;margin:3px 0 9px;color:#afc8d7}.bp-mission-count{display:flex;justify-content:space-between;font-size:10px;margin-bottom:6px}.bp-mission-count span{color:#9db9ca}.bp-mission-seal{text-align:center;font-size:8px;color:#f0d89b}.bp-mission-seal .benefit-emblem{display:block;width:37px;height:37px;margin:0 auto 4px}.bp-mission.complete{border-color:#8ad5b4;background:linear-gradient(120deg,#1b493f,#143647)}.bp-mission>button{font-size:10px;max-width:100px}.bp-mission>button svg{width:15px;height:15px}
+.bp-track-heading{display:flex;align-items:center;justify-content:space-between;margin:8px 0 12px}.bp-track-heading h3{font-size:18px;margin:4px 0}.bp-pager{display:flex;align-items:center;gap:12px;font-size:12px}.bp-pager button{padding:7px!important;display:grid;place-items:center}.bp-pager svg{width:16px;height:16px}
+.bp-tracks{display:grid;gap:13px}.bp-track{display:grid;grid-template-columns:174px minmax(0,1fr);border:1px solid var(--bp-accent);border-radius:12px;overflow:hidden;box-shadow:0 2px 12px #0003;background:linear-gradient(105deg,#16382f,#102d35 40%,#102837)}.bp-track-label{padding:15px 13px;position:relative;display:flex;flex-direction:column;align-items:flex-start;border-right:1px solid #9be1b533;background:linear-gradient(125deg,#94e5b419,#0002)}.bp-track-label>.benefit-emblem{width:49px;height:49px;filter:drop-shadow(0 0 9px #b4d99130);margin-bottom:8px}.bp-track-label>small{font-size:8px;letter-spacing:1.5px;color:var(--bp-accent)}.bp-track-label h3{font-size:20px;margin:4px 0;color:var(--bp-accent)}.bp-track-price{font-size:12px;font-weight:700;color:#e3f7ef}.bp-track-label p{font-size:10px;line-height:1.5;color:#bdd0d8;margin:9px 0 12px}.bp-active{font-size:10px;color:var(--bp-accent);display:flex;align-items:center;gap:5px;margin-top:auto}.bp-active svg{width:14px;height:14px}.bp-track-label>button{font-size:10px;width:100%;padding:9px 3px!important;margin-top:auto}.bp-track-label>button svg{width:13px;height:13px;vertical-align:middle}
+.bp-reward-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;padding:12px;align-items:stretch}.bp-reward{background:#082236a1;border:1px solid #6d97aa55;border-radius:8px;padding:9px 7px;display:flex;flex-direction:column;min-width:0;transition:border-color .2s,background .2s}.bp-reward.ready{border-color:var(--bp-accent);box-shadow:inset 0 0 15px #a5dedd12,0 0 8px #a0ced212}.bp-reward.received{background:#08212e80}.bp-reward:hover{border-color:var(--bp-accent)}.bp-reward-top{display:flex;align-items:center;justify-content:space-between;font-size:8px;color:var(--bp-accent);letter-spacing:.7px}.bp-reward-top svg{width:13px;height:13px}.bp-reward-items{flex:1;margin:12px 0;display:grid;align-content:center;gap:10px}.bp-item{display:flex;gap:5px;align-items:center;min-width:0}.bp-item img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 3px #0005)}.bp-item b{display:block;font-size:12px;color:#f2e2b6}.bp-item small{display:block;font-size:8px;color:#bbd1dc;line-height:1.3;overflow-wrap:anywhere}.bp-reward>button{font-size:9px;padding:7px 3px!important;width:100%}.bp-reward.ready>button{background:linear-gradient(120deg,#316b6b,#214e64)!important;color:#f1fdff!important;border-color:var(--bp-accent)!important}.bp-special{font-size:6px;letter-spacing:.8px;color:#ffe5a8;margin-top:7px}.bp-reward.milestone{border-color:#dec17e88}
+.bp-diamond{background:radial-gradient(ellipse at right top,#7b54af22,transparent),linear-gradient(110deg,#233a61,#142b46 45%,#25203e);box-shadow:0 0 16px #8583fb12}.bp-diamond .bp-track-label{background:linear-gradient(140deg,#84dfee1f,#a683ef19);border-color:#b1a5ec44}.bp-diamond .bp-track-label>.benefit-emblem{filter:drop-shadow(0 0 10px #9eabff66)}.bp-royal{border-width:2px;position:relative;background:radial-gradient(ellipse at 85% 0,#d5776a22,transparent 80%),linear-gradient(105deg,#59402c,#302b38 40%,#24243c);box-shadow:0 0 22px #eeb65d22,inset 0 0 28px #fff0b00a}.bp-royal .bp-track-label{background:linear-gradient(140deg,#f8be6228,#d485ae13);border-color:#efcb8b55}.bp-royal .bp-track-label>.benefit-emblem{width:58px;height:58px;filter:drop-shadow(0 0 12px #f5bf8680)}.bp-royal .bp-reward{background:linear-gradient(140deg,#46324488,#142237c7);border-color:#d7b78670}.bp-royal .bp-reward.ready>button{background:linear-gradient(110deg,#bc9554,#895c47)!important;color:#fff5dc!important}.bp-royal .bp-track-label>button{background:linear-gradient(110deg,#ba9150,#825246)!important;color:#fff1ca!important;border-color:#efce8e!important}.bp-royal .bp-item img{width:34px;height:34px}
+.bp-footer{display:flex;align-items:center;gap:12px;margin-top:17px;padding:14px;border:1px solid #bfa47666;border-radius:10px;background:linear-gradient(105deg,#314347,#25253e)}.bp-footer>.benefit-emblem{width:48px;height:48px;flex-shrink:0}.bp-footer strong{font-size:13px;color:#f7dd9f}.bp-footer p{font-size:11px;color:#c3d8e5;margin:5px 0}.bp-footer span{font-size:10px;color:#afdccc}.bp-footer small{display:block;color:#a9becf;font-size:9px;margin-top:7px}.bp-confirm{display:flex;align-items:center;gap:12px;margin-top:16px;padding:17px;border:1px solid #cba7fa;background:linear-gradient(110deg,#344461,#352d53);border-radius:10px}.bp-confirm>.benefit-emblem{width:48px;height:48px;flex-shrink:0}.bp-confirm>div{flex:1}.bp-confirm strong{color:#e3d3ff;font-size:15px}.bp-confirm p,.bp-confirm span{font-size:12px;color:#b8d1e1;margin:7px 0}.bp-confirm b{font-size:11px;color:#ffc9af}.bp-payment{border-color:#f1cc83;background:linear-gradient(110deg,#473930,#31293d)}.bp-payment strong{color:#ffdfa0}
+@media(max-width:1050px){.bp-track{grid-template-columns:150px minmax(0,1fr)}.bp-reward-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.bp-track-label{justify-content:center}.bp-active,.bp-track-label>button{margin-top:12px}.bp-hero>img{height:115px;width:100px}}
+@media(max-width:700px){body .expedition-tools.has-battle-pass .resources{grid-template-columns:repeat(3,minmax(0,1fr))}#battle-pass-dialog{padding:14px;width:calc(100vw - 24px);max-height:calc(100dvh - 24px)}.bp-header h2{font-size:21px}.bp-header .benefit-emblem{width:40px;height:40px}.bp-header small{font-size:7px}.bp-hero{padding:14px;gap:12px;flex-wrap:wrap}.bp-hero>img{width:70px;height:93px}.bp-season h3{font-size:22px}.bp-season p{font-size:10px}.bp-level{width:100%;border-top:1px solid #94b2c844;padding-top:10px}.bp-level strong{font-size:32px}.bp-level>.benefit-emblem{height:34px;width:34px}.bp-dailies{grid-template-columns:1fr}.bp-track{grid-template-columns:1fr}.bp-track-label{display:grid;grid-template-columns:48px 1fr auto;gap:3px 10px;align-items:center;border-right:0;border-bottom:1px solid #aaa4}.bp-track-label>.benefit-emblem{grid-row:1/4;margin:0;width:46px;height:46px!important}.bp-track-label>small{grid-column:2}.bp-track-label h3{grid-column:2;margin:0}.bp-track-price{grid-column:3;grid-row:2}.bp-track-label p{grid-column:2/4;margin:5px 0;font-size:9px}.bp-track-label>button,.bp-active{grid-column:2/4;margin:4px 0}.bp-reward-grid{gap:7px;padding:9px}.bp-track-heading h3{font-size:15px}.bp-track-heading small{font-size:7px}.bp-pager{gap:6px;font-size:9px}.bp-item{gap:4px}.bp-item img{width:26px;height:26px}.bp-royal .bp-item img{width:29px;height:29px}.bp-item b{font-size:11px}.bp-reward{padding:8px 5px}.bp-reward-top{font-size:7px}.bp-footer{align-items:flex-start}.bp-footer>.benefit-emblem{width:33px;height:33px}.bp-confirm{flex-wrap:wrap}.bp-confirm>div{min-width:190px}.bp-confirm button{flex:1}}
+@media(prefers-reduced-motion:reduce){#battle-pass-dialog *,#battle-pass-dialog button{transition:none!important;scroll-behavior:auto!important}}
+
+#battle-pass-dialog{padding:0;overflow:hidden}#battle-pass-dialog .bp-body{padding:23px;max-height:calc(100dvh - 40px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#71a8bd #0b2333}#battle-pass-dialog .bp-footer{position:static;justify-content:flex-start;text-align:left;font-family:inherit}#battle-pass-dialog .bp-footer>div{flex:1;text-align:left}#battle-pass-dialog .bp-footer span{display:block;margin:0}
+@media(max-width:700px){#battle-pass-dialog .bp-body{padding:14px;max-height:calc(100dvh - 32px)}}
+
+body.prisma-theme .expedition-tools.has-daily.has-battle-pass .toolbar .resources{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}body.prisma-theme .expedition-tools.has-daily.has-battle-pass .toolbar .resources button{min-width:0;padding:2px}body.prisma-theme .expedition-tools.has-daily.has-battle-pass .toolbar .resources button img{width:24px;height:24px}body.prisma-theme .expedition-tools.has-daily.has-battle-pass .toolbar .resources .battle-pass-launcher svg{width:25px;height:25px}
+@media(max-width:700px){body.prisma-theme .expedition-tools.has-daily.has-battle-pass .toolbar .resources{grid-template-columns:repeat(3,minmax(0,1fr))}body.prisma-theme .expedition-tools.has-daily.has-battle-pass .toolbar .resources button img,body.prisma-theme .expedition-tools.has-daily.has-battle-pass .toolbar .resources .battle-pass-launcher svg{width:21px;height:21px}}
+
+body.prisma-theme .expedition-tools.has-daily.has-battle-pass .toolbar .resources button{height:38px}
+@media(max-width:700px){body.prisma-theme .expedition-tools.has-daily.has-battle-pass .toolbar .resources button{height:34px}}
+/* Continuous three-path reward rail; fixed-height expedition panel. */
+body .battle-pass-launcher .bp-art{display:inline-flex;width:29px;height:29px;vertical-align:middle}
+.bp-art{display:inline-flex;flex:none;align-items:center;justify-content:center;vertical-align:middle}
+.bp-art img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 3px #0009)}
+body.prisma-theme #battle-pass-dialog{width:min(1440px,calc(100vw - 24px));height:min(920px,calc(100dvh - 24px));max-height:none;overflow:hidden;font-family:var(--pw-font)}
+#battle-pass-dialog .bp-body{height:100%;max-height:none;box-sizing:border-box;padding:20px;display:flex;flex-direction:column;gap:10px;overflow:hidden;position:relative}
+#battle-pass-dialog .bp-header{flex:none;padding:0 0 9px;margin:0;min-height:0}
+#battle-pass-dialog .bp-header .bp-art{width:58px;height:58px}
+#battle-pass-dialog .bp-header h2{font-size:26px;letter-spacing:-.4px;color:#f0f7ff;text-shadow:0 2px 8px #0005}
+#battle-pass-dialog .bp-header p{font-size:11px}
+#battle-pass-dialog .bp-hero{flex:none;padding:9px 18px;gap:16px;background:radial-gradient(ellipse at 70% 0,#ac78d32b,transparent 60%),linear-gradient(120deg,#234b59,#142e46 65%,#332c45)}
+#battle-pass-dialog .bp-hero>img{height:85px;width:75px}
+#battle-pass-dialog .bp-season h3{font-size:22px;margin:5px 0;line-height:1.05}
+#battle-pass-dialog .bp-season h3 br{display:none}
+#battle-pass-dialog .bp-season p{font-size:11px;margin:5px 0}
+#battle-pass-dialog .bp-season>span .benefit-emblem{width:16px;height:16px}
+#battle-pass-dialog .bp-level{width:215px}
+#battle-pass-dialog .bp-level>.bp-art{width:44px;height:44px;margin-right:8px}
+#battle-pass-dialog .bp-level>strong{font-size:34px}
+#battle-pass-dialog .bp-level>span{margin:4px 0;font-size:8px}
+#battle-pass-dialog .bp-dailies{margin:0;gap:10px;flex:none}
+#battle-pass-dialog .bp-mission{padding:8px 12px;gap:10px;box-shadow:inset 0 1px #d1f3ff19}
+#battle-pass-dialog .bp-mission>img{width:40px;height:40px}
+#battle-pass-dialog .bp-mission small{font-size:7px}
+#battle-pass-dialog .bp-mission h3{font-size:13px;margin:2px 0}
+#battle-pass-dialog .bp-mission p{font-size:10px;margin:2px 0 5px}
+#battle-pass-dialog .bp-mission-count{font-size:10px;margin-bottom:4px}
+#battle-pass-dialog .bp-mission-seal>.bp-art{width:29px;height:29px;display:flex;margin:0 auto 3px}
+#battle-pass-dialog .bp-track-heading{flex:none;margin:0;min-height:26px}
+#battle-pass-dialog .bp-track-heading h3{font-size:17px;margin:2px 0 0}
+#battle-pass-dialog .bp-track-heading small{font-size:7px;letter-spacing:1.4px}
+#battle-pass-dialog .bp-scroll-hint{display:flex;align-items:center;gap:6px;font-size:10px;color:#a4c8d7;padding:5px 9px;border:1px solid #7094aa42;border-radius:6px;background:#112d4088}
+#battle-pass-dialog .bp-scroll-hint svg{width:14px;height:14px;color:#a4e6e8}
+#battle-pass-dialog .bp-reward-scroll{flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:auto;scrollbar-color:#84c7d7 #0a2134;border-radius:10px;border:1px solid #789dbf55;background:#081d2d;overscroll-behavior:contain;outline-offset:-2px}
+#battle-pass-dialog .bp-reward-scroll::-webkit-scrollbar{height:11px}
+#battle-pass-dialog .bp-reward-scroll::-webkit-scrollbar-track{background:#0a2134;border-radius:10px}
+#battle-pass-dialog .bp-reward-scroll::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#6baeba,#b499d2);border:2px solid #0a2134;border-radius:10px}
+#battle-pass-dialog .bp-tracks{width:max-content;height:100%;display:grid;grid-template-rows:repeat(3,minmax(0,1fr));gap:6px;box-sizing:border-box;padding:6px;min-width:100%}
+#battle-pass-dialog .bp-track{display:grid;grid-template-columns:170px auto;min-height:0;border-radius:8px;overflow:visible;border-width:1px;position:relative}
+#battle-pass-dialog .bp-track-label{position:sticky;left:0;z-index:2;padding:8px 10px;display:grid;grid-template-columns:44px 1fr;gap:2px 7px;align-content:center;border-radius:7px 0 0 7px;border-right:1px solid color-mix(in srgb,var(--bp-accent) 50%,transparent);background:linear-gradient(125deg,#183f36,#10303a);box-shadow:6px 0 13px #04152588}
+#battle-pass-dialog .bp-diamond .bp-track-label{background:linear-gradient(125deg,#30456c,#222d4e)}
+#battle-pass-dialog .bp-royal .bp-track-label{background:radial-gradient(ellipse at top left,#d5a75b28,transparent),linear-gradient(125deg,#59402f,#352c3b)}
+#battle-pass-dialog .bp-track-label>.bp-art{width:44px;height:44px;grid-column:1;grid-row:1/4;align-self:center}
+#battle-pass-dialog .bp-track-label>small{font-size:6px;letter-spacing:1px;grid-column:2}
+#battle-pass-dialog .bp-track-label h3{font-size:17px;margin:1px 0;grid-column:2;letter-spacing:-.3px;text-shadow:0 0 14px color-mix(in srgb,var(--bp-accent) 25%,transparent)}
+#battle-pass-dialog .bp-track-price{grid-column:2;font-size:10px}
+#battle-pass-dialog .bp-track-label p{display:none}
+#battle-pass-dialog .bp-track-label>.bp-active,#battle-pass-dialog .bp-track-label>button{grid-column:1/3;margin:6px 0 0;font-size:9px;min-width:0}
+#battle-pass-dialog .bp-track-label>button{padding:5px 2px!important}
+#battle-pass-dialog .bp-track-label>button .bp-art{width:18px;height:18px}
+#battle-pass-dialog .bp-reward-grid{display:grid;grid-template-columns:repeat(30,140px);padding:5px 7px;gap:8px;min-height:0}
+#battle-pass-dialog .bp-reward{position:relative;padding:7px 8px;min-height:0;gap:4px;background:radial-gradient(ellipse at top,color-mix(in srgb,var(--bp-accent) 8%,transparent),transparent 75%),linear-gradient(145deg,#163747,#0a2335);box-shadow:inset 0 1px #fff2;overflow:hidden}
+#battle-pass-dialog .bp-diamond .bp-reward{background:linear-gradient(145deg,#263653,#15273e)}
+#battle-pass-dialog .bp-royal .bp-reward{background:radial-gradient(ellipse at top,#d99a3d1c,transparent),linear-gradient(145deg,#493342,#20263b);border-color:#dbba7977}
+#battle-pass-dialog .bp-reward-top{font-size:9px;flex:none;letter-spacing:.4px}
+#battle-pass-dialog .bp-reward-top svg{width:14px;height:14px}
+#battle-pass-dialog .bp-reward.milestone{border-color:#efd390;box-shadow:inset 0 0 16px #f1cd681b}
+#battle-pass-dialog .bp-special{position:absolute;top:25px;right:8px;font-size:5px;margin:0;color:#ffe1a4;letter-spacing:.3px}
+#battle-pass-dialog .bp-reward-items{margin:2px 0;gap:4px;min-height:0;align-content:center}
+#battle-pass-dialog .bp-item img,#battle-pass-dialog .bp-royal .bp-item img{width:27px;height:27px}
+#battle-pass-dialog .bp-item b{font-size:12px;font-variant-numeric:tabular-nums;color:#ffe1a1}
+#battle-pass-dialog .bp-item small{font-size:7px;color:#b7cedd}
+#battle-pass-dialog .bp-reward>button{font-size:9px;padding:4px!important;flex:none;margin-top:auto;min-height:24px}
+#battle-pass-dialog .bp-reward.ready{border-color:var(--bp-accent);box-shadow:inset 0 0 16px color-mix(in srgb,var(--bp-accent) 12%,transparent)}
+#battle-pass-dialog .bp-reward.ready>button{background:linear-gradient(100deg,#70c8ac,#407d92)!important;color:#092639!important;opacity:1}
+#battle-pass-dialog .bp-royal .bp-reward.ready>button{background:linear-gradient(100deg,#f4d083,#c08a62)!important;color:#352517!important}
+#battle-pass-dialog .bp-reward.received>button{color:#93d8ba;opacity:.8}
+#battle-pass-dialog .bp-footer{flex:none;margin:0;padding:7px 10px;gap:9px;min-height:0}
+#battle-pass-dialog .bp-footer>.bp-art{width:32px;height:32px}
+#battle-pass-dialog .bp-footer strong{font-size:11px}
+#battle-pass-dialog .bp-footer p{font-size:9px;margin:2px 0}
+#battle-pass-dialog .bp-footer span,#battle-pass-dialog .bp-footer small{font-size:8px;margin-top:2px}
+#battle-pass-dialog .bp-confirm{position:absolute;left:20px;right:20px;bottom:20px;z-index:5;margin:0;box-shadow:0 -10px 50px #020c18d9,0 0 0 9999px #030e1e8c;padding:15px}
+#battle-pass-dialog .bp-confirm>.bp-art{width:45px;height:45px}
+@media(max-height:780px){
+#battle-pass-dialog .bp-body{padding:14px;gap:7px}
+#battle-pass-dialog .bp-header .bp-art{width:40px;height:40px}
+#battle-pass-dialog .bp-header h2{font-size:22px}
+#battle-pass-dialog .bp-header p{display:none}
+#battle-pass-dialog .bp-hero>img{height:55px;width:52px}
+#battle-pass-dialog .bp-hero{padding:6px 14px}
+#battle-pass-dialog .bp-season h3{font-size:19px;margin:3px 0}
+#battle-pass-dialog .bp-season p{display:none}
+#battle-pass-dialog .bp-level>.bp-art{width:30px;height:30px}
+#battle-pass-dialog .bp-level>strong{font-size:27px}
+#battle-pass-dialog .bp-level>small{margin-top:3px;font-size:8px}
+#battle-pass-dialog .bp-mission p{margin:1px 0 3px;font-size:9px}
+#battle-pass-dialog .bp-mission{padding:5px 9px}
+#battle-pass-dialog .bp-mission>img{width:30px;height:30px}
+#battle-pass-dialog .bp-footer p{display:none}
+#battle-pass-dialog .bp-track-label>.bp-art{width:36px;height:36px}
+#battle-pass-dialog .bp-item img,#battle-pass-dialog .bp-royal .bp-item img{width:23px;height:23px}
+}
+@media(max-width:700px){
+body.prisma-theme #battle-pass-dialog{height:calc(100dvh - 16px);width:calc(100vw - 16px)}
+#battle-pass-dialog .bp-body{padding:12px;gap:7px}
+#battle-pass-dialog .bp-header .bp-art{width:37px;height:37px}
+#battle-pass-dialog .bp-header h2{font-size:19px}
+#battle-pass-dialog .bp-header small{font-size:5px;letter-spacing:.5px}
+#battle-pass-dialog .bp-header p{display:none}
+#battle-pass-dialog .bp-hero{gap:7px;padding:7px;flex-wrap:nowrap}
+#battle-pass-dialog .bp-hero>img{display:none}
+#battle-pass-dialog .bp-season h3{font-size:16px}
+#battle-pass-dialog .bp-season p{display:none}
+#battle-pass-dialog .bp-season>small{font-size:6px;letter-spacing:.4px}
+#battle-pass-dialog .bp-season>span{font-size:7px}
+#battle-pass-dialog .bp-level{width:99px;flex:none;border:0;padding:0}
+#battle-pass-dialog .bp-level>strong{font-size:25px}
+#battle-pass-dialog .bp-level strong small{font-size:12px}
+#battle-pass-dialog .bp-level>.bp-art{width:23px;height:23px;margin-right:1px}
+#battle-pass-dialog .bp-level>span{font-size:5px;letter-spacing:.4px}
+#battle-pass-dialog .bp-level>small{font-size:6px}
+#battle-pass-dialog .bp-dailies{grid-template-columns:1fr 1fr;gap:5px}
+#battle-pass-dialog .bp-mission{gap:5px;padding:6px;align-items:flex-start}
+#battle-pass-dialog .bp-mission>img{width:22px;height:22px}
+#battle-pass-dialog .bp-mission small{font-size:5px;letter-spacing:.2px}
+#battle-pass-dialog .bp-mission h3{font-size:10px}
+#battle-pass-dialog .bp-mission p{font-size:8px}
+#battle-pass-dialog .bp-mission-seal{display:none}
+#battle-pass-dialog .bp-mission-count{font-size:8px;flex-wrap:wrap;gap:2px}
+#battle-pass-dialog .bp-mission>button{font-size:7px;padding:4px!important}
+#battle-pass-dialog .bp-track-heading h3{font-size:13px}
+#battle-pass-dialog .bp-track-heading small{font-size:5px}
+#battle-pass-dialog .bp-scroll-hint{font-size:7px;padding:4px}
+#battle-pass-dialog .bp-scroll-hint svg{display:none}
+#battle-pass-dialog .bp-track{grid-template-columns:100px auto}
+#battle-pass-dialog .bp-track-label{padding:6px;grid-template-columns:25px 1fr;gap:2px 4px}
+#battle-pass-dialog .bp-track-label>.bp-art{width:25px;height:25px}
+#battle-pass-dialog .bp-track-label>small{font-size:4px;letter-spacing:.3px}
+#battle-pass-dialog .bp-track-label h3{font-size:11px}
+#battle-pass-dialog .bp-track-price{font-size:8px}
+#battle-pass-dialog .bp-track-label>.bp-active{font-size:7px;gap:3px}
+#battle-pass-dialog .bp-track-label>button{font-size:7px}
+#battle-pass-dialog .bp-track-label>button .bp-art{display:none}
+#battle-pass-dialog .bp-footer p,#battle-pass-dialog .bp-footer span{display:none}
+#battle-pass-dialog .bp-footer strong{font-size:9px}
+#battle-pass-dialog .bp-footer small{font-size:7px}
+#battle-pass-dialog .bp-confirm{left:12px;right:12px;bottom:12px;padding:12px;gap:8px}
+#battle-pass-dialog .bp-confirm>div{min-width:0;flex-basis:calc(100% - 55px)}
+#battle-pass-dialog .bp-confirm button{font-size:10px}
+}
+#battle-pass-dialog .benefit-emblem{display:inline-flex;align-items:center;justify-content:center;flex:none}
+#battle-pass-dialog .benefit-emblem img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 3px #0008)}
+#battle-pass-dialog .bp-season>span .benefit-emblem{width:16px;height:16px}
+#battle-pass-dialog .bp-level>.bp-art{display:inline-flex;vertical-align:middle;margin:0 8px 0 0}
+#battle-pass-dialog .bp-season h3 span{margin-left:5px}
+#battle-pass-dialog .bp-reward-items{flex:1;display:flex;flex-direction:column;justify-content:center;gap:3px;margin:0}
+#battle-pass-dialog .bp-item{flex:none}
+#battle-pass-dialog .bp-special{top:9px;right:26px;font-size:5px}
+#battle-pass-dialog .bp-reward-top b{background:#0a1e2ea8;padding:3px 5px;border-radius:4px;color:var(--bp-accent)}
+#battle-pass-dialog .bp-reward.milestone .bp-reward-top b{color:#ffe0a2}
+#battle-pass-dialog .bp-reward.milestone .bp-special{display:none}
+#battle-pass-dialog .bp-footer{padding:5px 10px}
+@media(max-height:780px){#battle-pass-dialog .bp-level>.bp-art{width:30px;height:30px}#battle-pass-dialog .bp-item small{font-size:6px}#battle-pass-dialog .bp-item b{font-size:11px}#battle-pass-dialog .bp-reward-grid{padding:4px 7px}#battle-pass-dialog .bp-reward{padding:5px 7px;gap:2px}}
+@media(max-width:700px){#battle-pass-dialog .bp-level>.bp-art{width:23px;height:23px;margin-right:1px}#battle-pass-dialog .bp-track-label>.bp-active{grid-column:1/3}#battle-pass-dialog .bp-track-label>button{grid-column:1/3;grid-row:auto}}
+/* Reserve real height for each reward, including three-item milestones. */
+#battle-pass-dialog .bp-header{height:62px;box-sizing:border-box}
+#battle-pass-dialog .bp-hero{height:88px;box-sizing:border-box}
+#battle-pass-dialog .bp-hero>img{height:68px}
+#battle-pass-dialog .bp-dailies{height:70px}
+#battle-pass-dialog .bp-mission{box-sizing:border-box;min-height:0}
+#battle-pass-dialog .bp-track-heading{height:28px}
+#battle-pass-dialog .bp-footer{height:56px;box-sizing:border-box}
+#battle-pass-dialog .bp-reward-items{justify-content:flex-start;gap:3px;padding-top:2px}
+#battle-pass-dialog .bp-item{min-height:22px}
+#battle-pass-dialog .bp-item img,#battle-pass-dialog .bp-royal .bp-item img{width:24px;height:24px}
+@media(max-height:780px) and (min-width:701px){
+#battle-pass-dialog .bp-body{gap:6px;padding:12px 16px}
+#battle-pass-dialog .bp-header{height:48px;padding-bottom:4px}
+#battle-pass-dialog .bp-header h2{font-size:21px}
+#battle-pass-dialog .bp-header small{font-size:7px}
+#battle-pass-dialog .bp-hero{height:63px;padding:4px 12px}
+#battle-pass-dialog .bp-hero>img{height:51px;width:47px}
+#battle-pass-dialog .bp-level>span{margin:2px 0;font-size:7px}
+#battle-pass-dialog .bp-level>small{font-size:7px;margin-top:2px}
+#battle-pass-dialog .bp-level>.bp-art{width:26px;height:26px}
+#battle-pass-dialog .bp-dailies{height:62px}
+#battle-pass-dialog .bp-mission h3{font-size:12px;margin:1px 0}
+#battle-pass-dialog .bp-mission small{font-size:6px}
+#battle-pass-dialog .bp-mission p{font-size:9px;margin:1px 0 3px}
+#battle-pass-dialog .bp-mission-count{font-size:9px;margin-bottom:2px}
+#battle-pass-dialog .bp-mission-seal>.bp-art{width:23px;height:23px}
+#battle-pass-dialog .bp-track-heading{height:26px}
+#battle-pass-dialog .bp-track-heading h3{font-size:14px}
+#battle-pass-dialog .bp-footer{height:38px}
+#battle-pass-dialog .bp-footer small{display:none}
+#battle-pass-dialog .bp-footer>.bp-art{width:27px;height:27px}
+#battle-pass-dialog .bp-item img,#battle-pass-dialog .bp-royal .bp-item img{width:23px;height:23px}
+}
+@media(max-width:700px){
+#battle-pass-dialog .bp-header{height:54px}
+#battle-pass-dialog .bp-hero{height:70px}
+#battle-pass-dialog .bp-dailies{height:86px}
+#battle-pass-dialog .bp-footer{height:56px}
+#battle-pass-dialog .bp-track-heading{height:30px}
+#battle-pass-dialog .bp-item img,#battle-pass-dialog .bp-royal .bp-item img{width:22px;height:22px}
+#battle-pass-dialog .bp-item b{font-size:11px}
+#battle-pass-dialog .bp-reward-top{font-size:8px}
+}
+#battle-pass-dialog .bp-reward.milestone .bp-reward-items{gap:1px}
+#battle-pass-dialog .bp-reward.milestone .bp-item{min-height:17px}
+#battle-pass-dialog .bp-reward.milestone .bp-item img{width:18px;height:18px}
+#battle-pass-dialog .bp-reward.milestone .bp-item b{font-size:11px;line-height:1}
+#battle-pass-dialog .bp-reward.milestone .bp-item small{font-size:6px;line-height:1}
+#battle-pass-dialog .bp-track-label>small{grid-row:1}
+#battle-pass-dialog .bp-track-label h3{grid-row:2}
+#battle-pass-dialog .bp-track-label>.bp-track-price{grid-row:3}
+#battle-pass-dialog .bp-track-label>.bp-active,#battle-pass-dialog .bp-track-label>button{grid-row:4}
+#battle-pass-dialog .bp-reward.milestone .bp-reward-items{gap:0}
+#battle-pass-dialog .bp-reward.milestone .bp-item img{width:17px;height:17px}

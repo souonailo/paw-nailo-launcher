@@ -1,0 +1,25 @@
+PAW NAILO RUST - COMO USAR
+
+1. Extraia o ZIP inteiro ou clone o repositorio/seu fork.
+2. Abra: Abrir PAW Nailo.bat
+3. Na primeira execucao (se o executavel ainda nao estiver compilado),
+   o script compila o backend Rust automaticamente.
+   Se ja estiver compilado, o launcher abre instantaneamente.
+4. Configure suas contas e use "Logar equipe".
+
+Atalhos:
+Crie um atalho na Area de Trabalho apontando para "Abrir PAW Nailo.bat".
+
+Estrutura:
+- Interface: pasta "ui" (HTML/CSS/JS).
+- Backend nativo: pasta "src-tauri" (Rust).
+
+Requisitos para compilar:
+- Windows 10/11 x64
+- Microsoft Edge WebView2 Runtime
+- Rust (rustup) e Microsoft C++ Build Tools (MSVC)
+
+Nao requer Node.js nem Python.
+
+Dados persistentes e credenciais ficam protegidos em %APPDATA%/pawnailo via DPAPI.
+Leia TUTORIAL.md para instrucoes detalhadas e MANUAL.md para operacao das contas.

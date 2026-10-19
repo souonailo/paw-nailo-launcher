@@ -1,0 +1,45 @@
+/* Compact companion to the existing Prisma HUD. */
+.expedition-tools.has-community{width:156px}
+.expedition-tools.has-community .toolbar .resources{grid-template-columns:repeat(3,minmax(0,1fr))}
+.expedition-tools .community-button{display:flex;align-items:center;justify-content:center;gap:4px;margin:0;min-width:0;border:1px solid #59849b;border-radius:7px;color:#dcedf7;background:linear-gradient(145deg,#21465a,#0b2234);box-shadow:inset 0 1px #bdeaff20,0 2px 5px #0004;transition:border-color .15s,background .15s}
+.expedition-tools .community-button img{width:32px;height:32px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 2px 2px #0008);pointer-events:none}
+.expedition-tools .community-button span{font-size:10px;font-weight:700;line-height:1.2}
+.expedition-tools .community-button:hover,.expedition-tools .community-button:focus-visible{border-color:var(--control-accent);background:linear-gradient(145deg,#315a6c,#142b42)}
+.expedition-tools .community-button:focus-visible{outline:2px solid var(--control-accent);outline-offset:2px}
+.expedition-tools [data-community="notices"]{width:100%;height:38px;padding:4px}
+.expedition-tools [data-community="notices"] img{width:27px;height:27px}
+.community-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:6px;border:1px solid #4b7b91;border-radius:9px;background:linear-gradient(130deg,#123448e8,#081a2be8);box-shadow:inset 0 1px #bdeaff24,0 4px 12px #0004}
+.community-nav .community-button{height:62px;padding:6px 3px;flex-direction:column}
+#community-dialog{--community-accent:#7bdcea;width:min(780px,calc(100vw - 32px));max-height:calc(100dvh - 32px);padding:30px;background:linear-gradient(135deg,#163749,#0a1d2e 55%,#141d33);color:#e8f2fa;border:1px solid #71a1b4;border-radius:14px;overflow:auto;box-shadow:0 24px 80px #0009}
+#community-dialog::backdrop{background:#020b18b8;backdrop-filter:blur(5px)}
+.community-header{display:flex;align-items:center;justify-content:space-between;gap:15px;padding-bottom:18px;border-bottom:1px solid #79c8e22e}
+.community-heading{display:flex;align-items:center;gap:16px;min-width:0}
+.community-heading>img{width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 3px 5px #0005)}
+.community-heading small{font-size:9px;letter-spacing:1.3px;color:#a5cbdc}
+.community-heading h2{font-size:27px;margin:5px 0 0;line-height:1.2}
+.community-header>button{flex:none;width:38px;height:38px;padding:9px;border:1px solid #66879b;border-radius:7px;background:#2b3e4c;color:#e6f1f7}
+.community-header svg{width:18px;height:18px}
+.community-intro{font-size:13px;line-height:1.7;color:#b4cedd;margin:22px 0}
+.community-hero{display:flex;align-items:center;gap:28px;padding:30px 22px;margin-top:22px;background:linear-gradient(125deg,#26506b45,#161d342e);border:1px solid #6ba8bf3a;border-radius:12px}
+.community-art{flex:none;width:150px;height:150px;display:grid;place-items:center}
+.community-art img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 9px 10px #0005)}
+.community-hero h3{font-size:22px;line-height:1.4;margin:15px 0 12px}
+.community-hero p,.community-notices p{font-size:13px;color:#aec8da;line-height:1.8;margin:0}
+.community-tag{display:inline-flex;align-items:center;gap:5px;color:#8de3cd;background:#1d51473d;border:1px solid #76c8ae42;border-radius:5px;font-size:9px;letter-spacing:.6px;padding:5px 8px;font-weight:700}
+.community-tag.upcoming{color:#eac687;background:#60492530;border-color:#c6a46c42}
+.community-tag svg{width:12px;height:12px}
+.community-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.community-preview article{display:flex;flex-direction:column;gap:8px;padding:18px 14px;background:#1a3b4c55;border:1px solid #77aabe35;border-radius:8px}
+.community-preview small{color:var(--community-accent);font-size:10px;letter-spacing:2px}
+.community-preview strong{font-size:13px}
+.community-preview span{font-size:10px;color:#9eb8cb}
+.community-notices{display:grid;gap:12px}
+.community-notices article{border:1px solid #77aabe35;border-radius:9px;padding:18px 20px;background:#18384b65}
+.community-notices h3{font-size:17px;margin:12px 0 7px}
+.community-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:24px;padding-top:18px;border-top:1px solid #79c8e22e}
+.community-footer>span{color:#91adbf;font-size:9px;letter-spacing:1px}
+.community-footer button{border:1px solid #699db4;border-radius:6px;padding:10px 15px;background:#20475c;color:#e7eef3;font-size:12px;font-weight:700}
+@media(max-width:1450px) and (min-width:701px){body.prisma-theme .hud-nav.assistant-detached.has-equipment.has-future-features{right:182px;--nav-width:min(970px,calc(100vw - 484px))}}
+@media(max-width:1200px) and (min-width:701px){body.prisma-theme .hud-nav.assistant-detached.has-equipment.has-future-features{--nav-width:calc(100vw - 484px)}}
+@media(max-width:700px){.expedition-tools.has-community{width:132px}.expedition-tools [data-community="notices"]{height:34px}.community-nav{gap:5px;padding:5px}.community-nav .community-button{height:51px;padding:4px 2px;gap:3px}.expedition-tools .community-button img{width:27px;height:27px}.expedition-tools .community-button span{font-size:9px}#community-dialog{padding:22px 18px;width:calc(100vw - 24px)}.community-heading{gap:10px}.community-heading>img{width:42px;height:42px}.community-heading small{font-size:7px;letter-spacing:.7px}.community-heading h2{font-size:23px}.community-hero{flex-direction:column;gap:15px;text-align:center;padding:22px 16px}.community-art{width:110px;height:110px}.community-hero h3{font-size:20px}.community-preview{gap:7px}.community-preview article{padding:13px 9px}.community-preview strong{font-size:11px}.community-footer>span{font-size:8px;max-width:90px}}
+@media(prefers-reduced-motion:reduce){.expedition-tools .community-button{transition:none}}

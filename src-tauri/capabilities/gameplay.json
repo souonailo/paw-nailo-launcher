@@ -1,0 +1,22 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "gameplay-state",
+  "description": "Read-only gameplay observation from account game views.",
+  "local": true,
+  "remote": {
+    "urls": [
+      "https://pokeascendedworld.com/**",
+      "https://*.pokeascendedworld.com/**",
+      "https://pokeidle.io/**",
+      "https://*.pokeidle.io/**",
+      "https://poke.idleworld.online/**",
+      "https://*.idleworld.online/**"
+    ]
+  },
+  "webviews": ["game-account-*", "embedded-acc-*", "account-viewer-*", "family-*-viewer-*"],
+  "permissions": [
+    "core:default",
+    "opener:default",
+    "allow-report-gameplay"
+  ]
+}

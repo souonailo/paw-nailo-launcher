@@ -1,0 +1,375 @@
+.expedition-tools .daily-launcher{position:relative;height:38px;width:100%;padding:3px}
+.expedition-tools .daily-launcher img{width:27px;height:27px}
+.daily-ready{display:none;position:absolute;right:3px;top:3px;width:5px;height:5px;border-radius:50%;background:#f6d790;box-shadow:0 0 5px #ffd16b}
+.has-reward .daily-ready{display:block}
+#daily-checkin-dialog{width:min(780px,calc(100vw - 30px));max-height:calc(100dvh - 24px);padding:28px;background:linear-gradient(135deg,#18374a,#091b2e 60%,#171f34);border:1px solid #80b5c9;border-radius:14px;color:#e8f2fa;overflow:auto;box-shadow:0 20px 80px #0009}
+#daily-checkin-dialog::backdrop{background:#020b18b8;backdrop-filter:blur(5px)}
+.daily-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:16px;border-bottom:1px solid #79c8e22e}
+.daily-header>div{display:flex;align-items:center;gap:14px;min-width:0}
+.daily-header img{width:52px;height:52px;object-fit:contain}
+.daily-header small{font-size:8px;letter-spacing:1px;color:#a1c6d8}
+.daily-header h2{margin:5px 0;font-size:26px}
+.daily-header p{margin:0;color:#abc7d8;font-size:12px}
+.daily-header>button{flex:none;width:36px;height:36px;padding:8px;border:1px solid #66879b;background:#273f50;border-radius:7px;color:#e8f2fa}
+.daily-header svg{width:18px;height:18px}
+.daily-summary{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:18px 0;font-size:12px;color:#c3d8e5}
+.daily-summary strong{border:1px solid #c9a96266;background:#7d602225;color:#f4d18b;border-radius:20px;padding:6px 10px;font-size:10px;white-space:nowrap}
+.daily-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.daily-day{position:relative;min-width:0;display:flex;align-items:center;flex-direction:column;justify-content:space-between;height:96px;padding:9px 4px 8px;border:1px solid #50738966;border-radius:8px;background:linear-gradient(140deg,#1a3546,#101f30);overflow:hidden}
+.daily-number{font-size:9px;color:#8dabbe;font-weight:700;letter-spacing:.5px}
+.daily-day>img{width:32px;height:32px;object-fit:contain;filter:drop-shadow(0 2px 2px #0006)}
+.daily-day>strong{display:flex;flex-direction:column;align-items:center;font-size:12px;line-height:1.4;color:#d8e7f2}
+.daily-day>strong small{font-size:8px;font-weight:500;color:#a4c2d4}
+.daily-bonus{position:absolute;right:2px;top:2px;font-size:6px;color:#e9c67e;background:#5a442be8;padding:2px 3px;border-radius:3px}
+.daily-day.is-current{border-color:#ebc780;background:linear-gradient(145deg,#6b54333b,#192c40);box-shadow:inset 0 0 18px #efc97812,0 0 0 1px #d8b97155}
+.daily-day.is-current .daily-number{color:#f0d6a2}
+.daily-day.is-claimed{border-color:#5c9f8b66;background:#1c403733}
+.daily-day.is-claimed>img{opacity:.5}
+.daily-check{position:absolute;inset:28px 0 auto;display:grid;place-items:center;color:#82d8b5}
+.daily-check svg{width:28px;height:28px;filter:drop-shadow(0 1px 2px #051e15)}
+.daily-selected{display:flex;align-items:center;justify-content:center;gap:12px;padding:16px;margin-top:16px;border:1px solid #7cb8d02e;background:#1a394d55;border-radius:8px}
+.daily-selected>img{width:36px;height:36px;object-fit:contain}
+.daily-selected>div{display:flex;flex-direction:column;gap:4px}
+.daily-selected small{font-size:8px;letter-spacing:.7px;color:#a3c3d5}
+.daily-selected strong{font-size:15px;color:#f3d89c}
+body.prisma-theme #daily-checkin-dialog .daily-claim{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:12px!important;margin-top:14px;border:1px solid #dfbf7a;border-radius:8px;background:linear-gradient(135deg,#efd59a,#c49c54);color:#302719;font:750 14px var(--pw-font);box-shadow:inset 0 1px #fff5,0 4px 15px #0003}
+.daily-claim svg{width:19px;height:19px}
+body.prisma-theme #daily-checkin-dialog .daily-claim:disabled{background:#253e4c;border-color:#547887;color:#9ebbc8;box-shadow:none;opacity:1}
+.daily-note{text-align:center;color:#93b0c3;font-size:10px;line-height:1.7;margin:13px 0 0}
+@media(max-width:700px){.expedition-tools .daily-launcher{height:34px}.expedition-tools .daily-launcher img{width:23px;height:23px}#daily-checkin-dialog{padding:22px 17px}.daily-header img{width:40px;height:40px}.daily-header>div{gap:8px}.daily-header h2{font-size:22px}.daily-header small{font-size:6px}.daily-header p{font-size:10px}.daily-summary{font-size:10px;margin:12px 0}.daily-calendar{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.daily-day{height:65px;padding:5px 3px}.daily-day>img{width:25px;height:25px}.daily-day>strong{font-size:10px}.daily-day>strong small{font-size:7px}.daily-number{font-size:7px}.daily-selected{padding:10px;margin-top:12px}.daily-note{font-size:8px;margin-top:10px}}
+/* Monthly calendar keeps seven weekdays at every screen size. */
+#daily-checkin-dialog{width:min(860px,calc(100vw - 24px));padding:24px;max-height:calc(100dvh - 24px)}
+.monthly-overview{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:18px 0;padding:16px 20px;background:linear-gradient(110deg,#193e51,#162a41);border:1px solid #6acee83d;border-radius:10px}
+.monthly-overview small{color:#8ecdd9;font-size:9px;letter-spacing:1px}.monthly-overview h3{margin:5px 0 4px;text-transform:capitalize;font-size:23px}.monthly-overview span{color:#a7c2d1;font-size:11px}.monthly-count{text-align:right}.monthly-count strong{display:block;color:#f4d18b;font-size:32px}.monthly-count strong small{font-size:15px;letter-spacing:0;color:#94b3c9}
+.monthly-week,.monthly-calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}.monthly-week{margin-bottom:7px;text-align:center;color:#93c6d6;font-size:10px;font-weight:700}.monthly-empty{min-height:0}
+body.prisma-theme #daily-checkin-dialog .monthly-day{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:7px;min-width:0;height:64px;padding:8px 3px!important;border:1px solid #496c82;border-radius:8px;background:linear-gradient(135deg,#1a384c,#112538);color:#ecf4fa;transition:transform .18s,border-color .18s,box-shadow .18s}
+.monthly-day b{font-size:18px}.monthly-day span{font-size:9px;color:#a9c6d8}.monthly-day span svg{width:17px;height:17px}.monthly-day.is-missed span{color:#b5c7de}
+body.prisma-theme #daily-checkin-dialog .monthly-day.is-current{border-color:#ebc87d;background:linear-gradient(135deg,#78613a66,#24384d);box-shadow:inset 0 0 22px #ffd88f14}.monthly-day.is-current span{color:#f5d790}.monthly-day i{position:absolute;right:8px;top:8px;width:5px;height:5px;background:#f5d790;border-radius:50%}
+body.prisma-theme #daily-checkin-dialog .monthly-day.is-claimed{border-color:#5aac8c;background:#17433b88;opacity:1;color:#a2e9ce}.monthly-day.is-claimed span{color:#87dfb7}
+body.prisma-theme #daily-checkin-dialog .monthly-day.is-future{opacity:.45;background:#102537}
+body.prisma-theme #daily-checkin-dialog button:not(:disabled):hover{border-color:#86e4f1;box-shadow:0 0 13px #70d9ed30;transform:translateY(-2px)}
+.monthly-today{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:14px 0 18px}.monthly-today>div{display:grid;gap:5px}.monthly-today strong{font-size:13px}.monthly-today span{font-size:11px;color:#a3c1d3}
+body.prisma-theme #daily-checkin-dialog .monthly-today .daily-claim{width:auto;min-width:170px;margin:0;font-size:12px}
+.monthly-rewards{border:1px solid #657d983e;border-radius:10px;padding:14px;background:#0a1c30aa}.monthly-rewards-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.monthly-rewards-heading h3{font-size:14px;margin:0}.monthly-rewards-heading span{color:#94b6c8;font-size:10px}.monthly-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+body.prisma-theme #daily-checkin-dialog .monthly-tabs button{display:flex;justify-content:center;align-items:center;gap:5px;position:relative;min-width:0;padding:9px 3px!important;font-size:10px;border:1px solid #4e7184;border-radius:6px;background:#173246;color:#b7cedd;transition:.18s}.monthly-tabs svg{width:12px;height:12px}.monthly-tabs i{width:5px;height:5px;border-radius:50%;background:#f4d78d}
+body.prisma-theme #daily-checkin-dialog .monthly-tabs [aria-selected=true]{color:#f7dc9a;border-color:#d8bd79;background:#705b2c44}.monthly-tabs .is-claimed{color:#a0e7be!important}
+.monthly-prize{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:16px}.monthly-prize small{font-size:9px;color:#94bdd0}.monthly-prize h4{font-size:16px;margin:5px 0 12px;color:#f4d598}.monthly-items{display:flex;flex-wrap:wrap;gap:10px}.monthly-items>div{display:flex;align-items:center;gap:7px;padding:7px 10px;background:#213e5166;border:1px solid #6cc4dd26;border-radius:7px}.monthly-items img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 3px #0007)}.monthly-items span{display:grid;gap:3px}.monthly-items b{font-size:12px}.monthly-items small{font-size:9px}
+body.prisma-theme #daily-checkin-dialog .monthly-prize>button,body.prisma-theme #daily-checkin-dialog .monthly-recovery button{padding:10px 12px!important;background:linear-gradient(135deg,#285769,#174253);border:1px solid #68b8ca;border-radius:7px;font-size:11px;color:#dff5fa;white-space:nowrap}.monthly-prize>button:disabled{opacity:.55}
+.monthly-recovery{display:flex;align-items:center;gap:10px;padding:16px;margin-top:12px;border:1px solid #bc8fe7;background:#422c6144;border-radius:8px}.monthly-recovery>div{display:grid;gap:6px;flex:1}.monthly-recovery strong{font-size:13px}.monthly-recovery span{font-size:11px;color:#c5b8dc}.monthly-recovery small{font-size:10px;color:#ecc8fa}.monthly-recovery button svg{vertical-align:middle;width:15px;height:15px}
+@media(max-width:600px){#daily-checkin-dialog{padding:15px}.daily-header h2{font-size:21px}.monthly-overview{padding:12px}.monthly-overview h3{font-size:18px}.monthly-count strong{font-size:25px}.monthly-count span{font-size:9px}.monthly-week,.monthly-calendar{gap:4px}.monthly-week{font-size:8px}body.prisma-theme #daily-checkin-dialog .monthly-day{height:53px;padding:5px 2px!important}.monthly-day b{font-size:15px}.monthly-day span{font-size:7px}.monthly-today{align-items:stretch;flex-direction:column;gap:9px}.monthly-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.monthly-prize{align-items:stretch;flex-direction:column}.monthly-recovery{flex-wrap:wrap}.monthly-recovery>div{flex-basis:100%}.monthly-rewards-heading span{font-size:8px}}
+@media(prefers-reduced-motion:reduce){body.prisma-theme #daily-checkin-dialog button{transition:none!important;transform:none!important}}
+@media(min-width:601px){body.prisma-theme #daily-checkin-dialog .monthly-day{height:52px}.monthly-overview{margin:12px 0;padding:12px 18px}.daily-header{padding-bottom:12px}.daily-header h2{font-size:23px}.monthly-today{margin:12px 0}.monthly-rewards{padding:12px}.monthly-prize{padding-top:12px}.monthly-prize h4{margin-bottom:9px}}
+@media(min-width:601px){#daily-checkin-dialog{padding:20px}.daily-header img{width:44px;height:44px}.monthly-overview{margin:10px 0}.monthly-overview h3{font-size:21px}body.prisma-theme #daily-checkin-dialog .monthly-day{height:48px}.daily-note{margin-top:8px;font-size:9px}}
+/* Online benefits reuse the monthly dialog and the game's existing artwork. */
+.benefits-tabs{display:flex;gap:7px;padding:12px 0 0}body.prisma-theme #daily-checkin-dialog .benefits-tabs button{flex:1;padding:10px!important;border:1px solid #567f95;border-radius:7px;background:#163346;color:#acc8d7;font-size:12px;transition:.18s}body.prisma-theme #daily-checkin-dialog .benefits-tabs [aria-current=page]{border-color:#89dbe7;color:#e6fcff;background:linear-gradient(120deg,#286575,#1b425a);box-shadow:inset 0 -2px #86ddea}
+.online-hero{display:flex;align-items:center;gap:18px;margin:18px 0;padding:18px;background:radial-gradient(ellipse at 10% 20%,#4c93944d,transparent 55%),linear-gradient(120deg,#173a4e,#151e36);border:1px solid #6db4cc55;border-radius:11px;overflow:hidden}.online-hero>img{width:100px;height:112px;object-fit:contain;filter:drop-shadow(0 6px 10px #0006)}.online-hero>div{flex:1}.online-hero small{font-size:9px;color:#94cdd9;letter-spacing:1px}.online-hero h3{font-size:21px;margin:6px 0;color:#f0e0b3;line-height:1.25}.online-hero p{font-size:11px;color:#a8c1d3;margin:8px 0 0}.online-hero .online-clock{flex:none;display:grid;gap:8px;justify-items:center;padding:16px;border:1px solid #81cae53e;border-radius:8px;background:#10263c99}.online-clock>svg{width:25px;height:25px;color:#83d8eb}.online-clock strong{font-size:20px;color:#d8f5fc}.online-clock span{font-size:9px;color:#a3c6d7}
+.online-packages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.online-package{display:flex;flex-direction:column;min-width:0;padding:17px 14px;background:linear-gradient(140deg,#1b3c50,#102336);border:1px solid #51778c;border-top:3px solid var(--package-accent);border-radius:10px;box-shadow:inset 0 1px #d8f8ff10}.online-package-head{display:flex;align-items:center;gap:9px}.online-package-head>img{width:42px;height:42px;object-fit:contain}.online-package-head>div{flex:1}.online-package-head small{font-size:8px;letter-spacing:1px;color:var(--package-accent)}.online-package h3{font-size:18px;margin:5px 0 0}.online-package-head>svg{width:19px;height:19px;color:var(--package-accent)}.online-package>p{font-size:10px;color:#a6c5d4;margin:13px 0}.online-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;flex:1;align-content:start}.online-items>div{min-width:0;display:flex;flex-direction:column;align-items:center;padding:10px 3px;background:#0a203480;border:1px solid #66acc52e;border-radius:8px}.online-items img{width:38px;height:38px;object-fit:contain;filter:drop-shadow(0 2px 3px #0007)}.online-items b{font-size:13px;margin:7px 0 5px;color:#eddfb2}.online-items span{font-size:9px;color:#b2ccda;text-align:center}.online-meter{height:5px;background:#071b2b;margin-top:20px;border-radius:5px;overflow:hidden}.online-meter i{display:block;height:100%;background:linear-gradient(90deg,var(--package-accent),#e8faff);border-radius:5px}.online-remaining{text-align:center;font-size:10px;color:#a5c3d4;margin:10px 0 12px;font-variant-numeric:tabular-nums}
+body.prisma-theme #daily-checkin-dialog .online-package button{padding:11px 6px!important;border:1px solid var(--package-accent);border-radius:7px;background:linear-gradient(130deg,#2c6574,#21475e);color:#edfafd;font-weight:700;font-size:12px;transition:.18s}body.prisma-theme #daily-checkin-dialog .online-package button:disabled{background:#1b3345;border-color:#4a7084;color:#92adbd;opacity:1}.online-package.is-ready{border-color:var(--package-accent);box-shadow:0 0 18px #70d2ec18}.online-package.is-ready .online-remaining{color:#f3da92}.online-package.is-claimed{border-color:#63a48e;background:linear-gradient(145deg,#1a423f,#112c35)}.online-package.is-claimed .online-remaining{color:#9eddbd}
+@media(max-width:650px){.online-hero{gap:10px;padding:12px;flex-wrap:wrap}.online-hero>img{width:62px;height:80px}.online-hero h3{font-size:16px}.online-hero small{font-size:7px}.online-hero .online-clock{flex-basis:100%;display:flex;justify-content:center;align-items:center;padding:9px}.online-clock strong{font-size:16px}.online-packages{grid-template-columns:1fr}.online-package{padding:14px}.online-items{grid-template-columns:repeat(4,minmax(0,1fr))}.online-items img{width:31px;height:31px}.online-items span{font-size:8px}.online-package h3{font-size:17px}.online-package>p{margin:9px 0}.online-meter{margin-top:12px}}
+@media(min-width:601px){body.prisma-theme #daily-checkin-dialog:has(.monthly-calendar) .monthly-day{height:42px}}
+/* Prisma calendar v2: prominent recovery actions and a dedicated prize panel. */
+#daily-checkin-dialog:has(.monthly-layout){width:min(1080px,calc(100vw - 24px));padding:22px}
+.monthly-title-art{display:grid;place-items:center;width:56px;height:56px;border:1px solid #80cfe66e;border-radius:12px;background:radial-gradient(circle,#47769488,#132b4399);box-shadow:inset 0 1px #e4fbff24,0 4px 12px #0004}.monthly-title-art img{width:46px!important;height:46px!important}
+.monthly-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;margin-top:16px}.monthly-main{min-width:0}.monthly-layout .monthly-overview{position:relative;overflow:hidden;margin:0 0 14px;padding:14px 18px;background:radial-gradient(ellipse at 100% 0,#85714833,transparent 55%),linear-gradient(120deg,#194454,#122c43);border-color:#79b6cf66;box-shadow:inset 0 1px #d3f8ff18}.monthly-layout .monthly-overview h3{font-size:25px;margin:6px 0;text-transform:none;color:#eef7fd}.monthly-layout .monthly-overview small{font-size:9px;color:#8ce0e6;letter-spacing:1.2px}.monthly-layout .monthly-count strong{font-size:38px;line-height:1;color:#f2d59c}.monthly-layout .monthly-count span{display:block;margin-top:7px;font-size:10px;letter-spacing:.5px}.monthly-layout .monthly-week{margin-bottom:9px;color:#b4d4e4;font-size:10px;letter-spacing:.7px}.monthly-layout .monthly-calendar{gap:7px}
+body.prisma-theme #daily-checkin-dialog:has(.monthly-layout) .monthly-day{height:74px;padding:8px 7px!important;gap:4px;justify-content:flex-start;border-radius:9px;overflow:hidden;box-shadow:inset 0 1px #d9f8ff15;transition:transform .18s,box-shadow .18s,border-color .18s;background:linear-gradient(135deg,#1b394e,#132d40)}
+.monthly-day .monthly-day-top{display:flex;justify-content:space-between;align-items:center;width:100%;color:#e6f3ff;min-height:19px}.monthly-day-top b{font-size:19px;font-variant-numeric:tabular-nums}.monthly-day-top em{font:700 6px var(--pw-font);letter-spacing:.3px;font-style:normal;color:#e4c4fa}.monthly-day-top>svg{width:12px;height:12px;color:#93bacd}
+body.prisma-theme #daily-checkin-dialog .monthly-day.is-missed{border-color:#9c77ce;background:radial-gradient(ellipse at top,#6b4b8155,transparent 90%),linear-gradient(135deg,#302c4f,#202b44);box-shadow:inset 0 1px #dbbdff22,0 2px 8px #0a102344}.monthly-day.is-missed .monthly-day-top b{color:#f3eaff}.monthly-day .monthly-day-action{width:100%;display:flex;align-items:center;justify-content:center;padding:4px 1px;border:1px solid #cd9ff08c;border-radius:5px;background:linear-gradient(110deg,#9b6fc0,#635399);box-shadow:inset 0 1px #ffe8ff33;color:#fff3ff;font-size:10px;font-weight:800;line-height:1.1}.monthly-day .monthly-day-cost{display:flex;align-items:center;justify-content:center;gap:3px;color:#f3dcff;font-size:10px;font-weight:800;line-height:1}.monthly-day-cost img{width:12px;height:12px;object-fit:contain;filter:drop-shadow(0 0 3px #64d5ff77)}
+body.prisma-theme #daily-checkin-dialog .monthly-day.is-current{border-color:#edce82;box-shadow:inset 0 0 22px #e8c27222,0 0 10px #efd88822;background:linear-gradient(135deg,#69533288,#293848)}.monthly-day.is-current .monthly-day-action{color:#302918;background:linear-gradient(110deg,#f0d793,#bf9c56);border-color:#ffde98}.monthly-day.is-current .monthly-day-top em{color:#ffe5a1}
+body.prisma-theme #daily-checkin-dialog .monthly-day.is-claimed{background:linear-gradient(135deg,#254a42,#18373a);border-color:#70ac98;opacity:1}.monthly-day.is-claimed .monthly-day-top b{color:#b9e9d3}.monthly-day .monthly-day-status{display:flex;align-items:center;justify-content:center;gap:4px;font-size:9px;font-weight:600;color:#a8c4d6;margin:auto 0 4px}.monthly-day-status svg{width:14px;height:14px}.monthly-day.is-claimed .monthly-day-status{color:#9bdfbd}.monthly-day.is-today{outline:1px solid #e6c77a;outline-offset:2px}.monthly-day.is-today .monthly-day-top em{color:#efdfb1}
+body.prisma-theme #daily-checkin-dialog .monthly-day.is-future{opacity:1;border-color:#3d566b;background:linear-gradient(135deg,#142738,#102132);box-shadow:none}.monthly-day.is-future .monthly-day-top b{color:#819bac}.monthly-day.is-future .monthly-day-status{color:#68889c;font-size:8px}.monthly-day.is-future .monthly-day-top>svg{color:#5c7b8e}
+body.prisma-theme #daily-checkin-dialog .monthly-day.is-missed:not(:disabled):hover{border-color:#efc6ff;box-shadow:0 0 16px #b584ea55,inset 0 0 18px #b688e322;transform:translateY(-3px)}body.prisma-theme #daily-checkin-dialog button:focus-visible{outline:2px solid #bef1ff;outline-offset:3px}
+.monthly-legend{display:flex;flex-wrap:wrap;gap:13px;margin:12px 0;color:#b7cfda;font-size:9px}.monthly-legend span{display:flex;align-items:center;gap:5px}.monthly-legend span:before{content:'';width:6px;height:6px;border-radius:50%;background:#ad81db;box-shadow:0 0 6px #ad81db44}.monthly-legend .legend-current:before{background:#edce82}.monthly-legend .legend-done:before{background:#80cba9}.monthly-legend .legend-future:before{background:#627f94}
+.monthly-layout .monthly-today{padding:12px 0;margin:0;border-top:1px solid #78b2cc28;gap:10px}.monthly-layout .monthly-today strong{font-size:12px}.monthly-layout .monthly-today span{font-size:10px;line-height:1.4}.monthly-layout .monthly-today .daily-claim{min-width:138px;font-size:11px!important;padding:11px!important}.monthly-help{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid #ac7fe55c;border-radius:8px;background:linear-gradient(100deg,#4d355a66,#222a4344)}.monthly-help>img{width:25px;height:25px;object-fit:contain;filter:drop-shadow(0 0 6px #73caff55)}.monthly-help span{font-size:10px;color:#c9bddd;line-height:1.5}.monthly-help strong{color:#eddbff}.monthly-help b{color:#f2dcff}
+.monthly-side{align-self:start;padding:16px;background:radial-gradient(ellipse at top,#66513122,transparent 60%),linear-gradient(145deg,#142f44,#0d2135);border:1px solid #729db76b;box-shadow:inset 0 1px #ceefff16,0 6px 18px #0003}.monthly-side .monthly-rewards-heading{justify-content:flex-start;gap:10px;margin-bottom:15px}.monthly-rewards-heading>img{width:37px;height:37px;object-fit:contain;filter:drop-shadow(0 3px 3px #0005)}.monthly-rewards-heading small{font-size:8px;letter-spacing:1px;color:#d3bc7f}.monthly-side .monthly-rewards-heading h3{font-size:15px;margin:4px 0 0}.monthly-side .monthly-tabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}body.prisma-theme #daily-checkin-dialog .monthly-side .monthly-tabs button{flex-direction:column;gap:3px;min-height:57px;padding:8px!important;background:linear-gradient(135deg,#1d3b51,#132b40);font-size:10px;position:relative}.monthly-tabs button b{font-size:20px;color:#e8f3ff;line-height:1}.monthly-tabs button span{font-size:9px;color:#9cb9cd}.monthly-tabs button[data-reward-tab=full] b{font-size:13px}.monthly-tabs button>svg,.monthly-tabs button>i{position:absolute;right:7px;top:6px}body.prisma-theme #daily-checkin-dialog .monthly-side .monthly-tabs [aria-selected=true]{border-color:#e1c48c;background:linear-gradient(135deg,#80633744,#24384d);box-shadow:inset 0 0 16px #e5c47618}.monthly-tabs [aria-selected=true] b{color:#f6dfa9}.monthly-tabs .is-ready b{color:#efd799}
+.monthly-side .monthly-prize{display:flex;flex-direction:column;align-items:stretch;padding-top:17px;gap:14px}.monthly-prize-progress{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:9px;color:#bbd3e1}.monthly-prize-progress strong{font-size:6px;color:#dac081;letter-spacing:.6px}.monthly-prize-meter{height:5px;border-radius:4px;background:#07182a;overflow:hidden;margin-top:8px}.monthly-prize-meter i{display:block;height:100%;background:linear-gradient(90deg,#7acdd8,#ebd29c);border-radius:4px}.monthly-side .monthly-prize h4{margin:15px 0 12px;font-size:17px;color:#f4dcac}.monthly-side .monthly-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.monthly-side .monthly-items>div{padding:10px 4px;gap:5px;flex-direction:column;text-align:center;background:linear-gradient(135deg,#22425888,#17304588);border-color:#6195b345}.monthly-side .monthly-items img{width:36px;height:36px}.monthly-side .monthly-items b{font-size:15px;color:#f0deb4}.monthly-side .monthly-items small{font-size:9px;line-height:1.3;min-height:12px;color:#a8c7da}.monthly-side .monthly-items span{gap:5px}
+body.prisma-theme #daily-checkin-dialog .monthly-side .monthly-prize>button{width:100%;min-height:41px;font-size:12px;background:linear-gradient(135deg,#d8bb7b,#a78646);color:#2b2416;border-color:#ebd393}body.prisma-theme #daily-checkin-dialog .monthly-side .monthly-prize>button:disabled{background:#1d3547;color:#9fb7c7;border-color:#4e6e84;opacity:1}.monthly-prize-note{font-size:9px;color:#8fadc3;text-align:center;margin:12px 0 0}
+.monthly-recovery{position:sticky;bottom:0;z-index:5;padding:18px;background:linear-gradient(115deg,#403353fa,#172d45fa);border:1px solid #c496ed;border-radius:11px;box-shadow:0 -10px 35px #040a19aa,inset 0 1px #e9c5ff22;gap:14px;margin-top:16px}.monthly-recovery>img{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 0 10px #68c9ff77)}.monthly-recovery>div>small{font-size:8px;color:#d0a9f0;letter-spacing:1px}.monthly-recovery>div>strong{font-size:19px;color:#f3eaff}.monthly-recovery>div>b{font-size:11px;color:#d9eaff}.monthly-insufficient{color:#ffb4ae!important}body.prisma-theme #daily-checkin-dialog .monthly-recovery [data-recovery-confirm]{font-size:12px;background:linear-gradient(130deg,#ba86de,#7761b4);border-color:#e4b6ff;color:#fff2ff;padding:13px 16px!important;box-shadow:inset 0 1px #ffeaff22,0 3px 15px #8860bd55}body.prisma-theme #daily-checkin-dialog .monthly-recovery [data-recovery-confirm]:disabled{background:#354057;border-color:#657086;color:#91a5b9;box-shadow:none;opacity:1}
+@media(max-width:1000px) and (min-width:801px){.monthly-layout{grid-template-columns:minmax(0,1fr) 265px;gap:13px}.monthly-side{padding:12px}.monthly-layout .monthly-overview h3{font-size:22px}.monthly-day-top em{font-size:5px}.monthly-day .monthly-day-action{font-size:9px}body.prisma-theme #daily-checkin-dialog:has(.monthly-layout) .monthly-day{padding:7px 4px!important}.monthly-layout .monthly-today{align-items:flex-start;flex-direction:column}.monthly-layout .monthly-today .daily-claim{width:100%}}
+@media(max-width:800px){#daily-checkin-dialog:has(.monthly-layout){padding:16px}.monthly-layout{grid-template-columns:1fr;gap:14px}.monthly-side .monthly-tabs{grid-template-columns:repeat(3,minmax(0,1fr))}.monthly-side .monthly-items{grid-template-columns:repeat(4,minmax(0,1fr))}.monthly-layout .monthly-overview h3{font-size:22px}.monthly-recovery{flex-wrap:wrap}.monthly-recovery>div{flex-basis:calc(100% - 60px)}.monthly-recovery button{flex:1}.monthly-side .monthly-prize h4{font-size:17px}}
+@media(max-width:480px){.monthly-layout .monthly-overview{padding:12px}.monthly-layout .monthly-overview h3{font-size:18px}.monthly-layout .monthly-count strong{font-size:30px}.monthly-layout .monthly-overview small{font-size:7px}.monthly-layout .monthly-week{font-size:8px}.monthly-layout .monthly-calendar{gap:4px}body.prisma-theme #daily-checkin-dialog:has(.monthly-layout) .monthly-day{height:72px;padding:5px 2px!important;border-radius:6px;gap:5px}.monthly-day-top b{font-size:15px}.monthly-day-top em{font-size:4px}.monthly-day .monthly-day-action{font-size:7px;padding:5px 0}.monthly-day .monthly-day-status{font-size:7px}.monthly-day-status svg{width:11px;height:11px}.monthly-day .monthly-day-cost{font-size:10px}.monthly-day-cost img{width:13px;height:13px}.monthly-legend{gap:8px;font-size:8px}.monthly-title-art{width:44px;height:44px}.monthly-title-art img{width:36px!important;height:36px!important}.monthly-side .monthly-items{grid-template-columns:repeat(2,minmax(0,1fr))}.monthly-help span{font-size:9px}.monthly-layout .monthly-today{flex-direction:column;align-items:stretch}.monthly-layout .monthly-today .daily-claim{width:100%}.monthly-recovery>div>strong{font-size:16px}.monthly-recovery>div>b{font-size:10px}.monthly-recovery button{font-size:10px!important}.monthly-recovery{padding:12px;gap:10px}}
+@media(prefers-reduced-motion:reduce){body.prisma-theme #daily-checkin-dialog .monthly-day{transition:none!important;transform:none!important}}
+.monthly-layout .monthly-count strong small{font-size:14px;letter-spacing:0;color:#a6c3d5}
+@media(max-width:1000px) and (min-width:801px){body.prisma-theme #daily-checkin-dialog:has(.monthly-layout) .monthly-day{height:64px}.monthly-layout .monthly-today{flex-direction:row;align-items:center}.monthly-layout .monthly-today .daily-claim{width:auto;min-width:132px}.monthly-layout .monthly-today>div{flex:1}}
+.monthly-day-top b{line-height:1}.monthly-day .monthly-day-top{min-height:18px}
+@media(min-width:1001px){body.prisma-theme #daily-checkin-dialog:has(.monthly-layout) .monthly-day{padding:7px!important}}
+@media(max-width:1000px) and (min-width:801px){body.prisma-theme #daily-checkin-dialog:has(.monthly-layout) .monthly-day{padding:5px 4px!important;gap:3px}.monthly-day .monthly-day-top{min-height:17px}.monthly-day-top b{font-size:17px}.monthly-day .monthly-day-action{padding:3px 1px}.monthly-day .monthly-day-cost{font-size:10px}}
+.monthly-day-action .recovery-short{display:none}.monthly-day-action .recovery-full{font:inherit;color:inherit}
+@media(max-width:480px){.monthly-day-action .recovery-full{display:none}.monthly-day-action .recovery-short{display:inline;font:800 10px var(--pw-font);color:inherit}.monthly-day.is-missed .monthly-day-top em{display:none}.monthly-day.is-today .monthly-day-top em{font-size:5px}.monthly-day.is-missed .monthly-day-action{padding:4px 0}}
+/* Original Prisma insignias, layered crystal surfaces and monthly milestones. */
+body.prisma-theme #daily-checkin-dialog .daily-header>div>.benefit-emblem{width:56px;height:56px}
+#daily-checkin-dialog{width:min(1080px,calc(100vw - 24px));background:radial-gradient(ellipse at 5% 0,#23566880,transparent 45%),radial-gradient(ellipse at 100% 100%,#49306450,transparent 50%),linear-gradient(135deg,#112c40,#091c30 65%,#18223b)}
+.benefit-emblem{width:56px;height:56px;flex:none;filter:drop-shadow(0 3px 5px #020d1b88)}
+.daily-header h2{color:#f0f7ff;text-shadow:0 2px 8px #061828;letter-spacing:-.4px}.daily-header small{color:#87dce7}.daily-header{border-image:linear-gradient(90deg,#80deef,#b998e966,transparent) 1}
+body.prisma-theme #daily-checkin-dialog .benefits-tabs button{display:flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(145deg,#1b3d54,#152a40);box-shadow:inset 0 1px #c2e6ff16;min-height:48px}.benefits-tabs .benefit-emblem{width:30px;height:30px}.benefits-tabs [aria-current=page]{background:linear-gradient(115deg,#286778,#273d64)!important;border-color:#87e8ed!important;box-shadow:inset 0 -2px #8ce8ef,0 0 15px #6ccce322!important}
+.monthly-layout .monthly-overview{gap:12px;background:radial-gradient(ellipse at right,#86644355,transparent 65%),linear-gradient(125deg,#215365,#142e49);border-color:#78d1e580}.monthly-overview>.benefit-emblem{width:54px;height:54px}.monthly-overview>div:first-of-type{flex:1}.monthly-layout .monthly-count strong{color:#ffe0a0;text-shadow:0 0 16px #f3c57522}
+.monthly-status-strip{display:flex;flex-wrap:wrap;gap:8px;margin:-3px 0 15px}.monthly-status-strip>span{display:flex;gap:5px;align-items:center;padding:6px 8px;border:1px solid #74b7ce35;border-radius:6px;background:#10263db0;font-size:9px;color:#b7d1df}.monthly-status-strip svg{width:13px;height:13px;color:#89e0d3}.monthly-status-strip>span:nth-child(2) svg{color:#d0a4f6}.monthly-status-strip>span:nth-child(3) svg{color:#f6d492}.monthly-status-strip b{color:#eff8ff}
+body.prisma-theme #daily-checkin-dialog .monthly-day.is-missed{background:radial-gradient(ellipse at 0 0,#c38cf046,transparent 70%),linear-gradient(150deg,#403052,#182d47);border-color:#b995e4;box-shadow:inset 0 1px #ebd6ff38,inset 3px 0 #b18ed338,0 3px 9px #050b1f55}.monthly-day.is-missed:after{content:'';position:absolute;right:-14px;bottom:-18px;width:45px;height:45px;border:1px solid #cda8f929;transform:rotate(45deg);pointer-events:none}.monthly-day .monthly-day-action{background:linear-gradient(120deg,#bf8add,#7963ba);border-color:#ebc2ffbd;color:#fff!important;box-shadow:inset 0 1px #fff4,0 2px 7px #1d143f66;font-size:10px;text-shadow:0 1px #3b275d}.monthly-day .monthly-day-cost{color:#eed2ff}.monthly-day-cost img{filter:drop-shadow(0 0 5px #70dbff99)}
+body.prisma-theme #daily-checkin-dialog .monthly-day.is-claimed{background:radial-gradient(ellipse at top,#72ddaa20,transparent 80%),linear-gradient(145deg,#215144,#173443);border-color:#80c5a4;box-shadow:inset 0 1px #bcffdb24}.monthly-day.is-claimed .monthly-day-status svg{width:21px;height:21px;color:#a0f2c9;filter:drop-shadow(0 0 4px #8eeeb84d)}.monthly-day.is-today{outline-color:#ffdb8b;box-shadow:0 0 13px #efcb7033!important}.monthly-day.is-future{background:linear-gradient(145deg,#173146,#102236)!important}.monthly-day.is-future .monthly-day-top>svg{color:#7895af}
+.monthly-side{border-color:#b49bc566;background:radial-gradient(ellipse at top,#74566b35,transparent 60%),linear-gradient(145deg,#1b344e,#10233a)}.monthly-side .monthly-tabs{gap:8px}body.prisma-theme #daily-checkin-dialog .monthly-side .monthly-tabs button{display:grid;grid-template-columns:32px 1fr;column-gap:7px;row-gap:4px;min-height:63px;text-align:left;padding:8px!important}.monthly-side .monthly-tabs button .benefit-emblem{position:static;grid-row:1/3;width:32px;height:36px}.monthly-side .monthly-tabs button b,.monthly-side .monthly-tabs button span{grid-column:2}.monthly-side .monthly-tabs button b{align-self:end}.monthly-side .monthly-tabs button span{align-self:start}.monthly-tabs [aria-selected=true]{border-color:#f3d797!important;box-shadow:inset 0 1px #ffe5a347,0 0 13px #edbd6e22!important}.monthly-tabs [aria-selected=true] .benefit-emblem{filter:drop-shadow(0 0 5px #ebca8b33)}
+.monthly-side .monthly-items>div,.online-items>div{position:relative;background:radial-gradient(ellipse at top,#5891b326,transparent 70%),linear-gradient(145deg,#213e56,#132a40);box-shadow:inset 0 1px #a4d4ee18}.monthly-side .monthly-items img{width:43px;height:43px;filter:drop-shadow(0 3px 4px #0008)}.monthly-side .monthly-items b{color:#ffe1a0}.monthly-prize-meter,.online-meter{height:7px;box-shadow:inset 0 1px 3px #0008;border:1px solid #6ca5b324}.monthly-prize-meter i{background:linear-gradient(90deg,#70d8dd,#efd68d)}.monthly-side .monthly-prize>button svg{width:16px;height:16px;vertical-align:middle;margin-right:6px}.monthly-help{margin-top:11px;border-color:#cb99ea70;box-shadow:inset 0 1px #e9c7ff15}.monthly-help>img{width:33px;height:33px}.monthly-recovery{border-color:#ecc4ff}
+.online-hero{position:relative;gap:22px;padding:20px 24px;background:radial-gradient(ellipse at 5% 20%,#49939666,transparent 55%),radial-gradient(ellipse at right,#7d58873b,transparent 55%),linear-gradient(125deg,#1c4055,#14243e);border-color:#82bfd780;box-shadow:inset 0 1px #d6faff1c,0 5px 18px #0003}.online-hero>img{width:114px;height:144px}.online-hero h3{font-size:25px;color:#f5e1b4}.online-hero .online-clock{min-width:180px;padding:16px;background:linear-gradient(145deg,#1c405e,#13273e);border-color:#a48ce375}.online-clock>.benefit-emblem{width:55px;height:55px}.online-clock strong{color:#ffe3a7;font-size:25px}.online-clock span{font-size:8px;letter-spacing:.7px}.benefit-season{display:inline-flex;gap:6px;align-items:center;margin-top:12px;font-size:10px;color:#98e8d4;border:1px solid #6ccebb44;background:#133d3d77;border-radius:20px;padding:6px 10px}.benefit-season svg{width:14px;height:14px}
+.online-packages{gap:16px}.online-package{position:relative;padding:17px;border-color:color-mix(in srgb,var(--package-accent) 50%,#203749);background:radial-gradient(ellipse at top left,color-mix(in srgb,var(--package-accent) 14%,transparent),transparent 65%),linear-gradient(145deg,#1b354c,#10243a);box-shadow:inset 0 1px #e3f6ff15,0 5px 18px #0003}.online-package-rank{display:flex;justify-content:space-between;gap:5px;padding-bottom:12px;margin-bottom:14px;border-bottom:1px solid #8bb5d129;font-size:8px;letter-spacing:.7px;color:var(--package-accent)}.online-package-rank b{font-size:7px;align-self:center;letter-spacing:.3px;color:#bdd0de}.online-package-head .benefit-emblem{width:63px;height:63px}.online-package-head small{letter-spacing:.3px;font-size:10px;color:var(--package-accent)}.online-package h3{font-size:34px;color:#f5ebd1;line-height:1}.online-package h3 span{font-size:15px;color:#bfd2df}.online-package>p{font-size:11px;line-height:1.4;min-height:16px}.online-items img{width:45px;height:45px}.online-items>div{padding:13px 4px}.online-items b{font-size:16px;color:#ffe0a2}.online-progress-label{display:flex;justify-content:space-between;gap:5px;color:#aac9dd;font-size:10px;margin-top:20px}.online-progress-label b{color:var(--package-accent)}.online-package .online-meter{margin-top:8px}.online-remaining{font-size:11px;min-height:14px}.online-package button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:43px}.online-package button svg{width:16px;height:16px}.online-package.is-ready{box-shadow:0 0 18px color-mix(in srgb,var(--package-accent) 15%,transparent)}.online-package.is-ready button{background:linear-gradient(130deg,var(--package-accent),#b8d5d6)!important;color:#172538!important}.online-package.is-ready .online-package-rank b{color:#f7dea4}.benefit-footer{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:18px;padding:12px;border:1px solid #779aba44;border-radius:9px;background:#10243c88}.benefit-footer .benefit-emblem{width:35px;height:35px}.benefit-footer p{margin:0;font-size:10px;line-height:1.7;color:#a6bfd1}.benefit-footer strong{color:#e2d7af}
+@media(max-width:800px){.online-hero{flex-wrap:wrap;gap:14px;padding:16px}.online-hero>img{width:76px;height:102px}.online-hero h3{font-size:21px}.online-hero .online-clock{flex-basis:100%;display:flex;justify-content:center;gap:12px;min-width:0}.online-clock>.benefit-emblem{width:32px;height:32px}.online-clock strong{font-size:21px}.online-packages{grid-template-columns:1fr}.online-items{grid-template-columns:repeat(4,minmax(0,1fr))}.online-package>p{min-height:0}.online-package-head .benefit-emblem{width:53px;height:53px}}
+@media(max-width:480px){.monthly-overview>.benefit-emblem{display:none}.monthly-status-strip{gap:5px}.monthly-status-strip>span{font-size:8px;padding:5px}.monthly-layout .monthly-overview h3{font-size:17px}.monthly-side .monthly-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.daily-header>.benefit-emblem,.daily-header>div>.benefit-emblem{width:44px;height:44px}.benefits-tabs .benefit-emblem{width:24px;height:24px}.benefits-tabs button{font-size:11px!important;gap:5px!important}.online-hero .online-clock{flex-wrap:wrap}.online-clock span{width:100%;text-align:center}.online-hero small{font-size:7px}.online-hero h3{font-size:18px}.online-hero p{font-size:10px}.online-hero>img{width:64px;height:90px}.online-items{grid-template-columns:repeat(2,minmax(0,1fr))}.online-items img{width:38px;height:38px}.benefit-footer p{font-size:9px}.monthly-day .monthly-day-action{font-size:7px}}
+.online-hero{padding:14px 20px}.online-hero>img{height:112px;width:95px}.online-hero .online-clock{padding:10px 14px;gap:5px}.online-clock>.benefit-emblem{width:42px;height:42px}.online-package{padding:14px}.online-package-head .benefit-emblem{width:55px;height:55px}.online-package h3{font-size:30px}.online-items>div{padding:9px 4px}.online-items img{width:38px;height:38px}.online-items b{margin:5px 0 4px}.online-package-rank{margin-bottom:11px;padding-bottom:9px}.online-package>p{margin:10px 0}.online-progress-label{margin-top:14px}.online-remaining{margin:8px 0 10px}@media(max-width:480px){body.prisma-theme #daily-checkin-dialog .daily-header>div>.benefit-emblem{width:44px;height:44px}}
+/* Benefits fit the viewport; the chassis belongs to the stationary outer dialog. */
+body.prisma-theme #daily-checkin-dialog{width:min(1100px,calc(100vw - 24px));height:min(850px,calc(100dvh - 24px));max-height:calc(100dvh - 24px);padding:22px!important;overflow:hidden;box-sizing:border-box}
+#daily-checkin-dialog .benefits-body{height:100%;min-height:0;display:flex;flex-direction:column;gap:12px}
+body.prisma-theme #daily-checkin-dialog .daily-header{flex:none;padding:0 0 10px!important;margin:0;min-height:0;background:transparent}
+body.prisma-theme #daily-checkin-dialog .daily-header>div>.benefit-emblem{width:54px;height:54px}
+#daily-checkin-dialog .benefits-tabs{padding:0;flex:none}
+body.prisma-theme #daily-checkin-dialog .benefits-tabs button{min-height:44px;padding:6px!important}
+#daily-checkin-dialog .monthly-layout{margin:0;flex:1;min-height:0;grid-template-columns:minmax(0,1fr) 290px;gap:16px}
+#daily-checkin-dialog .monthly-main{min-height:0;display:flex;flex-direction:column;gap:9px}
+#daily-checkin-dialog .monthly-overview{margin:0;padding:12px 16px;flex:none}
+#daily-checkin-dialog .monthly-overview h3{font-size:23px;margin:4px 0}
+#daily-checkin-dialog .monthly-status-strip{margin:0;flex:none}
+#daily-checkin-dialog .monthly-week{margin:0;flex:none}
+#daily-checkin-dialog .monthly-calendar{margin:0;flex:1;min-height:0;grid-template-rows:repeat(var(--calendar-rows),minmax(0,1fr));gap:7px}
+body.prisma-theme #daily-checkin-dialog:has(.monthly-layout) .monthly-day{height:auto;min-height:0;padding:7px!important;gap:4px}
+#daily-checkin-dialog .monthly-day-top{min-height:16px}
+#daily-checkin-dialog .monthly-legend{margin:0;flex:none;gap:10px;font-size:8px}
+#daily-checkin-dialog .monthly-today{margin:0;padding:9px 0 0;flex:none;flex-direction:row;align-items:center}
+#daily-checkin-dialog .monthly-help{margin:0;padding:8px 10px;flex:none}
+#daily-checkin-dialog .monthly-help>img{width:25px;height:25px}
+#daily-checkin-dialog .monthly-side{align-self:stretch;min-height:0;padding:14px;display:flex;flex-direction:column;gap:12px}
+#daily-checkin-dialog .monthly-rewards-heading{margin:0;flex:none}
+#daily-checkin-dialog .monthly-tabs{flex:none;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+body.prisma-theme #daily-checkin-dialog .monthly-side .monthly-tabs button{min-height:54px;padding:6px!important}
+#daily-checkin-dialog .monthly-prize{padding:0;flex:1;min-height:0;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:10px}
+#daily-checkin-dialog .monthly-prize>div{display:flex;flex-direction:column;min-height:0;flex:1}
+#daily-checkin-dialog .monthly-prize h4{margin:10px 0;font-size:17px}
+#daily-checkin-dialog .monthly-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;flex:1;min-height:0;align-content:start}
+#daily-checkin-dialog .monthly-items>div{min-width:0;padding:10px 4px;gap:5px;flex-direction:column;text-align:center}
+#daily-checkin-dialog .monthly-items img{width:38px;height:38px}
+#daily-checkin-dialog .monthly-items small{font-size:8px}
+#daily-checkin-dialog .monthly-prize-note{margin:0;flex:none;font-size:9px}
+#daily-checkin-dialog .monthly-recovery{position:absolute;z-index:6;inset:auto 24px 24px;margin:0;padding:20px;background:linear-gradient(135deg,#302948,#112840);box-shadow:0 0 0 100vmax #05101bbc,0 0 35px #bd91ff44;flex-wrap:wrap}
+#daily-checkin-dialog .monthly-recovery>img{width:44px;height:44px}
+#daily-checkin-dialog .online-hero{flex:none;margin:0;padding:12px 18px;gap:16px;flex-wrap:nowrap}
+#daily-checkin-dialog .online-hero>img{width:82px;height:98px}
+#daily-checkin-dialog .online-hero h3{font-size:22px;margin:5px 0}
+#daily-checkin-dialog .online-hero p{margin:5px 0;font-size:10px}
+#daily-checkin-dialog .benefit-season{margin-top:7px;padding:4px 8px;font-size:9px}
+#daily-checkin-dialog .online-hero .online-clock{min-width:155px;flex-basis:auto;display:grid;padding:8px 12px;gap:3px}
+#daily-checkin-dialog .online-clock>.benefit-emblem{width:38px;height:38px}
+#daily-checkin-dialog .online-clock strong{font-size:22px}
+#daily-checkin-dialog .online-package-tabs{display:none}
+#daily-checkin-dialog .online-packages{flex:1;min-height:0;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#daily-checkin-dialog .online-package{min-height:0;padding:13px}
+#daily-checkin-dialog .online-package-rank{padding-bottom:8px;margin-bottom:9px}
+#daily-checkin-dialog .online-package-head .benefit-emblem{width:62px;height:62px}
+#daily-checkin-dialog .online-package h3{font-size:30px}
+#daily-checkin-dialog .online-package>p{margin:8px 0;font-size:10px;min-height:0}
+#daily-checkin-dialog .online-items{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);align-content:stretch;min-height:0;gap:7px}
+#daily-checkin-dialog .online-items>div{padding:7px 3px;justify-content:center;min-height:0}
+#daily-checkin-dialog .online-items img{width:clamp(28px,4.4dvh,44px);height:clamp(28px,4.4dvh,44px)}
+#daily-checkin-dialog .online-items b{font-size:15px;margin:5px 0 3px}
+#daily-checkin-dialog .online-progress-label{margin-top:10px}
+#daily-checkin-dialog .online-remaining{margin:7px 0;font-size:10px}
+body.prisma-theme #daily-checkin-dialog .online-package button{min-height:36px;padding:8px!important;font-size:11px}
+#daily-checkin-dialog .benefit-footer{flex:none;margin:0;padding:7px 12px;gap:10px}
+#daily-checkin-dialog .benefit-footer .benefit-emblem{width:30px;height:30px}
+#daily-checkin-dialog .benefit-footer p{font-size:9px;line-height:1.5}
+@media(max-height:760px) and (min-width:801px){
+body.prisma-theme #daily-checkin-dialog{padding:18px!important}
+#daily-checkin-dialog .benefits-body{gap:9px}
+#daily-checkin-dialog .monthly-overview{padding:9px 12px}
+#daily-checkin-dialog .monthly-overview>.benefit-emblem{width:40px;height:40px}
+#daily-checkin-dialog .monthly-overview h3{font-size:20px}
+#daily-checkin-dialog .monthly-main{gap:7px}
+#daily-checkin-dialog .monthly-help span{font-size:9px}
+#daily-checkin-dialog .monthly-day-top b{font-size:17px}
+#daily-checkin-dialog .monthly-day .monthly-day-action{padding:3px 0;font-size:9px}
+#daily-checkin-dialog .monthly-day .monthly-day-cost{font-size:9px}
+#daily-checkin-dialog .online-hero>img{height:80px;width:68px}
+#daily-checkin-dialog .online-hero h3{font-size:20px}
+#daily-checkin-dialog .online-package-head .benefit-emblem{width:48px;height:48px}
+}
+@media(max-width:800px){
+body.prisma-theme #daily-checkin-dialog{width:calc(100vw - 12px);height:calc(100dvh - 12px);max-height:calc(100dvh - 12px);padding:16px!important}
+#daily-checkin-dialog .benefits-body{gap:8px}
+body.prisma-theme #daily-checkin-dialog .daily-header>div>.benefit-emblem{width:40px;height:40px}
+#daily-checkin-dialog .daily-header h2{font-size:20px;margin:0}
+#daily-checkin-dialog .daily-header small{font-size:6px}
+#daily-checkin-dialog .daily-header p{font-size:9px;margin:3px 0 0}
+#daily-checkin-dialog .benefits-tabs .benefit-emblem{width:27px;height:27px}
+body.prisma-theme #daily-checkin-dialog .benefits-tabs button{min-height:39px}
+#daily-checkin-dialog .monthly-layout{display:flex;flex-direction:column;gap:8px}
+#daily-checkin-dialog .monthly-main{flex:1;gap:6px}
+#daily-checkin-dialog .monthly-overview{padding:8px 10px}
+#daily-checkin-dialog .monthly-overview>.benefit-emblem{display:block;width:35px;height:35px}
+#daily-checkin-dialog .monthly-overview small{font-size:6px}
+#daily-checkin-dialog .monthly-overview h3{font-size:17px;margin:3px 0}
+#daily-checkin-dialog .monthly-overview span{font-size:8px}
+#daily-checkin-dialog .monthly-count strong{font-size:26px}
+#daily-checkin-dialog .monthly-status-strip{gap:4px;flex-wrap:nowrap}
+#daily-checkin-dialog .monthly-status-strip>span{padding:4px;font-size:7px;gap:3px}
+#daily-checkin-dialog .monthly-status-strip svg{width:10px;height:10px}
+#daily-checkin-dialog .monthly-week{font-size:8px}
+#daily-checkin-dialog .monthly-calendar{gap:4px}
+body.prisma-theme #daily-checkin-dialog:has(.monthly-layout) .monthly-day{padding:4px 2px!important;gap:3px}
+#daily-checkin-dialog .monthly-day-top{min-height:13px}
+#daily-checkin-dialog .monthly-day-top b{font-size:14px}
+#daily-checkin-dialog .monthly-day-top svg{width:10px;height:10px}
+#daily-checkin-dialog .monthly-day .monthly-day-action{font-size:8px;padding:3px 0}
+#daily-checkin-dialog .monthly-day-action .recovery-short{font-size:9px}
+#daily-checkin-dialog .monthly-day .monthly-day-cost{font-size:8px}
+#daily-checkin-dialog .monthly-day-cost img{width:10px;height:10px}
+#daily-checkin-dialog .monthly-day .monthly-day-status{font-size:7px;margin:auto 0 2px;gap:2px}
+#daily-checkin-dialog .monthly-day.is-claimed .monthly-day-status svg{width:13px;height:13px}
+#daily-checkin-dialog .monthly-legend{font-size:7px;gap:7px}
+#daily-checkin-dialog .monthly-today{padding-top:6px;gap:6px}
+#daily-checkin-dialog .monthly-today strong{font-size:10px}
+#daily-checkin-dialog .monthly-today span{font-size:8px}
+body.prisma-theme #daily-checkin-dialog .monthly-today .daily-claim{width:auto;min-width:100px;padding:7px!important;font-size:9px!important}
+#daily-checkin-dialog .monthly-help{padding:5px 7px}
+#daily-checkin-dialog .monthly-help span{font-size:8px;line-height:1.4}
+#daily-checkin-dialog .monthly-help>img{width:20px;height:20px}
+#daily-checkin-dialog .monthly-side{flex:none;padding:9px;gap:7px}
+#daily-checkin-dialog .monthly-rewards-heading{gap:6px}
+#daily-checkin-dialog .monthly-rewards-heading img{width:25px;height:25px}
+#daily-checkin-dialog .monthly-rewards-heading small{display:none}
+#daily-checkin-dialog .monthly-rewards-heading h3{font-size:11px}
+#daily-checkin-dialog .monthly-tabs{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+body.prisma-theme #daily-checkin-dialog .monthly-side .monthly-tabs button{display:flex;flex-direction:column;gap:2px;min-height:43px;padding:3px 1px!important;text-align:center}
+#daily-checkin-dialog .monthly-side .monthly-tabs .benefit-emblem{width:22px;height:22px}
+#daily-checkin-dialog .monthly-tabs button b{font-size:10px}
+#daily-checkin-dialog .monthly-tabs button span{display:none}
+#daily-checkin-dialog .monthly-tabs button:last-child b{font-size:7px}
+#daily-checkin-dialog .monthly-prize{flex:none;display:grid;grid-template-columns:minmax(0,1fr) 90px;gap:7px;align-items:center}
+#daily-checkin-dialog .monthly-prize h4{font-size:12px;margin:5px 0}
+#daily-checkin-dialog .monthly-prize-progress{font-size:7px}
+#daily-checkin-dialog .monthly-prize-progress strong{font-size:5px}
+#daily-checkin-dialog .monthly-prize-meter{height:4px}
+#daily-checkin-dialog .monthly-items{display:flex;flex-wrap:nowrap;gap:4px;flex:none}
+#daily-checkin-dialog .monthly-items>div{flex:1;padding:4px 2px;gap:3px}
+#daily-checkin-dialog .monthly-items img{width:23px;height:23px}
+#daily-checkin-dialog .monthly-items b{font-size:10px}
+#daily-checkin-dialog .monthly-items small{font-size:6px}
+body.prisma-theme #daily-checkin-dialog .monthly-prize>button{padding:8px 3px!important;font-size:8px;white-space:normal}
+#daily-checkin-dialog .monthly-prize-note{font-size:7px}
+#daily-checkin-dialog .monthly-recovery{inset:auto 16px 16px;padding:15px;gap:10px}
+#daily-checkin-dialog .monthly-recovery>div{flex-basis:calc(100% - 60px)}
+#daily-checkin-dialog .monthly-recovery button{flex:1;white-space:normal}
+#daily-checkin-dialog .online-hero{padding:10px;gap:8px;flex-wrap:wrap}
+#daily-checkin-dialog .online-hero>img{width:54px;height:72px}
+#daily-checkin-dialog .online-hero h3{font-size:17px}
+#daily-checkin-dialog .online-hero small{font-size:6px}
+#daily-checkin-dialog .online-hero p{font-size:9px}
+#daily-checkin-dialog .online-hero .online-clock{flex-basis:100%;display:flex;align-items:center;justify-content:center;padding:6px;gap:8px;flex-wrap:nowrap}
+#daily-checkin-dialog .online-clock>.benefit-emblem{width:30px;height:30px}
+#daily-checkin-dialog .online-clock span{width:auto;font-size:6px}
+#daily-checkin-dialog .online-clock strong{font-size:20px}
+#daily-checkin-dialog .benefit-season{font-size:8px;margin-top:5px}
+#daily-checkin-dialog .online-package-tabs{display:flex;gap:6px;flex:none}
+body.prisma-theme #daily-checkin-dialog .online-package-tabs button{display:flex;align-items:center;justify-content:center;gap:5px;flex:1;min-width:0;padding:6px!important;border:1px solid #759ab266;border-radius:7px;background:#153047;color:#d4e4ef;font-size:10px}
+#daily-checkin-dialog .online-package-tabs .benefit-emblem{width:30px;height:30px}
+#daily-checkin-dialog .online-package-tabs button>svg:not(.benefit-emblem){width:12px;height:12px}
+body.prisma-theme #daily-checkin-dialog .online-package-tabs [aria-pressed=true]{border-color:#ffe1a0;background:linear-gradient(125deg,#31526b,#403754);box-shadow:inset 0 -2px #e8c785}
+#daily-checkin-dialog .online-packages{display:flex}
+#daily-checkin-dialog .online-package{display:none;flex:1}
+#daily-checkin-dialog[data-package="0"] [data-package-card="0"],#daily-checkin-dialog[data-package="1"] [data-package-card="1"],#daily-checkin-dialog[data-package="2"] [data-package-card="2"]{display:flex}
+#daily-checkin-dialog .online-package-head .benefit-emblem{width:64px;height:64px}
+#daily-checkin-dialog .online-package h3{font-size:32px}
+#daily-checkin-dialog .online-items{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+#daily-checkin-dialog .online-items img{width:38px;height:38px}
+#daily-checkin-dialog .benefit-footer{padding:6px;gap:7px}
+#daily-checkin-dialog .benefit-footer p{font-size:8px}
+}
+@media(max-height:820px) and (min-width:801px){
+#daily-checkin-dialog .online-hero{padding:10px 16px}
+#daily-checkin-dialog .online-hero>img{height:78px;width:66px}
+#daily-checkin-dialog .online-hero h3{font-size:20px}
+#daily-checkin-dialog .online-hero h3 br{display:none}
+#daily-checkin-dialog .online-package-head .benefit-emblem{width:48px;height:48px}
+#daily-checkin-dialog .online-items>div{display:grid;grid-template-columns:34px minmax(0,1fr);grid-template-rows:auto auto;column-gap:5px;padding:6px;align-content:center;text-align:left}
+#daily-checkin-dialog .online-items img{width:32px;height:32px;grid-row:1/3}
+#daily-checkin-dialog .online-items b{margin:0;font-size:14px;align-self:end}
+#daily-checkin-dialog .online-items span{font-size:8px;text-align:left;align-self:start}
+}
+#daily-checkin-dialog .monthly-items{grid-auto-rows:minmax(0,1fr);align-content:stretch}
+#daily-checkin-dialog .monthly-items>div{min-height:0;justify-content:center}
+@media(max-height:820px) and (min-width:801px){
+#daily-checkin-dialog .monthly-items>div{padding:6px 3px;gap:3px}
+#daily-checkin-dialog .monthly-items img{width:30px;height:30px}
+#daily-checkin-dialog .monthly-items span{gap:2px}
+#daily-checkin-dialog .monthly-side .monthly-tabs{gap:5px}
+body.prisma-theme #daily-checkin-dialog .monthly-side .monthly-tabs button{min-height:48px}
+#daily-checkin-dialog .monthly-prize h4{margin:7px 0}
+}
+@media(max-width:800px){
+#daily-checkin-dialog .monthly-day.is-missed .monthly-day-action{width:calc(100% - 13px);align-self:flex-start;padding:3px 0}
+#daily-checkin-dialog .monthly-day.is-missed .monthly-day-cost{position:absolute;right:2px;bottom:5px;gap:1px;font-size:8px;flex-direction:column}
+#daily-checkin-dialog .monthly-day.is-missed .monthly-day-cost img{width:8px;height:8px}
+#daily-checkin-dialog .monthly-day.is-missed .recovery-short{font-size:7px}
+#daily-checkin-dialog .monthly-day.is-current .monthly-day-action{font-size:7px}
+}
+@media(max-width:800px){
+#daily-checkin-dialog .online-items>div{display:grid;grid-template-columns:34px minmax(0,1fr);grid-template-rows:auto auto;column-gap:6px;padding:6px;align-content:center;text-align:left}
+#daily-checkin-dialog .online-items img{width:32px;height:32px;grid-row:1/3}
+#daily-checkin-dialog .online-items b{margin:0;align-self:end;font-size:14px}
+#daily-checkin-dialog .online-items span{align-self:start;font-size:8px;text-align:left}
+}
+#daily-checkin-dialog .monthly-items{max-height:calc(var(--reward-rows,2)*110px)}
+@media(max-width:800px){#daily-checkin-dialog .monthly-items{max-height:none}}
+@media(max-height:820px) and (min-width:801px){
+body.prisma-theme #daily-checkin-dialog:has(.monthly-layout) .monthly-day{padding:4px 5px!important;gap:2px}
+#daily-checkin-dialog .monthly-day.is-missed .monthly-day-action{position:absolute;left:5px;bottom:4px;width:calc(100% - 30px);padding:2px 0;font-size:8px}
+#daily-checkin-dialog .monthly-day.is-missed .monthly-day-cost{position:absolute;right:4px;bottom:6px;gap:2px;font-size:9px}
+#daily-checkin-dialog .monthly-day.is-missed .monthly-day-cost img{width:10px;height:10px}
+#daily-checkin-dialog .monthly-day-top b{font-size:15px}
+#daily-checkin-dialog .monthly-day .monthly-day-top{min-height:14px}
+}
+/* Illustrated benefits icons match the expedition HUD artwork. */
+#daily-checkin-dialog .benefit-emblem{display:inline-flex;align-items:center;justify-content:center;flex:none;vertical-align:middle;background:none;border:0}
+#daily-checkin-dialog .benefit-emblem img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 3px #0009) drop-shadow(0 0 8px #80dff025)}
+#daily-checkin-dialog .daily-header .benefit-emblem img{transform:scale(1.12)}
+#daily-checkin-dialog .benefits-tabs .benefit-emblem{width:34px;height:34px}
+#daily-checkin-dialog .benefits-tabs button{background:linear-gradient(120deg,#24495d,#142d43);box-shadow:inset 0 1px #d2f7ff12}
+#daily-checkin-dialog .monthly-reset-banner{display:flex;align-items:center;gap:9px;padding:6px 11px;flex:none;border:1px solid #d4b97c6b;border-radius:8px;background:radial-gradient(ellipse at left,#28526988,transparent 70%),linear-gradient(110deg,#172e42,#282640);box-shadow:inset 0 1px #fff2d51a}
+#daily-checkin-dialog .monthly-reset-banner>.benefit-emblem{width:35px;height:35px}
+#daily-checkin-dialog .monthly-reset-banner>div{display:flex;align-items:center;gap:15px;flex:1}
+#daily-checkin-dialog .monthly-reset-banner small{font-size:8px;color:#e7d29e;letter-spacing:1.1px;font-weight:800}
+#daily-checkin-dialog .monthly-reset-banner strong{font-size:21px;color:#fff1c8;font-variant-numeric:tabular-nums;letter-spacing:1.5px;text-shadow:0 0 12px #f2cc8130}
+#daily-checkin-dialog .monthly-reset-banner>span:last-child{font-size:8px;color:#bdd0dc}
+#daily-checkin-dialog .monthly-overview{background:radial-gradient(ellipse at top left,#59bccb27,transparent 65%),linear-gradient(120deg,#1a4053,#162d44);border-color:#7fa9bf88;box-shadow:inset 0 1px #d9fcff19}
+#daily-checkin-dialog .monthly-side{background:radial-gradient(ellipse at top right,#9d77df20,transparent 55%),linear-gradient(160deg,#1b364e,#0b1f32);border-color:#8fa3c578}
+#daily-checkin-dialog .monthly-side .monthly-tabs .benefit-emblem{width:35px;height:35px}
+#daily-checkin-dialog .monthly-side .monthly-tabs button{position:relative;overflow:hidden;background:linear-gradient(145deg,#25465a,#132b40);box-shadow:inset 0 1px #ffffff12}
+#daily-checkin-dialog .monthly-side .monthly-tabs button[aria-selected=true]{border-color:#efd193;background:radial-gradient(ellipse at top,#e3be6230,transparent 70%),linear-gradient(145deg,#344853,#203043);box-shadow:inset 0 -2px #e8c883,0 0 12px #e3c27412}
+#daily-checkin-dialog .monthly-day.is-missed{background:radial-gradient(ellipse at top left,#ba8deb27,transparent 70%),linear-gradient(145deg,#403755,#252941);border-color:#bc92e4aa}
+#daily-checkin-dialog .monthly-day.is-missed .monthly-day-action{background:linear-gradient(110deg,#a568c9,#714ca9);border-color:#e9bdff99;color:#fff;text-shadow:0 1px 2px #40294b;box-shadow:inset 0 1px #ffe5ff33,0 2px 5px #050b1633}
+#daily-checkin-dialog .monthly-day.is-current{background:radial-gradient(ellipse at top,#c8ad6440,transparent 80%),linear-gradient(150deg,#294a4d,#173437);border-color:#e7cd91;box-shadow:inset 0 0 0 2px #edd49825,0 0 12px #e9d18018}
+#daily-checkin-dialog .monthly-day.is-claimed{background:linear-gradient(145deg,#294c45,#16332f);border-color:#8dd3b599}
+#daily-checkin-dialog .monthly-items>div,#daily-checkin-dialog .online-items>div{background:radial-gradient(ellipse at top,#7cc9e51a,transparent 75%),linear-gradient(145deg,#203e52,#132b40);border-color:#769ab74d;box-shadow:inset 0 1px #f5fcff13}
+#daily-checkin-dialog .monthly-items img,#daily-checkin-dialog .online-items img{filter:drop-shadow(0 3px 3px #06101c99)}
+#daily-checkin-dialog .online-hero{background:radial-gradient(ellipse at top left,#57b7c529,transparent 65%),linear-gradient(115deg,#24485a,#212847);border-color:#8abac788}
+#daily-checkin-dialog .online-hero .online-clock{background:radial-gradient(ellipse at top,#9b7ddb26,transparent 75%),#142c42;border-color:#b7a0e688}
+#daily-checkin-dialog .online-package{background:radial-gradient(ellipse at top left,color-mix(in srgb,var(--package-accent) 14%,transparent),transparent 65%),linear-gradient(150deg,#1a394c,#0d2235);box-shadow:inset 0 1px #fff9,0 5px 18px #030c161f}
+#daily-checkin-dialog .online-package-head .benefit-emblem{width:65px;height:65px}
+#daily-checkin-dialog .online-package-head h3{color:var(--package-accent);text-shadow:0 0 12px color-mix(in srgb,var(--package-accent) 12%,transparent)}
+#daily-checkin-dialog .online-meter i,#daily-checkin-dialog .monthly-prize-meter i{background:linear-gradient(90deg,#80e9d7,#a8c7ef,#f2d394);box-shadow:0 0 7px #9bdcca33}
+@media(max-width:700px){#daily-checkin-dialog .monthly-reset-banner{padding:4px 7px;gap:6px}#daily-checkin-dialog .monthly-reset-banner>.benefit-emblem{width:26px;height:26px}#daily-checkin-dialog .monthly-reset-banner>div{gap:8px}#daily-checkin-dialog .monthly-reset-banner strong{font-size:17px}#daily-checkin-dialog .monthly-reset-banner small{font-size:6px;letter-spacing:.6px}#daily-checkin-dialog .monthly-reset-banner>span:last-child{display:none}#daily-checkin-dialog .monthly-side .monthly-tabs .benefit-emblem{width:26px;height:26px}}
+@media(max-height:700px){#daily-checkin-dialog .monthly-reset-banner{padding:3px 8px}#daily-checkin-dialog .monthly-reset-banner>.benefit-emblem{width:26px;height:26px}#daily-checkin-dialog .monthly-reset-banner strong{font-size:17px}}
+@media(max-height:820px) and (min-width:801px){
+body.prisma-theme #daily-checkin-dialog .daily-header{padding-bottom:5px!important}
+body.prisma-theme #daily-checkin-dialog .daily-header>div>.benefit-emblem{width:40px;height:40px}
+#daily-checkin-dialog .daily-header h2{font-size:20px;margin:2px 0}
+#daily-checkin-dialog .daily-header p{font-size:10px}
+#daily-checkin-dialog .benefits-tabs .benefit-emblem{width:25px;height:25px}
+body.prisma-theme #daily-checkin-dialog .benefits-tabs button{min-height:34px;padding:3px!important}
+#daily-checkin-dialog .monthly-overview{padding:7px 12px}
+#daily-checkin-dialog .monthly-overview h3{font-size:20px}
+#daily-checkin-dialog .monthly-overview>.benefit-emblem{width:35px;height:35px}
+#daily-checkin-dialog .monthly-reset-banner{padding:3px 8px}
+#daily-checkin-dialog .monthly-reset-banner>.benefit-emblem{width:25px;height:25px}
+#daily-checkin-dialog .monthly-reset-banner strong{font-size:18px}
+#daily-checkin-dialog .monthly-main{gap:6px}
+body.prisma-theme #daily-checkin-dialog .monthly-side .monthly-tabs button{flex-direction:row;min-height:48px;gap:7px;padding:4px!important}
+#daily-checkin-dialog .monthly-side .monthly-tabs .benefit-emblem{width:27px;height:27px}
+#daily-checkin-dialog .monthly-side .monthly-tabs button>div{display:flex;flex-direction:column}
+#daily-checkin-dialog .monthly-side{gap:8px;padding:10px}
+#daily-checkin-dialog .monthly-day.is-claimed .monthly-day-status{margin:auto 0 0;font-size:8px}
+}
+@media(max-width:800px){#daily-checkin-dialog .monthly-side .monthly-tabs .benefit-emblem{display:inline-flex;width:20px;height:20px}#daily-checkin-dialog .monthly-side .monthly-tabs button{justify-content:center}#daily-checkin-dialog .monthly-side .monthly-tabs button b{margin:0}}

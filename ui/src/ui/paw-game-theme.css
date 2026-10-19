@@ -1,0 +1,1786 @@
+/* ==========================================================================
+   PAW NAILO — POKE ASCENDED WORLD OFFICIAL PRISMA HUD THEME
+   Exact visual match for Poke Ascended World game client HUD and Windows
+   ========================================================================== */
+
+:root {
+  /* Official In-Game Color Palette */
+  --pw-ink: #eef5ff;
+  --pw-muted: #a2b5ce;
+  --pw-blue: #81e4f8;
+  --pw-accent: #00e5ff;
+  --pw-cyan-glow: rgba(0, 229, 255, 0.35);
+  --pw-red: #ff9c9f;
+  --pw-green: #68b979;
+  --pw-yellow: #f2cf89;
+  --pw-gold: #e8ce90;
+  --pw-line: #516480;
+  --pw-paper: #0b1526;
+  --pw-white: #24334e;
+
+  /* Shell Layout Dimensions */
+  --leaf-rail: 0px !important;
+  --leaf-sidebar: 330px;
+  --leaf-top: 68px;
+  --leaf-bottom: 0px;
+
+  /* Standard Theme Variables */
+  --color-bg-base: #071324;
+  --color-bg-elevated: #0a162b;
+  --color-surface-1: #0f1d31;
+  --color-surface-2: #16273d;
+  --color-surface-hover: #213954;
+  --color-text-primary: #eef5ff;
+  --color-text-secondary: #a2b5ce;
+  --color-text-muted: #7890ac;
+  --color-accent: #81e4f8;
+  --color-accent-soft: rgba(129, 228, 248, 0.18);
+  --color-action-primary: #3b8659;
+  --color-action-primary-hover: #4b9968;
+  --color-success: #68b979;
+  --color-warning: #f2cf89;
+  --color-danger: #ff826f;
+  --border-subtle: #3c577b;
+  --border-strong: #7c90ac;
+  --radius-xs: 4px;
+  --radius-sm: 7px;
+  --radius-md: 9px;
+  --radius-lg: 14px;
+  --motion-fast: 120ms;
+  --motion-normal: 180ms;
+
+  /* In-Game Window Chrome */
+  --pw-window-radius: 14px;
+  --pw-window-border: #7c90ac;
+  --pw-window-bg: linear-gradient(125deg, rgba(102, 123, 151, 0.12) 0 12%, transparent 12% 74%, rgba(134, 113, 176, 0.08) 74%),
+                  radial-gradient(ellipse at 0% 0%, rgba(56, 96, 124, 0.35), transparent 55%),
+                  radial-gradient(ellipse at 100% 100%, rgba(126, 82, 121, 0.16), transparent 55%),
+                  linear-gradient(145deg, rgba(19, 34, 56, 0.98), rgba(11, 21, 38, 0.99) 75%);
+  --pw-window-shadow: inset 0 0 0 3px #0a1326, inset 0 0 0 4px rgba(99, 124, 155, 0.5),
+                      inset 0 7px 22px rgba(187, 216, 255, 0.05), 0 0 0 1px #081123,
+                      0 16px 48px rgba(2, 8, 18, 0.85);
+
+  /* In-Game Control Chrome */
+  --pw-control-bg: linear-gradient(145deg, #2b3e56, #1b293d 62%, #142032);
+  --pw-control-border: #5c7896;
+  --pw-control-radius: 7px;
+  --pw-font: "Segoe UI Variable Text", "Segoe UI", -apple-system, system-ui, sans-serif;
+}
+
+/* ==========================================================================
+   Base & Resets
+   ========================================================================== */
+html, body {
+  width: 100% !important;
+  height: 100% !important;
+  background: #071324 !important;
+  color: var(--pw-ink) !important;
+  font-family: var(--pw-font) !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  user-select: none;
+}
+
+::selection {
+  background: #81e4f8;
+  color: #071324;
+}
+
+:focus-visible {
+  outline: 2px solid #8fe8f9 !important;
+  outline-offset: 2px;
+}
+
+.leaf-skip,
+#topbar,
+#leafControlVault {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Shell Layout (#leafShell)
+   ========================================================================== */
+html body #leafShell,
+body[data-theme] #leafShell,
+#leafShell {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: grid !important;
+  grid-template-rows: var(--leaf-top, 68px) minmax(0, 1fr) !important;
+  background-color: #071324 !important;
+  background-image: radial-gradient(circle at 50% -20%, rgba(56, 160, 224, 0.18), transparent 60%),
+                    radial-gradient(circle at 100% 100%, rgba(134, 113, 176, 0.1), transparent 50%),
+                    linear-gradient(180deg, #09172c 0%, #071324 100%) !important;
+  background-size: 100% 100% !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  z-index: 1 !important;
+  overflow: hidden !important;
+}
+
+#leafShell:before {
+  display: none !important;
+  content: none !important;
+}
+
+#leafShell:after,
+.leaf-landscape-footer,
+.leaf-aside-epilogue,
+.leaf-top-note,
+.leaf-header-moon,
+.leaf-companions {
+  display: none !important;
+  content: none !important;
+}
+
+/* ==========================================================================
+   Top Navigation Bar (.leaf-topbar)
+   Exact match for game's .hud-nav capsule
+   ========================================================================== */
+.leaf-topbar {
+  grid-row: 1 !important;
+  position: relative !important;
+  z-index: 10 !important;
+  display: grid !important;
+  grid-template-columns: var(--leaf-sidebar) minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  height: 68px !important;
+  padding: 0 16px 0 0 !important;
+  background: linear-gradient(120deg, rgba(135, 152, 177, 0.14) 0 7%, transparent 7% 93%, rgba(135, 152, 177, 0.14) 93%),
+              radial-gradient(ellipse at 50% 0%, rgba(131, 223, 245, 0.22), transparent 70%),
+              linear-gradient(180deg, #1b2f48 0%, #0d1b2f 100%) !important;
+  border-bottom: 1px solid #5c7896 !important;
+  box-shadow: inset 0 0 0 2px #0a162b, inset 0 1px rgba(215, 239, 255, 0.25), 0 4px 18px rgba(0, 0, 0, 0.55) !important;
+}
+
+.absol-win .leaf-topbar {
+  padding-right: 152px !important;
+  -webkit-app-region: drag;
+}
+
+.absol-win .leaf-topbar button,
+.absol-win .leaf-topbar .leaf-segment,
+.absol-win .leaf-topbar .leaf-chip {
+  -webkit-app-region: no-drag;
+}
+
+/* Brand Section */
+.leaf-brand {
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  padding: 0 16px !important;
+  border-right: 1px solid rgba(92, 120, 150, 0.35) !important;
+  background: rgba(11, 22, 38, 0.65) !important;
+}
+
+.leaf-brand-copy {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.leaf-brand-title {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  min-width: 0 !important;
+}
+
+.leaf-paw-logo {
+  height: 48px !important;
+  max-height: 50px !important;
+  width: auto !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.5)) !important;
+  flex-shrink: 0 !important;
+}
+
+.leaf-brand-by {
+  font-size: 13px !important;
+  font-style: italic !important;
+  font-family: inherit !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  color: #81e4f8 !important;
+  font-weight: 800 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+  flex-shrink: 0 !important;
+}
+
+.leaf-nailo-logo {
+  height: 36px !important;
+  max-height: 38px !important;
+  width: auto !important;
+  object-fit: contain !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 8px rgba(188, 153, 236, 0.4)) !important;
+  flex-shrink: 0 !important;
+}
+
+/* Center Controls & View Segment */
+/* Center Controls & View Segment */
+.leaf-top-center {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 0 18px !important;
+  min-width: 0 !important;
+}
+
+#leafSidebarToggle {
+  flex: none !important;
+  width: 34px !important;
+  height: 34px !important;
+  border: 1px solid var(--pw-control-border) !important;
+  border-radius: var(--pw-control-radius) !important;
+  background: var(--pw-control-bg) !important;
+  color: var(--pw-muted) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.15), 0 2px 5px rgba(0,0,0,0.3) !important;
+  cursor: pointer !important;
+  display: grid !important;
+  place-items: center !important;
+  transition: all var(--motion-fast) ease !important;
+}
+
+#leafSidebarToggle:hover {
+  border-color: var(--pw-blue) !important;
+  color: var(--pw-ink) !important;
+  background: linear-gradient(145deg, #374e6c, #22344c) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.25), 0 0 8px rgba(129, 228, 248, 0.3) !important;
+}
+
+/* View Switcher Capsule (Janelas / Lista / Simples) */
+.leaf-segment {
+  display: flex !important;
+  align-items: center !important;
+  padding: 3px !important;
+  gap: 4px !important;
+  border: 1px solid #5c7896 !important;
+  border-radius: 9px !important;
+  background: linear-gradient(145deg, #101c2c, #091322) !important;
+  box-shadow: inset 0 0 0 1px #040913, 0 2px 6px rgba(0,0,0,0.4) !important;
+}
+
+.leaf-segment button {
+  height: 34px !important;
+  padding: 0 14px !important;
+  border: 1px solid transparent !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  color: var(--pw-muted) !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  transition: all var(--motion-fast) ease !important;
+}
+
+.leaf-segment button:hover {
+  color: var(--pw-ink) !important;
+  background: rgba(92, 120, 150, 0.22) !important;
+}
+
+.leaf-segment button.is-active {
+  color: #fff !important;
+  border: 1px solid #8fe8f9 !important;
+  background: linear-gradient(145deg, #254463, #152b41) !important;
+  box-shadow: inset 0 0 10px rgba(143, 232, 249, 0.35), 0 0 12px rgba(129, 228, 248, 0.4) !important;
+}
+
+.leaf-segment button > span,
+.leaf-chip > span:not(.switch) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  flex-shrink: 0 !important;
+}
+
+.leaf-segment button svg,
+.leaf-chip svg,
+.leaf-icon-btn svg {
+  display: block !important;
+  width: 14px !important;
+  height: 14px !important;
+  margin: 0 !important;
+}
+
+/* Feature Chips */
+.leaf-chip {
+  height: 34px !important;
+  padding: 0 12px !important;
+  border: 1px solid var(--pw-control-border) !important;
+  border-radius: var(--pw-control-radius) !important;
+  background: var(--pw-control-bg) !important;
+  color: var(--pw-muted) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  line-height: 1 !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.12), 0 2px 4px rgba(0,0,0,0.25) !important;
+  cursor: pointer !important;
+  transition: all var(--motion-fast) ease !important;
+}
+
+.leaf-chip:hover {
+  border-color: #8fe8f9 !important;
+  color: var(--pw-ink) !important;
+  background: linear-gradient(145deg, #374e6c, #22344c) !important;
+}
+
+.leaf-chip.is-active {
+  border-color: #8fe8f9 !important;
+  background: linear-gradient(145deg, #254463, #152b41) !important;
+  color: #eef8ff !important;
+  box-shadow: inset 0 0 10px rgba(143, 232, 249, 0.3), 0 0 12px rgba(129, 228, 248, 0.3) !important;
+}
+
+.leaf-chip .switch {
+  box-sizing: border-box !important;
+  width: 24px !important;
+  height: 13px !important;
+  background: #2a3d54 !important;
+  border: 1px solid #4a6380 !important;
+  border-radius: 999px !important;
+  padding: 1px !important;
+  transition: all 0.18s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-shrink: 0 !important;
+}
+
+.leaf-chip .switch:before {
+  content: "" !important;
+  box-sizing: border-box !important;
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 50% !important;
+  background: #7d96b3 !important;
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  transform: translateX(0) !important;
+}
+
+.leaf-chip.is-active .switch {
+  background: #174e73 !important;
+  border-color: #8fe8f9 !important;
+}
+
+.leaf-chip.is-active .switch:before {
+  transform: translateX(11px) !important;
+  background: #8fe8f9 !important;
+  box-shadow: 0 0 6px #8fe8f9 !important;
+}
+
+/* Right Section */
+.leaf-top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.leaf-connected {
+  height: 32px;
+  padding: 0 11px;
+  border: 1px solid #49688a;
+  border-radius: var(--pw-control-radius);
+  background: linear-gradient(145deg, #122135, #0a1524);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #a4c2e0;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.leaf-connected .dot {
+  width: 7px;
+  height: 7px;
+  background: #68b979;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #68b979, 0 0 14px rgba(104, 185, 121, 0.6);
+}
+
+.leaf-chip-login-all,
+#leafHeaderLoginAll {
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid #aff5ff !important;
+  border-radius: var(--pw-control-radius);
+  background: linear-gradient(135deg, rgba(121, 230, 255, 0.22), rgba(150, 118, 223, 0.16)),
+              linear-gradient(180deg, #254463, #152c44) !important;
+  color: #eefcff !important;
+  font-weight: 800 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.3px;
+  box-shadow: inset 0 0 0 1px rgba(153, 234, 255, 0.35), 0 0 14px rgba(105, 204, 243, 0.28) !important;
+  cursor: pointer;
+  transition: all var(--motion-fast) ease;
+}
+
+.leaf-chip-login-all:hover,
+#leafHeaderLoginAll:hover {
+  background: linear-gradient(135deg, rgba(121, 230, 255, 0.35), rgba(150, 118, 223, 0.25)),
+              linear-gradient(180deg, #32567c, #1d3856) !important;
+  box-shadow: inset 0 0 0 1px #aff5ff, 0 0 18px rgba(129, 228, 248, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+.leaf-icon-btn {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--pw-control-border);
+  border-radius: var(--pw-control-radius);
+  background: var(--pw-control-bg);
+  color: var(--pw-muted);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.12), 0 2px 4px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: all var(--motion-fast) ease;
+}
+
+.leaf-icon-btn:hover {
+  border-color: #8fe8f9;
+  color: var(--pw-ink);
+  background: linear-gradient(145deg, #374e6c, #22344c);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.25), 0 0 8px rgba(129, 228, 248, 0.3);
+}
+
+/* Window Controls */
+.leaf-window-controls,
+.leaf-window-controls *,
+.absol-win .leaf-window-controls,
+.absol-win .leaf-window-controls * {
+  -webkit-app-region: no-drag !important;
+}
+
+.leaf-window-controls,
+.absol-win .leaf-window-controls {
+  position: absolute !important;
+  right: 14px !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  height: 100% !important;
+  transform: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 0 0 0 14px !important;
+  border-left: 1px solid rgba(92, 120, 150, 0.35) !important;
+  box-shadow: none !important;
+  z-index: 12 !important;
+}
+
+.leaf-window-controls button {
+  width: 32px !important;
+  height: 32px !important;
+  border: 1px solid rgba(92, 120, 150, 0.45) !important;
+  border-radius: 6px !important;
+  background: rgba(14, 27, 44, 0.75) !important;
+  color: var(--pw-muted) !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  -webkit-app-region: no-drag !important;
+  transition: all 0.15s ease !important;
+}
+
+.leaf-window-controls button svg,
+.leaf-window-controls button path {
+  pointer-events: none !important;
+}
+
+.leaf-window-controls button svg {
+  width: 13px !important;
+  height: 13px !important;
+  stroke: currentColor !important;
+  stroke-width: 1.8 !important;
+  fill: none !important;
+}
+
+.leaf-window-controls button .win-restore-icon {
+  display: none !important;
+}
+
+.leaf-window-controls button.is-maximized .win-restore-icon {
+  display: block !important;
+}
+
+.leaf-window-controls button.is-maximized .win-max-icon {
+  display: none !important;
+}
+
+.leaf-window-controls button:hover {
+  border-color: #8fe8f9 !important;
+  color: #fff !important;
+  background: #254463 !important;
+}
+
+.leaf-window-controls button[data-window-action="close"]:hover {
+  border-color: #ff826f !important;
+  background: #a82e2e !important;
+  color: #fff !important;
+}
+
+/* ==========================================================================
+   Shell Body & Sidebar (.leaf-body, .leaf-sidebar)
+   ========================================================================== */
+.leaf-body {
+  grid-row: 2 !important;
+  position: relative !important;
+  z-index: 2 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  margin-left: 0 !important;
+  display: grid !important;
+  grid-template-columns: var(--leaf-sidebar) minmax(0, 1fr) !important;
+  overflow: hidden !important;
+}
+
+.leaf-sidebar {
+  position: relative !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 10px 12px 10px !important;
+  background: linear-gradient(180deg, rgba(16, 31, 51, 0.98), rgba(9, 19, 34, 0.99)) !important;
+  border-right: 1px solid #3c577b !important;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.45) !important;
+  overflow: hidden !important;
+}
+
+.leaf-sidebar:before,
+.leaf-sidebar:after,
+.leaf-summary:before,
+.leaf-summary:after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Sidebar Summary Counters */
+.leaf-summary {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  border: 1px solid #4a6688 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  background: linear-gradient(145deg, #101e30, #091322) !important;
+  box-shadow: inset 0 0 0 1px #040913, 0 3px 8px rgba(0,0,0,0.3) !important;
+  min-height: 44px !important;
+  margin-bottom: 8px !important;
+  flex: none !important;
+}
+
+.leaf-summary-item {
+  padding: 5px 4px !important;
+  text-align: center !important;
+  position: relative !important;
+}
+
+.leaf-summary-item + .leaf-summary-item {
+  border-left: 1px solid #2b415c !important;
+}
+
+.leaf-summary-item .k {
+  font-size: 8px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  color: var(--pw-muted) !important;
+  font-weight: 700 !important;
+}
+
+.leaf-summary-item .v {
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  margin-top: 1px !important;
+  color: #fff !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.leaf-summary-item .v.good { color: #68b979 !important; }
+.leaf-summary-item .v.warn { color: #f2cf89 !important; }
+
+/* Sidebar Header */
+.leaf-sidebar-title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  height: auto !important;
+  padding: 0 2px 6px !important;
+  margin: 4px 0 8px 0 !important;
+  color: #81e4f8 !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.4px !important;
+  font-weight: 800 !important;
+  border-bottom: 1px solid rgba(92, 120, 150, 0.35) !important;
+  position: relative !important;
+}
+
+.leaf-sidebar-title:after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 44px;
+  height: 2px;
+  background: linear-gradient(90deg, #89e7f9, #bc99ec);
+  box-shadow: 0 0 6px rgba(138, 231, 249, 0.45);
+}
+
+.leaf-add-account {
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 1px solid var(--pw-control-border) !important;
+  background: var(--pw-control-bg) !important;
+  color: var(--pw-blue) !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all var(--motion-fast) ease !important;
+  box-sizing: border-box !important;
+}
+
+.leaf-add-account:hover {
+  border-color: #8fe8f9 !important;
+  background: #254463 !important;
+  color: #fff !important;
+  box-shadow: 0 0 8px rgba(129, 228, 248, 0.35) !important;
+}
+
+.leaf-add-account svg {
+  width: 15px !important;
+  height: 15px !important;
+  display: block !important;
+  margin: auto !important;
+  stroke: currentColor !important;
+  fill: none !important;
+  flex-shrink: 0 !important;
+}
+
+/* Accounts List */
+#leafAccountList {
+  min-height: 0 !important;
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  overflow-y: auto !important;
+  padding-right: 4px !important;
+  scrollbar-width: thin !important;
+}
+
+#leafAccountList::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+#leafAccountList::-webkit-scrollbar-thumb {
+  background: #3c577b !important;
+  border-radius: 999px !important;
+}
+
+/* Account Card (.leaf-account) — Compacted to avoid scrollbar */
+.leaf-account {
+  flex: none !important;
+  min-height: 108px !important;
+  padding: 8px 10px 7px !important;
+  background: linear-gradient(145deg, rgba(22, 40, 64, 0.95), rgba(12, 24, 43, 0.98)) !important;
+  border: 1px solid #3c577b !important;
+  border-radius: 8px !important;
+  box-shadow: inset 0 1px rgba(215, 239, 255, 0.12), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  transition: border-color var(--motion-fast) ease, background var(--motion-fast) ease, box-shadow var(--motion-fast) ease, transform var(--motion-fast) ease !important;
+  position: relative !important;
+}
+
+.leaf-account:hover {
+  border-color: #81e4f8 !important;
+  background: linear-gradient(145deg, rgba(28, 51, 80, 0.95), rgba(16, 32, 54, 0.98)) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.22), 0 0 12px rgba(129, 228, 248, 0.25), 0 3px 8px rgba(0,0,0,0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+.leaf-account.is-selected {
+  border-color: #8fe8f9 !important;
+  background: linear-gradient(145deg, rgba(32, 60, 95, 0.95), rgba(18, 38, 64, 0.98)) !important;
+  box-shadow: inset 0 0 0 1px rgba(143, 232, 249, 0.4), inset 0 1px rgba(255, 255, 255, 0.3), 0 0 14px rgba(129, 228, 248, 0.35) !important;
+}
+
+.leaf-account.is-attention {
+  border-color: #f2cf89 !important;
+}
+
+.leaf-account-top {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.leaf-poke-avatar {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 6px !important;
+  background: radial-gradient(circle at 40% 30%, rgba(129, 228, 248, 0.25), transparent 70%), #0e1e33 !important;
+  border: 1px solid #5c7896 !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.2), 0 2px 4px rgba(0,0,0,0.3) !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+.leaf-poke-avatar img {
+  width: 30px !important;
+  height: 30px !important;
+  object-fit: contain !important;
+  image-rendering: pixelated !important;
+}
+
+.leaf-poke-avatar svg {
+  color: #81e4f8 !important;
+  opacity: 0.85 !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.leaf-account-identity {
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+
+.leaf-account-name {
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  color: #fff !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  letter-spacing: 0.2px !important;
+  line-height: 1.2 !important;
+}
+
+.leaf-pokemon-line {
+  font-size: 9px !important;
+  color: var(--pw-muted) !important;
+  margin-top: 1px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  line-height: 1.2 !important;
+}
+
+.leaf-pokemon-line b {
+  color: #81e4f8 !important;
+  font-weight: 700 !important;
+}
+
+.leaf-lv {
+  font-size: 7.5px !important;
+  font-weight: 800 !important;
+  color: #81e4f8 !important;
+  background: #09172a !important;
+  border: 1px solid #4a6688 !important;
+  border-radius: 3px !important;
+  padding: 1px 4px !important;
+  margin-left: 3px !important;
+  letter-spacing: 0.4px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+}
+
+.leaf-lv:before {
+  content: "◈";
+  font-size: 7px;
+  color: #81e4f8;
+}
+
+.leaf-account-state {
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  font-size: 8.5px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  color: #68b979 !important;
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+}
+
+.leaf-account-state:before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 5px currentColor;
+}
+
+.leaf-account-state.wait { color: #f2cf89 !important; }
+.leaf-account-state.off { color: #7890ac !important; }
+.leaf-account-state.err { color: #ff826f !important; }
+
+.leaf-hunt-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  margin: 8px 0 7px !important;
+  min-height: 25px !important;
+  padding: 3px 8px !important;
+  box-sizing: border-box !important;
+  border-radius: 6px !important;
+  background: rgba(8, 19, 34, 0.75) !important;
+  border: 1px solid #283e58 !important;
+  color: #9cb6d4 !important;
+  font-size: 9px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+}
+
+.leaf-hunt-glyph {
+  color: #81e4f8 !important;
+  flex: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 14px !important;
+  height: 14px !important;
+  line-height: 1 !important;
+}
+
+.leaf-hunt-glyph svg {
+  width: 14px !important;
+  height: 14px !important;
+  display: block !important;
+  flex: none !important;
+  stroke: currentColor !important;
+}
+
+.leaf-hunt-name {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1 !important;
+  gap: 4px !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.leaf-hunt-name b {
+  color: #fff !important;
+  font-weight: 700 !important;
+  line-height: inherit !important;
+}
+
+.leaf-hunt-time {
+  margin-left: auto !important;
+  color: #81e4f8 !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums !important;
+  flex: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  line-height: 1 !important;
+}
+
+.leaf-account-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 4px !important;
+  margin-top: 0 !important;
+}
+
+.leaf-metric {
+  background: rgba(10, 20, 36, 0.6) !important;
+  border: 1px solid rgba(60, 87, 123, 0.45) !important;
+  border-radius: 5px !important;
+  padding: 2px 4px !important;
+  text-align: center !important;
+}
+
+.leaf-metric .mk {
+  font-size: 7px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  color: var(--pw-muted) !important;
+}
+
+.leaf-metric .mv {
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  color: #fff !important;
+  margin-top: 1px !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.leaf-account-actions {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 24px !important;
+  gap: 6px !important;
+  margin-top: 5px !important;
+  padding-top: 5px !important;
+  border-top: 1px solid rgba(60, 87, 123, 0.3) !important;
+}
+
+.leaf-open-account {
+  height: 24px !important;
+  padding: 0 6px !important;
+  box-sizing: border-box !important;
+  border: 1px solid #4a6a8f !important;
+  border-radius: 5px !important;
+  background: linear-gradient(145deg, #254060, #162b42) !important;
+  color: #eef6ff !important;
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  transition: all var(--motion-fast) ease !important;
+}
+
+.leaf-open-account:hover {
+  border-color: #8fe8f9 !important;
+  background: linear-gradient(145deg, #32557e, #1c3858) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.25), 0 0 10px rgba(129, 228, 248, 0.3) !important;
+}
+
+.leaf-reload-account {
+  width: 24px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  border: 1px solid #3c577b !important;
+  border-radius: 5px !important;
+  background: #0f1d31 !important;
+  color: #9cb6d4 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  transition: all var(--motion-fast) ease !important;
+}
+
+.leaf-reload-account:hover {
+  border-color: #8fe8f9 !important;
+  background: #213954 !important;
+  color: #fff !important;
+}
+
+.leaf-reload-account svg {
+  width: 14px !important;
+  height: 14px !important;
+  display: block !important;
+  margin: auto !important;
+  stroke: currentColor !important;
+  fill: none !important;
+  flex: none !important;
+}
+
+.leaf-reload-label {
+  display: none !important;
+}
+
+.leaf-side-footer {
+  display: flex !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding-top: 8px !important;
+  border-top: 1px solid rgba(60, 87, 123, 0.35) !important;
+  margin-top: 8px !important;
+  flex: none !important;
+}
+
+.leaf-login-all {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  height: 32px !important;
+  border: 1px solid #aff5ff !important;
+  border-radius: 6px !important;
+  background: linear-gradient(135deg, rgba(121, 230, 255, 0.2), rgba(150, 118, 223, 0.14)),
+              linear-gradient(180deg, #244362, #14293f) !important;
+  color: #eefbff !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all var(--motion-fast) ease !important;
+}
+
+.leaf-login-all:hover {
+  background: linear-gradient(135deg, rgba(121, 230, 255, 0.35), rgba(150, 118, 223, 0.25)),
+              linear-gradient(180deg, #315882, #1c3654) !important;
+  box-shadow: 0 0 12px rgba(129, 228, 248, 0.4) !important;
+}
+
+.leaf-side-round {
+  height: 30px !important;
+  border: 1px solid #3c577b !important;
+  border-radius: 6px !important;
+  background: #0f1d31 !important;
+  color: #9cb6d4 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all var(--motion-fast) ease !important;
+}
+
+.leaf-side-round:hover {
+  border-color: #8fe8f9 !important;
+  color: #fff !important;
+  background: #213954 !important;
+}
+
+.leaf-side-round svg {
+  width: 15px !important;
+  height: 15px !important;
+  display: block !important;
+  margin: auto !important;
+  stroke: currentColor !important;
+  fill: none !important;
+  flex-shrink: 0 !important;
+}
+
+.leaf-aside-epilogue {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Main Game Viewports Area (.leaf-main, #grid, .panel)
+   ========================================================================== */
+.leaf-main {
+  grid-column: auto !important;
+  position: relative !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 8px !important;
+  background: #040c17 !important;
+  overflow: hidden !important;
+}
+
+body.leaf-sidebar-collapsed .leaf-main {
+  grid-column: 1 !important;
+  width: 100% !important;
+}
+
+.leaf-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  display: none !important;
+}
+
+#leafWindowView {
+  flex: 1 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#grid {
+  position: relative !important;
+  inset: auto !important;
+  flex: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  gap: 8px !important;
+  background: transparent !important;
+  transition: none !important;
+}
+
+#grid.count-1 { grid-template-columns: 1fr !important; grid-template-rows: 1fr !important; }
+#grid.count-2 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr !important; }
+#grid.count-3 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
+#grid.count-3 .panel:last-child { grid-column: 1 / -1 !important; }
+#grid.count-4 { grid-template-columns: 1fr 1fr !important; grid-template-rows: 1fr 1fr !important; }
+#grid.count-5, #grid.count-6, #grid.count-7, #grid.count-8 { grid-template-columns: repeat(4, 1fr) !important; grid-template-rows: repeat(2, 1fr) !important; }
+#grid.count-9, #grid.count-10, #grid.count-11, #grid.count-12 { grid-template-columns: repeat(4, 1fr) !important; grid-template-rows: repeat(3, minmax(250px, 1fr)) !important; overflow-y: auto !important; }
+#grid.count-13, #grid.count-14, #grid.count-15, #grid.count-16 { grid-template-columns: repeat(4, 1fr) !important; grid-template-rows: repeat(4, minmax(230px, 1fr)) !important; overflow-y: auto !important; }
+#grid.one-col { grid-template-columns: 1fr !important; grid-auto-rows: minmax(330px, 1fr) !important; overflow: auto !important; }
+#grid.one-row { grid-template-columns: repeat(var(--leaf-panels, 4), minmax(420px, 1fr)) !important; grid-template-rows: 1fr !important; overflow-x: auto !important; }
+
+/* Game Webview Panels */
+.panel {
+  display: grid !important;
+  grid-template-rows: 35px minmax(0, 1fr) 34px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border: 1px solid #3c577b !important;
+  border-radius: 9px !important;
+  background: #071324 !important;
+  box-shadow: inset 0 0 0 1px #040913, 0 4px 16px rgba(0,0,0,0.6) !important;
+  overflow: hidden !important;
+  transition: border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
+}
+
+.panel:hover {
+  border-color: #5c7896 !important;
+}
+
+.panel.expanded {
+  border-color: #81e4f8 !important;
+  box-shadow: inset 0 0 0 1px #0a182c, 0 0 16px rgba(129, 228, 248, 0.35) !important;
+}
+
+.panel-header {
+  grid-row: 1 !important;
+  height: 35px !important;
+  padding: 0 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: linear-gradient(90deg, rgba(129, 228, 248, 0.12), transparent 75%), #0c182a !important;
+  border-bottom: 1px solid #3c577b !important;
+  color: #eef5ff !important;
+}
+
+.panel-header .dot {
+  display: block !important;
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  opacity: 0.7 !important;
+}
+
+.panel-header .dot.ok {
+  opacity: 1 !important;
+  background: #68b979 !important;
+  box-shadow: 0 0 6px #68b979 !important;
+}
+
+.panel-header .dot.err {
+  opacity: 1 !important;
+  background: #ff826f !important;
+  box-shadow: 0 0 6px #ff826f !important;
+}
+
+.panel-header .dot.off {
+  opacity: 0.35 !important;
+  background: #516480 !important;
+}
+
+.panel-header .name {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #f2f6fd !important;
+}
+
+.panel-header .status {
+  font-size: 10px !important;
+  color: var(--pw-muted) !important;
+}
+
+.panel-header .dot.ok ~ .status { color: #68b979 !important; }
+.panel-header .dot.err ~ .status { color: #ff826f !important; }
+
+.panel-header button {
+  height: 24px !important;
+  min-width: 24px !important;
+  padding: 0 6px !important;
+  border: 1px solid #4a6688 !important;
+  border-radius: 4px !important;
+  background: #15273d !important;
+  color: #eef5ff !important;
+  font-size: 10px !important;
+  cursor: pointer !important;
+}
+
+.panel-header button:hover {
+  border-color: #8fe8f9 !important;
+  background: #254463 !important;
+}
+
+.panel > webview {
+  grid-row: 2 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0 !important;
+  background: #040c17 !important;
+}
+
+.leaf-panel-footer {
+  grid-row: 3 !important;
+  height: 34px !important;
+  padding: 0 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: linear-gradient(180deg, #0d1a2d 0%, #08111e 100%) !important;
+  border-top: 1px solid #20354e !important;
+  box-shadow: inset 0 1px 0 rgba(129, 228, 248, 0.08) !important;
+  color: #9ab4d0 !important;
+  font-size: 10px !important;
+  overflow: hidden !important;
+  user-select: none !important;
+}
+
+.leaf-panel-footer .pf-lead {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+  min-width: 0 !important;
+}
+
+.leaf-panel-footer .pf-sprite-frame {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 5px !important;
+  background: rgba(16, 32, 53, 0.85) !important;
+  border: 1px solid rgba(80, 120, 165, 0.4) !important;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.4) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+.leaf-panel-footer .pf-sprite {
+  width: 22px !important;
+  height: 22px !important;
+  margin: 0 !important;
+  object-fit: contain !important;
+  image-rendering: pixelated !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)) !important;
+}
+
+.leaf-panel-footer .pf-orbit {
+  font-size: 11px !important;
+  color: #5c7f9e !important;
+  line-height: 1 !important;
+}
+
+.leaf-panel-footer .pf-lead-name {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  color: #e2ecf8 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 90px !important;
+  letter-spacing: 0.2px !important;
+}
+
+.leaf-panel-footer .pf-divider {
+  width: 1px !important;
+  height: 14px !important;
+  background: rgba(80, 120, 165, 0.3) !important;
+  flex-shrink: 0 !important;
+  margin: 0 1px !important;
+}
+
+.leaf-panel-footer .pf-hunt {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
+}
+
+.leaf-panel-footer .pf-hunt-tag,
+.leaf-panel-footer .pf-hunt small {
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.6px !important;
+  color: #7290b0 !important;
+  text-transform: uppercase !important;
+  background: rgba(30, 54, 82, 0.45) !important;
+  padding: 2px 5px !important;
+  border-radius: 3px !important;
+  border: 1px solid rgba(65, 100, 140, 0.35) !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.leaf-panel-footer .pf-hunt-val,
+.leaf-panel-footer .pf-hunt b {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #81e4f8 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  text-shadow: 0 0 8px rgba(129, 228, 248, 0.28) !important;
+  letter-spacing: 0.2px !important;
+}
+
+.leaf-panel-footer .pf-spacer {
+  flex: 1 !important;
+  min-width: 4px !important;
+}
+
+.leaf-panel-footer .pf-balls {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+  padding-left: 8px !important;
+  border-left: 1px solid rgba(80, 120, 165, 0.25) !important;
+}
+
+.leaf-panel-footer .pf-balls-tag,
+.leaf-panel-footer .pf-balls small {
+  font-size: 8px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.6px !important;
+  color: #7290b0 !important;
+  text-transform: uppercase !important;
+  background: rgba(30, 54, 82, 0.45) !important;
+  padding: 2px 5px !important;
+  border-radius: 3px !important;
+  border: 1px solid rgba(65, 100, 140, 0.35) !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.leaf-panel-footer .pf-balls-val,
+.leaf-panel-footer .pf-balls b {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: 0.3px !important;
+}
+
+@container (max-width: 340px) {
+  .leaf-panel-footer .pf-lead-name { display: none !important; }
+}
+
+@container (max-width: 270px) {
+  .leaf-panel-footer .pf-hunt-tag,
+  .leaf-panel-footer .pf-hunt small,
+  .leaf-panel-footer .pf-balls-tag,
+  .leaf-panel-footer .pf-balls small { display: none !important; }
+}
+
+/* ==========================================================================
+   Modals & Settings Drawer (Matches #collection-dialog / #regions-dialog)
+   ========================================================================== */
+#leafSettingsDrawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 330px;
+  max-width: 90vw;
+  background: var(--pw-window-bg) !important;
+  border-left: 1px solid var(--pw-window-border) !important;
+  box-shadow: var(--pw-window-shadow) !important;
+  z-index: 1000;
+  transform: translateX(100%);
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  padding: 20px;
+  isolation: isolate;
+}
+
+body.leaf-settings-open #leafSettingsDrawer {
+  transform: translateX(0);
+}
+
+#leafSettingsDrawer:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
+  background: url('assets/paw_game/assets/brand/prisma/corner.svg') left top/32px 32px no-repeat;
+  transform: rotate(90deg);
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.leaf-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(115, 131, 165, 0.35);
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.leaf-drawer-head:after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #89e7f9, #bc99ec);
+  box-shadow: 0 0 8px rgba(138, 231, 249, 0.45);
+}
+
+.leaf-drawer-head h2 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
+.leaf-drawer-subtitle {
+  font-size: 9.5px;
+  color: var(--pw-muted);
+  margin-top: 3px;
+}
+
+.leaf-drawer-close {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--pw-control-border);
+  border-radius: 6px;
+  background: var(--pw-control-bg);
+  color: var(--pw-muted);
+  font-size: 18px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.leaf-drawer-close:hover {
+  border-color: #8fe8f9;
+  color: #fff;
+}
+
+.leaf-setting-section {
+  margin-bottom: 18px;
+}
+
+.leaf-setting-title {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #81e4f8;
+  margin-bottom: 8px;
+}
+
+.leaf-setting-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.leaf-setting-btn {
+  height: 32px;
+  border: 1px solid var(--pw-control-border);
+  border-radius: 6px;
+  background: var(--pw-control-bg);
+  color: var(--pw-ink);
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--motion-fast) ease;
+}
+
+.leaf-setting-btn:hover {
+  border-color: #8fe8f9;
+  background: #233e5c;
+  color: #fff;
+}
+
+.leaf-setting-btn.is-on {
+  border-color: #8fe8f9;
+  background: linear-gradient(145deg, #254463, #152b41);
+  box-shadow: inset 0 0 0 1px rgba(143, 232, 249, 0.35);
+  color: #fff;
+}
+
+.leaf-window-count-options,
+.leaf-layout-options {
+  display: flex;
+  gap: 4px;
+}
+
+.leaf-window-count-options button,
+.leaf-layout-options button {
+  flex: 1;
+  height: 28px;
+  border: 1px solid var(--pw-control-border);
+  border-radius: 5px;
+  background: var(--pw-control-bg);
+  color: var(--pw-muted);
+  font-weight: 700;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.leaf-window-count-options button.is-on,
+.leaf-layout-options button.is-on {
+  border-color: #8fe8f9;
+  background: #254463;
+  color: #fff;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.25);
+}
+
+/* ==========================================================================
+   Resumo Modal (#stats) & Overlays
+   ========================================================================== */
+#stats {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%) scale(0.96) !important;
+  width: min(var(--statsw, 480px), calc(100vw - 32px)) !important;
+  max-width: calc(100vw - 32px) !important;
+  height: min(720px, calc(100vh - 80px)) !important;
+  max-height: calc(100vh - 32px) !important;
+  background: linear-gradient(180deg, #0e1e33, #071220) !important;
+  border: 1px solid #3c577b !important;
+  border-radius: var(--pw-window-radius) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 24px rgba(0, 229, 255, 0.25) !important;
+  color: var(--pw-ink) !important;
+  display: none !important;
+  flex-direction: column !important;
+  z-index: 1000 !important;
+  overflow: hidden !important;
+}
+
+#stats.show {
+  display: flex !important;
+  transform: translate(-50%, -50%) scale(1) !important;
+}
+
+#stats .sb-top {
+  background: linear-gradient(90deg, rgba(145, 217, 243, 0.18), transparent 75%), #122135 !important;
+  border-bottom: 1px solid #3c577b !important;
+  color: #fff !important;
+  padding: 10px 14px !important;
+  font-weight: 800 !important;
+  font-size: 12px !important;
+  letter-spacing: 0.5px !important;
+}
+
+#stats .sb-top button {
+  background: #1c3150 !important;
+  border: 1px solid #4d6a8f !important;
+  color: #e2edf9 !important;
+  border-radius: 5px !important;
+}
+
+#stats .st-head, #stats .st-tabs {
+  background: #0f1d31 !important;
+  border-color: #2b415c !important;
+  color: #a2b5ce !important;
+}
+
+#stats .st-tab {
+  background: #14243b !important;
+  color: #a2b5ce !important;
+  border: 1px solid #2b415c !important;
+  border-radius: 5px !important;
+}
+
+#stats .st-tab.on {
+  background: linear-gradient(145deg, #254463, #152b41) !important;
+  border-color: #8fe8f9 !important;
+  color: #fff !important;
+}
+
+#stats .st-body, #stats .st-cfg {
+  background: #091424 !important;
+  color: #eef5ff !important;
+}
+
+#stats .r .l, #stats .tl-sub, #stats .it, #stats .drop .dn, #stats .loc, #stats .gl, #stats .kl {
+  color: #8faec8 !important;
+}
+
+#stats .r .v, #stats .drop .dn b, #stats .bg .bt, #stats .nm, #stats .kv, #stats .g4 .v {
+  color: #fff !important;
+}
+
+#stats .kpi.g, #stats .kpi.b, #stats .kpi.n {
+  background: #122135 !important;
+  border: 1px solid #2b415c !important;
+  border-radius: 6px !important;
+}
+
+/* Other Modals & Overlays */
+#overlay, #scOverlay, #tlOverlay, #dtOverlay, #atOverlay, #autoSupplyOverlay {
+  background: rgba(3, 10, 22, 0.78) !important;
+  backdrop-filter: blur(5px) !important;
+}
+
+#modal, #scModal, #tlModal, #dtModal, #atModal, #autoSupplyModal {
+  background: var(--pw-window-bg) !important;
+  border: 1px solid var(--pw-window-border) !important;
+  border-radius: var(--pw-window-radius) !important;
+  box-shadow: var(--pw-window-shadow) !important;
+  color: var(--pw-ink) !important;
+}
+
+#modal {
+  width: 680px !important;
+  max-width: 95vw !important;
+  padding: 22px 24px !important;
+}
+
+.acc-row {
+  display: grid !important;
+  grid-template-columns: 28px 110px 1.3fr 1.2fr 34px 34px !important;
+  gap: 8px !important;
+  align-items: center !important;
+  margin-bottom: 8px !important;
+}
+
+.acc-row .acc-slot {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #81e4f8 !important;
+  text-align: center !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.acc-row button.acc-del,
+.acc-row button.acc-wipe {
+  height: 36px !important;
+  width: 34px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+  border: 1px solid #4a6688 !important;
+  border-radius: 6px !important;
+  background: var(--pw-control-bg) !important;
+  color: #eef5ff !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.acc-row button.acc-del:hover {
+  border-color: #ff826f !important;
+  background: #7a2323 !important;
+}
+
+.acc-row button.acc-wipe:hover {
+  border-color: #f2cf89 !important;
+  background: #6a4a1a !important;
+}
+
+#modal h2, #scModal h2, #tlModal h2, #dtModal h2, #atModal h2, #autoSupplyModal h2 {
+  color: #81e4f8 !important;
+}
+
+#modal input, #scModal input, #scModal textarea, #tlModal input, #tlModal select, #dtModal input, #dtModal select, #atModal input, #atModal select {
+  background: #0b182a !important;
+  color: #eef5ff !important;
+  border: 1px solid #4a6688 !important;
+  border-radius: 6px !important;
+  height: 36px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+}
+
+#modal button, #scModal button, #tlModal button, #dtModal button, #atModal button {
+  background: var(--pw-control-bg) !important;
+  color: #eef5ff !important;
+  border: 1px solid var(--pw-control-border) !important;
+  border-radius: 6px !important;
+}
+
+#modal button:hover, #scModal button:hover, #tlModal button:hover, #dtModal button:hover, #atModal button:hover {
+  border-color: #8fe8f9 !important;
+  background: #254463 !important;
+}
+
+/* Secondary Views (Lista desativada) */
+#leafListView {
+  display: none !important;
+}
+
+
+body.cards-on #grid {
+  display: none !important;
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+
+#cards {
+  display: none !important;
+}
+
+body.cards-on #cards {
+  display: flex !important;
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: var(--color-bg-base, #071324) !important;
+  color: var(--pw-ink, #eef5ff) !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+body.cards-on #cards::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
