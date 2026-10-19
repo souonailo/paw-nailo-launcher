@@ -164,7 +164,7 @@
     setAudioMuted: (index, muted) => invoke('webview_settings', { index, muted: !!muted }).catch(console.error),
 
     // 10. Metadados
-    appVersion: '1.0.1'
+    appVersion: '1.0.2'
   };
 
   window.PawNailo = window.PawNailo || {};

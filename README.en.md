@@ -4,19 +4,17 @@ PokeIdle and Poke Ascended World companion launcher for Windows x64, with four a
 
 [Português](README.md) · [Tutorial (PT)](TUTORIAL.md) · [Contributing (PT)](CONTRIBUTING.md)
 
-## Run from source
+## How to run
 
-1. Clone this repository or your fork, or extract **Code → Download ZIP**.
-2. Run **`Abrir PAW Nailo.bat`** from the repository root.
-3. If already compiled, the launcher **starts immediately**. On the first run without the executable, the script compiles the native Rust backend automatically.
+### 🎮 For Players (Recommended)
+1. Download the latest `PAW-Nailo-vX.X.X.zip` from [Releases](https://github.com/souonailo/paw-nailo-launcher/releases).
+2. Extract the ZIP to any folder.
+3. Run **`Abrir PAW Nailo.bat`** (or `paw-nailo-rust.exe`). The launcher starts **immediately** with zero setup!
 
-### Prerequisites
-
-- Windows 10/11 x64
-- Microsoft Edge WebView2 Runtime (pre-installed on most modern Windows systems)
-- Rust stable and Microsoft C++ Build Tools (MSVC) for building the native backend
-
-The application does not require Node.js, Python, or external browser wrappers.
+### 🛠️ For Developers (Build from source)
+1. Clone this repository or your fork.
+2. Ensure you have **Rust** ([rustup](https://rustup.rs/)) and **Microsoft C++ Build Tools** (MSVC) installed.
+3. Run **`Abrir PAW Nailo.bat`** to build and run, or `empacotar-release.bat` to package a release zip.
 
 ## Updates and forks
 

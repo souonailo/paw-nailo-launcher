@@ -1,25 +1,24 @@
 PAW NAILO RUST - COMO USAR
 
-1. Extraia o ZIP inteiro ou clone o repositorio/seu fork.
-2. Abra: Abrir PAW Nailo.bat
-3. Na primeira execucao (se o executavel ainda nao estiver compilado),
-   o script compila o backend Rust automaticamente.
-   Se ja estiver compilado, o launcher abre instantaneamente.
-4. Configure suas contas e use "Logar equipe".
+METODO 1: JOGADOR (RECOMENDADO)
+1. Baixe o arquivo PAW-Nailo-vX.X.X.zip na aba Releases do GitHub.
+2. Clique com o botao direito e selecione "Extrair Tudo".
+3. Abra: Abrir PAW Nailo.bat (ou paw-nailo-rust.exe diretamente).
+4. O launcher abre instantaneamente em menos de 1 segundo!
+   (Nao precisa instalar Rust, Visual Studio nem ferramentas de programacao).
 
-Atalhos:
-Crie um atalho na Area de Trabalho apontando para "Abrir PAW Nailo.bat".
+METODO 2: DESENVOLVEDOR (COMPILACAO DO CODIGO-FONTE)
+1. Clone o repositorio do GitHub.
+2. Certifique-se de ter instalado:
+   - Rust (https://rustup.rs/)
+   - Microsoft C++ Build Tools (MSVC com a carga C++ Desktop)
+3. Execute "Abrir PAW Nailo.bat" para compilar e iniciar.
+4. Para gerar o pacote ZIP de distribuicao, execute "empacotar-release.bat".
 
-Estrutura:
-- Interface: pasta "ui" (HTML/CSS/JS).
-- Backend nativo: pasta "src-tauri" (Rust).
+ATALHOS:
+Crie um atalho na Area de Trabalho apontando para "Abrir PAW Nailo.bat"
+ou diretamente para "paw-nailo-rust.exe".
 
-Requisitos para compilar:
-- Windows 10/11 x64
-- Microsoft Edge WebView2 Runtime
-- Rust (rustup) e Microsoft C++ Build Tools (MSVC)
-
+SEGURANCA:
+Dados e credenciais ficam criptografados em %APPDATA%/pawnailo via DPAPI.
 Nao requer Node.js nem Python.
-
-Dados persistentes e credenciais ficam protegidos em %APPDATA%/pawnailo via DPAPI.
-Leia TUTORIAL.md para instrucoes detalhadas e MANUAL.md para operacao das contas.

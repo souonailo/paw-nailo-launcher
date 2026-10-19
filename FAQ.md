@@ -2,23 +2,24 @@
 
 ## Qual arquivo abre o launcher?
 
-**`Abrir PAW Nailo.bat`** na raiz da pasta. Se o binário nativo já estiver compilado, ele abre de imediato em menos de um segundo.
+Você pode abrir tanto pelo **`Abrir PAW Nailo.bat`** quanto diretamente pelo **`paw-nailo-rust.exe`**. O arquivo `.bat` tem a vantagem adicional de encerrar instâncias anteriores presas antes de iniciar.
+
+## Preciso compilar ou instalar ferramentas de desenvolvimento para jogar?
+
+**Não.** Jogadores não precisam compilar nada. Basta baixar a versão pronta na aba [Releases do GitHub](https://github.com/souonailo/paw-nailo-launcher/releases) (`PAW-Nailo-vX.X.X.zip`), descompactar e abrir o launcher. Ele já vem 100% compilado e abre imediatamente.
+
+## O que fazer se aparecer o erro `linker link.exe not found`?
+
+Esse erro acontece quando alguém baixa o código-fonte cru do GitHub (em vez da versão pronta em Releases) e tenta compilar sem ter o Visual Studio C++ instalado.
+- Se você é jogador: baixe o arquivo ZIP pronto na aba **Releases**.
+- Se você é desenvolvedor: instale o Visual Studio Build Tools com a opção "Desenvolvimento para desktop com C++" ou execute no PowerShell como Administrador:
+  ```powershell
+  winget install Microsoft.VisualStudio.2022.BuildTools --override "--passive --config https://aka.ms/vs/17/release/vs_buildtools.exe --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+  ```
 
 ## Preciso instalar Node.js ou Python?
 
 Não. O launcher possui backend 100% nativo em Rust (Tauri v2) e interface WebView2. Não requer Node.js nem Python para ser executado.
-
-## Por que a primeira compilação pode demorar?
-
-Na primeira vez em que você compila o projeto pelo código-fonte, o Cargo baixa e compila as dependências do Rust (crates do ecossistema Tauri e Windows API). As aberturas seguintes utilizam o cache compilado e iniciam instantaneamente.
-
-## Como faço alterações na interface?
-
-A interface do aplicativo fica na pasta `ui/` (HTML, CSS e JavaScript). Basta editar o arquivo desejado e reiniciar o aplicativo pelo `Abrir PAW Nailo.bat`. Não é necessário compilar o backend para mudanças visuais.
-
-## Como faço alterações no backend?
-
-O código Rust fica em `src-tauri/src/`. Após alterar, execute `Abrir PAW Nailo.bat --build` ou `cargo build` dentro da pasta `src-tauri`.
 
 ## Onde ficam salvas minhas contas e senhas?
 

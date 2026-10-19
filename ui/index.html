@@ -2828,6 +2828,26 @@
     }
 
     let cardsRefreshTimer = null;
+    let gameMuted = lsGet('gameMuted') === '1'; // Padrão: false (som ativado)
+    function syncAudioToggleUI() {
+      const audioToggleBtn = document.getElementById('audioToggle');
+      if (audioToggleBtn) {
+        audioToggleBtn.textContent = gameMuted ? '🔇 Mudo' : '🔊 Som';
+        audioToggleBtn.classList.toggle('on', !gameMuted);
+      }
+    }
+    function setGameMuted(muted) {
+      gameMuted = Boolean(muted);
+      lsSet('gameMuted', gameMuted ? '1' : '0');
+      if (typeof applyAllWebviewsSync === 'function') applyAllWebviewsSync();
+      syncAudioToggleUI();
+      try {
+        document.dispatchEvent(new CustomEvent('paw-audio-muted-changed', { detail: { muted: gameMuted } }));
+      } catch {}
+    }
+    window.setGameMuted = setGameMuted;
+    window.getGameMuted = () => gameMuted;
+    window.toggleGameMuted = () => setGameMuted(!gameMuted);
 
     function zoomTodos(acao) {
       zoomers.forEach((z, i) => { if (z && webviews[i] && !off[i]) z(acao); });
@@ -4133,6 +4153,247 @@
     window.ecoScript = ecoScript;
     window.ecoFps = ecoFps;
 
+    // ----- Auto-Cupom NAILO na compra de diamantes -----
+    const COUPON_SCRIPT = `(() => {
+    if (window.__nailoCouponWatcher) return;
+    window.__nailoCouponWatcher = true;
+
+    const NOTICE_ID = 'nailo-support-notice';
+    let wasVisible = false;
+    let userEdited = false;
+
+    function findCouponElements() {
+      const box = document.querySelector('.recharge-coupon')
+        || Array.from(document.querySelectorAll('div, section, fieldset')).find(el => {
+          const txt = (el.textContent || '').toLowerCase();
+          return (txt.includes('cupom de criador') || txt.includes('código do criador')) && el.querySelector('input');
+        });
+      if (!box) return null;
+      const input = box.querySelector('input');
+      if (!input) return null;
+      const btn = box.querySelector('button') || Array.from(box.querySelectorAll('button, a')).find(b => (b.textContent || '').trim().toLowerCase() === 'aplicar');
+      return { box, input, btn };
+    }
+
+    function isElementVisible(el) {
+      if (!el) return false;
+      if (typeof el.isConnected === 'boolean' && !el.isConnected) return false;
+      if (el.hidden || (el.style && (el.style.display === 'none' || el.style.visibility === 'hidden'))) return false;
+      if (typeof el.offsetWidth === 'number' && (el.offsetWidth > 0 || el.offsetHeight > 0)) return true;
+      if (typeof el.getClientRects === 'function' && el.getClientRects().length > 0) return true;
+      if (typeof window !== 'undefined' && typeof window.getComputedStyle === 'function') {
+        try {
+          const cs = window.getComputedStyle(el);
+          if (cs && (cs.display === 'none' || cs.visibility === 'hidden')) return false;
+          let p = el.parentElement;
+          while (p && p !== document.body && p !== document.documentElement) {
+            const pcs = window.getComputedStyle(p);
+            if (pcs && (pcs.display === 'none' || pcs.visibility === 'hidden')) return false;
+            p = p.parentElement;
+          }
+          if (cs && cs.position === 'fixed') return true;
+        } catch (e) {}
+      }
+      return el.offsetParent !== null;
+    }
+
+    function checkCoupon() {
+      const els = findCouponElements();
+      const isVisible = Boolean(els && isElementVisible(els.box));
+
+      if (!isVisible) {
+        // Se a tela de recarga não estiver visível (fechou modal, trocou de aba, etc.), reseta a sessão
+        wasVisible = false;
+        userEdited = false;
+        if (els && els.box && els.box.dataset.nailoAppliedBtn) {
+          delete els.box.dataset.nailoAppliedBtn;
+        }
+        return;
+      }
+
+      // Tela está aberta e visível
+      const { box, input, btn } = els;
+
+      // Detecta abertura inicial ou reabertura da tela
+      if (!wasVisible) {
+        wasVisible = true;
+        userEdited = false;
+        if (box.dataset.nailoAppliedBtn) {
+          delete box.dataset.nailoAppliedBtn;
+        }
+      }
+
+      // Adiciona listener para registrar quando o usuário apaga ou altera o cupom manualmente
+      if (!input.__nailoWatcherAttached) {
+        input.__nailoWatcherAttached = true;
+        const markUserEdit = () => {
+          const curVal = (input.value || '').trim().toUpperCase();
+          if (curVal !== 'NAILO') {
+            userEdited = true;
+          }
+        };
+        input.addEventListener('input', markUserEdit);
+        input.addEventListener('change', markUserEdit);
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' || e.key === 'Delete') {
+            userEdited = true;
+          }
+        });
+      }
+
+      // Adiciona o aviso de apoio explicativo no DOM se ainda não existir
+      if (!box.querySelector('#' + NOTICE_ID)) {
+        const notice = document.createElement('section');
+        notice.id = NOTICE_ID;
+        notice.style.cssText = 'display: block !important; flex-direction: column !important; box-sizing: border-box !important; width: 100% !important; margin: 10px 0 0 0 !important; padding: 10px 12px !important; background: rgba(10, 31, 46, 0.92) !important; border: 1px solid rgba(112, 197, 223, 0.4) !important; border-radius: 8px !important; text-align: left !important;';
+        notice.innerHTML = '<div style="display: flex !important; align-items: center !important; gap: 6px !important; margin-bottom: 6px !important; font-size: 11px !important; font-weight: 700 !important; color: #81e4f8 !important;">'
+          + '<span>💜</span><span>Apoio ao Criador do Launcher</span></div>'
+          + '<p style="margin: 0 !important; font-size: 11px !important; line-height: 1.55 !important; color: #a5e1cc !important;">'
+          + 'Para apoiar o criador do launcher foi adicionado automaticamente o cupom dele que garante 10% de bônus na sua compra, se quiser apoiar outro criador é só apagar o texto e adicionar o do seu criador favorito, abraço!</p>';
+        box.appendChild(notice);
+      }
+
+      // Se o usuário já alterou ou apagou o cupom nesta sessão de abertura da tela, respeita e não mexe
+      if (userEdited) {
+        return;
+      }
+
+      // Preenche o cupom NAILO se o campo estiver vazio
+      const currentVal = (input.value || '').trim();
+      if (!currentVal) {
+        try {
+          const proto = Object.getPrototypeOf(input);
+          const setter = Object.getOwnPropertyDescriptor(proto, 'value')?.set
+            || (typeof HTMLInputElement !== 'undefined' && Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set);
+          if (setter) {
+            setter.call(input, 'NAILO');
+          } else {
+            input.value = 'NAILO';
+          }
+        } catch (e) {
+          input.value = 'NAILO';
+        }
+
+        try {
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        } catch (e) {}
+
+        // Clica no botão "Aplicar"
+        if (btn && !box.dataset.nailoAppliedBtn) {
+          box.dataset.nailoAppliedBtn = '1';
+          setTimeout(() => {
+            try {
+              if (typeof btn.click === 'function') btn.click();
+            } catch (e) {}
+          }, 120);
+        }
+      }
+    }
+
+    try {
+      const observer = new MutationObserver(checkCoupon);
+      observer.observe(document.body || document.documentElement, { childList: true, subtree: true, attributes: true });
+    } catch (e) {}
+
+    setInterval(checkCoupon, 350);
+    checkCoupon();
+  })()`;
+
+    // ----- Chat do jogo: esconde/mostra em todos os painéis (PAW e PokeIdle) -----
+    // O chat fica aberto sempre por padrão, funcionando normalmente como no jogo oficial.
+    // Ele é ocultado apenas ao entrar no Modo Eco, no modo "Só a caça" ou no modo Cartas.
+    const chatScript = (esconder) => `(() => {
+    const achaChat = () => {
+      const pawChat = document.getElementById('game-chat');
+      if (pawChat) return pawChat;
+      const pokeChat = document.getElementById('p-chat') || document.querySelector('#chat-painel, .painel.chat');
+      if (pokeChat) return pokeChat;
+      return document.querySelector('[data-pgchat]');
+    };
+
+    const CHAT_STYLE_ID = 'pg-chat-override-style';
+    const setOverrideStyle = (hide) => {
+      let st = document.getElementById(CHAT_STYLE_ID);
+      if (!hide) {
+        if (st) st.remove();
+        return;
+      }
+      if (!st) {
+        st = document.createElement('style');
+        st.id = CHAT_STYLE_ID;
+        (document.head || document.documentElement).appendChild(st);
+      }
+      const css = '#game-chat, #p-chat, [data-pgchat] { display: none !important; opacity: 0 !important; pointer-events: none !important; visibility: hidden !important; }';
+      if (st.textContent !== css) st.textContent = css;
+    };
+
+    if (window.__pgChatInitTimer) {
+      clearInterval(window.__pgChatInitTimer);
+      window.__pgChatInitTimer = null;
+    }
+
+    if (${esconder}) {
+      // Modo Eco, Só a caça ou Cartas: oculta o chat do jogo
+      setOverrideStyle(true);
+      const c = achaChat();
+      if (c) {
+        c.style.display = 'none';
+        delete c.dataset.pgchatVisible;
+      }
+    } else {
+      // Modo normal: chat do jogo aberto sempre, funcionando normalmente
+      setOverrideStyle(false);
+      const abrirChat = () => {
+        const c = achaChat();
+        if (!c) return false;
+        c.dataset.pgchat = '1';
+        c.dataset.pgchatVisible = '1';
+        if (c.style.display === 'none') c.style.display = '';
+        if (c.id === 'game-chat') {
+          if (c.classList.contains('is-collapsed')) {
+            const collapseBtn = c.querySelector('#chat-collapse');
+            if (collapseBtn && typeof collapseBtn.click === 'function') {
+              collapseBtn.click();
+            }
+            c.classList.remove('is-collapsed');
+          }
+          if (!document.body.classList.contains('mobile-chat-open')) {
+            document.body.classList.add('mobile-chat-open');
+          }
+          return true;
+        } else if (c.id === 'p-chat') {
+          c.classList.remove('recolhida');
+          return true;
+        }
+        return false;
+      };
+
+      if (!abrirChat()) {
+        let tentativas = 0;
+        window.__pgChatInitTimer = setInterval(() => {
+          tentativas++;
+          if (abrirChat() || tentativas >= 25) {
+            clearInterval(window.__pgChatInitTimer);
+            window.__pgChatInitTimer = null;
+          }
+        }, 500);
+      }
+    }
+  })()`;
+    const chatBtn = document.getElementById('chat');
+    // Aberto por padrão! O usuário não precisa alternar manualmente: o chat sai no Eco e Só Caça, e volta normalmente.
+    let chatHidden = false;
+    function applyChat() {
+      if (chatBtn) {
+        chatBtn.textContent = chatHidden ? t('chatHidden') : t('chatShown');
+        chatBtn.classList.toggle('on', !chatHidden);
+      }
+      applyAllWebviewsSync();
+      lsSet('chatHidden', '0');
+    }
+    if (chatBtn) chatBtn.onclick = () => { chatHidden = !chatHidden; applyChat(); };
+
     function applyWebviewSync(i) {
       const w = webviews[i];
       if (!w || off[i]) return;
@@ -4162,7 +4423,35 @@
         w.executeJavaScript(COUPON_SCRIPT).catch(() => { });
         try { w.setAudioMuted(gameMuted); } catch { }
         try {
-          w.executeJavaScript(`try { window.__userMuted = ${gameMuted}; if (window.Howler && typeof window.Howler.mute === 'function') { window.Howler.mute(${gameMuted}); } } catch(e){}`).catch(() => {});
+          w.executeJavaScript(`(() => {
+            try {
+              window.__userMuted = ${gameMuted};
+              if (window.Howler) {
+                if (typeof window.Howler.mute === 'function') window.Howler.mute(${gameMuted});
+                if (!${gameMuted} && typeof window.Howler.volume === 'function') window.Howler.volume(1.0);
+              }
+              document.querySelectorAll('audio, video').forEach(el => {
+                el.muted = ${gameMuted};
+                if (!${gameMuted} && el.paused) el.play().catch(() => {});
+              });
+              const AudioCtx = window.AudioContext || window.webkitAudioContext;
+              if (AudioCtx) {
+                if (window.__audioCtx && window.__audioCtx.state === 'suspended' && !${gameMuted}) {
+                  window.__audioCtx.resume().catch(() => {});
+                }
+              }
+              try {
+                const pref = localStorage.getItem('pokewilds-preference');
+                if (pref) {
+                  const pj = JSON.parse(pref);
+                  if (pj && pj.shinySound !== undefined && pj.shinySound !== (!${gameMuted})) {
+                    pj.shinySound = !${gameMuted};
+                    localStorage.setItem('pokewilds-preference', JSON.stringify(pj));
+                  }
+                }
+              } catch (_) {}
+            } catch(e){}
+          })()`).catch(() => {});
         } catch { }
       } catch (e) { }
     }
@@ -4195,26 +4484,7 @@
     };
 
     // ----- Controle Global de Áudio / Som -----
-    let gameMuted = lsGet('gameMuted') === '1'; // Padrão: false (som ativado)
     const audioToggleBtn = document.getElementById('audioToggle');
-    function syncAudioToggleUI() {
-      if (audioToggleBtn) {
-        audioToggleBtn.textContent = gameMuted ? '🔇 Mudo' : '🔊 Som';
-        audioToggleBtn.classList.toggle('on', !gameMuted);
-      }
-    }
-    function setGameMuted(muted) {
-      gameMuted = Boolean(muted);
-      lsSet('gameMuted', gameMuted ? '1' : '0');
-      applyAllWebviewsSync();
-      syncAudioToggleUI();
-      try {
-        document.dispatchEvent(new CustomEvent('paw-audio-muted-changed', { detail: { muted: gameMuted } }));
-      } catch {}
-    }
-    window.setGameMuted = setGameMuted;
-    window.getGameMuted = () => gameMuted;
-    window.toggleGameMuted = () => setGameMuted(!gameMuted);
     if (audioToggleBtn) {
       audioToggleBtn.onclick = () => window.toggleGameMuted();
       syncAudioToggleUI();
@@ -4677,247 +4947,6 @@
     kill();
   })()`;
 
-    // ----- Auto-Cupom NAILO na compra de diamantes -----
-    const COUPON_SCRIPT = `(() => {
-    if (window.__nailoCouponWatcher) return;
-    window.__nailoCouponWatcher = true;
-
-    const NOTICE_ID = 'nailo-support-notice';
-    let wasVisible = false;
-    let userEdited = false;
-
-    function findCouponElements() {
-      const box = document.querySelector('.recharge-coupon')
-        || Array.from(document.querySelectorAll('div, section, fieldset')).find(el => {
-          const txt = (el.textContent || '').toLowerCase();
-          return (txt.includes('cupom de criador') || txt.includes('código do criador')) && el.querySelector('input');
-        });
-      if (!box) return null;
-      const input = box.querySelector('input');
-      if (!input) return null;
-      const btn = box.querySelector('button') || Array.from(box.querySelectorAll('button, a')).find(b => (b.textContent || '').trim().toLowerCase() === 'aplicar');
-      return { box, input, btn };
-    }
-
-    function isElementVisible(el) {
-      if (!el) return false;
-      if (typeof el.isConnected === 'boolean' && !el.isConnected) return false;
-      if (el.hidden || (el.style && (el.style.display === 'none' || el.style.visibility === 'hidden'))) return false;
-      if (typeof el.offsetWidth === 'number' && (el.offsetWidth > 0 || el.offsetHeight > 0)) return true;
-      if (typeof el.getClientRects === 'function' && el.getClientRects().length > 0) return true;
-      if (typeof window !== 'undefined' && typeof window.getComputedStyle === 'function') {
-        try {
-          const cs = window.getComputedStyle(el);
-          if (cs && (cs.display === 'none' || cs.visibility === 'hidden')) return false;
-          let p = el.parentElement;
-          while (p && p !== document.body && p !== document.documentElement) {
-            const pcs = window.getComputedStyle(p);
-            if (pcs && (pcs.display === 'none' || pcs.visibility === 'hidden')) return false;
-            p = p.parentElement;
-          }
-          if (cs && cs.position === 'fixed') return true;
-        } catch (e) {}
-      }
-      return el.offsetParent !== null;
-    }
-
-    function checkCoupon() {
-      const els = findCouponElements();
-      const isVisible = Boolean(els && isElementVisible(els.box));
-
-      if (!isVisible) {
-        // Se a tela de recarga não estiver visível (fechou modal, trocou de aba, etc.), reseta a sessão
-        wasVisible = false;
-        userEdited = false;
-        if (els && els.box && els.box.dataset.nailoAppliedBtn) {
-          delete els.box.dataset.nailoAppliedBtn;
-        }
-        return;
-      }
-
-      // Tela está aberta e visível
-      const { box, input, btn } = els;
-
-      // Detecta abertura inicial ou reabertura da tela
-      if (!wasVisible) {
-        wasVisible = true;
-        userEdited = false;
-        if (box.dataset.nailoAppliedBtn) {
-          delete box.dataset.nailoAppliedBtn;
-        }
-      }
-
-      // Adiciona listener para registrar quando o usuário apaga ou altera o cupom manualmente
-      if (!input.__nailoWatcherAttached) {
-        input.__nailoWatcherAttached = true;
-        const markUserEdit = () => {
-          const curVal = (input.value || '').trim().toUpperCase();
-          if (curVal !== 'NAILO') {
-            userEdited = true;
-          }
-        };
-        input.addEventListener('input', markUserEdit);
-        input.addEventListener('change', markUserEdit);
-        input.addEventListener('keydown', (e) => {
-          if (e.key === 'Backspace' || e.key === 'Delete') {
-            userEdited = true;
-          }
-        });
-      }
-
-      // Adiciona o aviso de apoio explicativo no DOM se ainda não existir
-      if (!box.querySelector('#' + NOTICE_ID)) {
-        const notice = document.createElement('section');
-        notice.id = NOTICE_ID;
-        notice.style.cssText = 'display: block !important; flex-direction: column !important; box-sizing: border-box !important; width: 100% !important; margin: 10px 0 0 0 !important; padding: 10px 12px !important; background: rgba(10, 31, 46, 0.92) !important; border: 1px solid rgba(112, 197, 223, 0.4) !important; border-radius: 8px !important; text-align: left !important;';
-        notice.innerHTML = '<div style="display: flex !important; align-items: center !important; gap: 6px !important; margin-bottom: 6px !important; font-size: 11px !important; font-weight: 700 !important; color: #81e4f8 !important;">'
-          + '<span>💜</span><span>Apoio ao Criador do Launcher</span></div>'
-          + '<p style="margin: 0 !important; font-size: 11px !important; line-height: 1.55 !important; color: #a5e1cc !important;">'
-          + 'Para apoiar o criador do launcher foi adicionado automaticamente o cupom dele que garante 10% de bônus na sua compra, se quiser apoiar outro criador é só apagar o texto e adicionar o do seu criador favorito, abraço!</p>';
-        box.appendChild(notice);
-      }
-
-      // Se o usuário já alterou ou apagou o cupom nesta sessão de abertura da tela, respeita e não mexe
-      if (userEdited) {
-        return;
-      }
-
-      // Preenche o cupom NAILO se o campo estiver vazio
-      const currentVal = (input.value || '').trim();
-      if (!currentVal) {
-        try {
-          const proto = Object.getPrototypeOf(input);
-          const setter = Object.getOwnPropertyDescriptor(proto, 'value')?.set
-            || (typeof HTMLInputElement !== 'undefined' && Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set);
-          if (setter) {
-            setter.call(input, 'NAILO');
-          } else {
-            input.value = 'NAILO';
-          }
-        } catch (e) {
-          input.value = 'NAILO';
-        }
-
-        try {
-          input.dispatchEvent(new Event('input', { bubbles: true }));
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-        } catch (e) {}
-
-        // Clica no botão "Aplicar"
-        if (btn && !box.dataset.nailoAppliedBtn) {
-          box.dataset.nailoAppliedBtn = '1';
-          setTimeout(() => {
-            try {
-              if (typeof btn.click === 'function') btn.click();
-            } catch (e) {}
-          }, 120);
-        }
-      }
-    }
-
-    try {
-      const observer = new MutationObserver(checkCoupon);
-      observer.observe(document.body || document.documentElement, { childList: true, subtree: true, attributes: true });
-    } catch (e) {}
-
-    setInterval(checkCoupon, 350);
-    checkCoupon();
-  })()`;
-
-    // ----- Chat do jogo: esconde/mostra em todos os painéis (PAW e PokeIdle) -----
-    // O chat fica aberto sempre por padrão, funcionando normalmente como no jogo oficial.
-    // Ele é ocultado apenas ao entrar no Modo Eco, no modo "Só a caça" ou no modo Cartas.
-    const chatScript = (esconder) => `(() => {
-    const achaChat = () => {
-      const pawChat = document.getElementById('game-chat');
-      if (pawChat) return pawChat;
-      const pokeChat = document.getElementById('p-chat') || document.querySelector('#chat-painel, .painel.chat');
-      if (pokeChat) return pokeChat;
-      return document.querySelector('[data-pgchat]');
-    };
-
-    const CHAT_STYLE_ID = 'pg-chat-override-style';
-    const setOverrideStyle = (hide) => {
-      let st = document.getElementById(CHAT_STYLE_ID);
-      if (!hide) {
-        if (st) st.remove();
-        return;
-      }
-      if (!st) {
-        st = document.createElement('style');
-        st.id = CHAT_STYLE_ID;
-        (document.head || document.documentElement).appendChild(st);
-      }
-      const css = '#game-chat, #p-chat, [data-pgchat] { display: none !important; opacity: 0 !important; pointer-events: none !important; visibility: hidden !important; }';
-      if (st.textContent !== css) st.textContent = css;
-    };
-
-    if (window.__pgChatInitTimer) {
-      clearInterval(window.__pgChatInitTimer);
-      window.__pgChatInitTimer = null;
-    }
-
-    if (${esconder}) {
-      // Modo Eco, Só a caça ou Cartas: oculta o chat do jogo
-      setOverrideStyle(true);
-      const c = achaChat();
-      if (c) {
-        c.style.display = 'none';
-        delete c.dataset.pgchatVisible;
-      }
-    } else {
-      // Modo normal: chat do jogo aberto sempre, funcionando normalmente
-      setOverrideStyle(false);
-      const abrirChat = () => {
-        const c = achaChat();
-        if (!c) return false;
-        c.dataset.pgchat = '1';
-        c.dataset.pgchatVisible = '1';
-        if (c.style.display === 'none') c.style.display = '';
-        if (c.id === 'game-chat') {
-          if (c.classList.contains('is-collapsed')) {
-            const collapseBtn = c.querySelector('#chat-collapse');
-            if (collapseBtn && typeof collapseBtn.click === 'function') {
-              collapseBtn.click();
-            }
-            c.classList.remove('is-collapsed');
-          }
-          if (!document.body.classList.contains('mobile-chat-open')) {
-            document.body.classList.add('mobile-chat-open');
-          }
-          return true;
-        } else if (c.id === 'p-chat') {
-          c.classList.remove('recolhida');
-          return true;
-        }
-        return false;
-      };
-
-      if (!abrirChat()) {
-        let tentativas = 0;
-        window.__pgChatInitTimer = setInterval(() => {
-          tentativas++;
-          if (abrirChat() || tentativas >= 25) {
-            clearInterval(window.__pgChatInitTimer);
-            window.__pgChatInitTimer = null;
-          }
-        }, 500);
-      }
-    }
-  })()`;
-    const chatBtn = document.getElementById('chat');
-    // Aberto por padrão! O usuário não precisa alternar manualmente: o chat sai no Eco e Só Caça, e volta normalmente.
-    let chatHidden = false;
-    function applyChat() {
-      if (chatBtn) {
-        chatBtn.textContent = chatHidden ? t('chatHidden') : t('chatShown');
-        chatBtn.classList.toggle('on', !chatHidden);
-      }
-      applyAllWebviewsSync();
-      lsSet('chatHidden', '0');
-    }
-    if (chatBtn) chatBtn.onclick = () => { chatHidden = !chatHidden; applyChat(); };
-
     // ----- Tela de login: rola pra baixo pra deixar o captcha e o "Entrar" clicaveis -----
     // Roda no maximo 2 vezes: a 2a cobre o deslocamento do layout quando o captcha carrega.
     const scrollLoginScript = `(() => {
@@ -4954,7 +4983,8 @@
     // ----- Barra de icones do jogo (<nav class="game-dock">): esconde e alterna com F2 -----
     // O atalho e injetado DENTRO da pagina do jogo: assim funciona mesmo com o painel em foco
     // (atalhos globais nao disparam quando o webview tem o teclado).
-    const dockScript = (esconder) => `(() => {
+    function dockScript(esconder) {
+      return `(() => {
     window.__dockHide = ${esconder};
     const set = () => { document.querySelectorAll('nav.menu-topo, nav.game-dock').forEach(d => { const display = window.__dockHide ? 'none' : ''; if (d.style.display !== display) d.style.display = display; }); };
     if (!window.__dockObs) { window.__dockObs = new MutationObserver(set); window.__dockObs.observe(document.documentElement, { childList: true, subtree: true }); }
@@ -4966,6 +4996,7 @@
     }
     set();
   })()`;
+    }
     const dockBtn = document.getElementById('dock');
     // Migracao: a 1a versao escondia o menu do jogo por padrao e alguns usuarios estranharam.
     // Agora ele vem VISIVEL; limpamos a preferencia antiga uma unica vez pra valer pra quem ja usou.
@@ -6033,37 +6064,110 @@ return {portal:isPort,live,sk:!!(P.sock&&P.sock.readyState===1),hasBalls,hasInv,
     if (pawSt && pawSt.balls && typeof pawSt.balls === 'object') {
       Object.assign(bMap, pawSt.balls);
     }
+    if (ws && ws.balls && typeof ws.balls.counts === 'object') {
+      Object.assign(bMap, ws.balls.counts);
+    }
+    if (P && P.ws && P.ws.balls && typeof P.ws.balls.counts === 'object') {
+      Object.assign(bMap, P.ws.balls.counts);
+    }
+    if (P && P.estado && P.estado.balls && typeof P.estado.balls === 'object') {
+      Object.assign(bMap, P.estado.balls);
+    }
+    if (typeof window !== 'undefined' && window.estado && window.estado.balls && typeof window.estado.balls === 'object') {
+      Object.assign(bMap, window.estado.balls);
+    }
+    if (pawSt && typeof pawSt.balls === 'number' && Number.isFinite(pawSt.balls)) {
+      bMap['1'] = Number(pawSt.balls) || 0;
+    }
+
     const ballKeyToId = {
-      balls: '1', normalBalls: '1',
-      greatBalls: '2',
-      ultraBalls: '4',
-      idleBalls: '5'
+      balls: '1', normalBalls: '1', 'poke-ball': '1', '1': '1',
+      greatBalls: '2', 'great-ball': '2', '2': '2',
+      superBalls: '3', 'super-ball': '3', '3': '3',
+      ultraBalls: '4', 'ultra-ball': '4', '4': '4',
+      idleBalls: '5', 'idle-ball': '5', '5': '5'
     };
     for (const [bk, id] of Object.entries(ballKeyToId)) {
-      if (pawSt && pawSt[bk] != null) {
+      if (pawSt && pawSt[bk] != null && typeof pawSt[bk] === 'number') {
         bMap[id] = Number(pawSt[bk]) || 0;
       }
     }
     for (const bk of ballKeys) {
-      if (pawSt && pawSt[bk] != null && !ballKeyToId[bk]) {
+      if (pawSt && pawSt[bk] != null && typeof pawSt[bk] === 'number' && !ballKeyToId[bk]) {
         bMap[bk] = Number(pawSt[bk]) || 0;
       }
     }
 
-    for (let bi = 0; bi < ballKeys.length; bi++) {
-      const bk = ballKeys[bi];
-      const bq = (pawSt && pawSt[bk] != null) ? +pawSt[bk] : (bMap[bk] != null ? +bMap[bk] : 0);
-      if (bq > 0) {
-        totalBalls += bq;
-        if (bk === targetBallKey || (!targetBallKey && bq > primaryBallQty)) {
-          primaryBallQty = bq;
-          primaryBallName = bk === 'ultraBalls' ? 'Ultra Ball' : bk === 'greatBalls' ? 'Great Ball' : bk === 'idleBalls' ? 'Idle Ball' : 'Poké Ball';
-          primaryBallId = bk === 'ultraBalls' ? 4 : bk === 'greatBalls' ? 2 : 1;
+    for (const [k, v] of Object.entries(bMap)) {
+      const q = Number(v);
+      if (Number.isFinite(q) && q > 0) {
+        totalBalls += q;
+      }
+    }
+    if (!totalBalls && pawSt && typeof pawSt.balls === 'number') totalBalls = +pawSt.balls;
+    if (bMap['1'] == null && totalBalls > 0) bMap['1'] = totalBalls;
+
+    const ballCatalogLookup = {
+      '1': { id: 1, name: 'Poké Ball', catchRate: 1 },
+      '2': { id: 2, name: 'Great Ball', catchRate: 1.5 },
+      '3': { id: 3, name: 'Super Ball', catchRate: 2 },
+      '4': { id: 4, name: 'Ultra Ball', catchRate: 4 },
+      '5': { id: 5, name: 'Idle Ball', catchRate: 6 },
+      normalBalls: { id: 1, name: 'Poké Ball', catchRate: 1 },
+      greatBalls: { id: 2, name: 'Great Ball', catchRate: 1.5 },
+      ultraBalls: { id: 4, name: 'Ultra Ball', catchRate: 4 },
+      idleBalls: { id: 5, name: 'Idle Ball', catchRate: 6 }
+    };
+    if (ws && ws.balls && Array.isArray(ws.balls.catalog)) {
+      ws.balls.catalog.forEach(b => {
+        if (b && b.id != null) ballCatalogLookup[String(b.id)] = { id: b.id, name: b.name || b.nome || ('Bola ' + b.id), catchRate: b.catchRate || 1 };
+      });
+    }
+
+    let selectedId = null;
+    if (targetBallKey && (ballKeyToId[targetBallKey] || bMap[targetBallKey] != null)) {
+      selectedId = ballKeyToId[targetBallKey] || targetBallKey;
+    } else if (pawSt && pawSt.automation && Array.isArray(pawSt.automation.ballIds) && pawSt.automation.ballIds.length) {
+      selectedId = String(pawSt.automation.ballIds[0]);
+    } else if (P && P.automation && Array.isArray(P.automation.ballIds) && P.automation.ballIds.length) {
+      selectedId = String(P.automation.ballIds[0]);
+    }
+
+    if (selectedId && (bMap[selectedId] != null || bMap[ballKeyToId[selectedId]] != null)) {
+      const actualKey = bMap[selectedId] != null ? selectedId : ballKeyToId[selectedId];
+      const q = Number(bMap[actualKey]) || 0;
+      if (q > 0 || totalBalls === 0) {
+        primaryBallId = Number(ballKeyToId[actualKey] || actualKey) || 1;
+        primaryBallQty = q;
+        const entry = ballCatalogLookup[actualKey] || ballCatalogLookup[String(primaryBallId)];
+        primaryBallName = entry ? entry.name : ('Bola ' + primaryBallId);
+      }
+    }
+
+    if (!primaryBallQty && totalBalls > 0) {
+      const candidates = ['4', '2', '1', '5'];
+      for (const cid of candidates) {
+        const q = Number(bMap[cid]);
+        if (Number.isFinite(q) && q > 0) {
+          primaryBallId = Number(cid);
+          primaryBallQty = q;
+          primaryBallName = (ballCatalogLookup[cid] && ballCatalogLookup[cid].name) || 'Poké Ball';
+          break;
+        }
+      }
+      if (!primaryBallQty) {
+        for (const [k, v] of Object.entries(bMap)) {
+          const q = Number(v);
+          if (Number.isFinite(q) && q > 0) {
+            primaryBallId = Number(ballKeyToId[k] || k) || 1;
+            primaryBallQty = q;
+            primaryBallName = (ballCatalogLookup[k] && ballCatalogLookup[k].name) || ('Bola ' + primaryBallId);
+            break;
+          }
         }
       }
     }
-    if (!totalBalls && pawSt && pawSt.balls != null && typeof pawSt.balls === 'number') totalBalls = +pawSt.balls;
-    if (bMap['1'] == null && totalBalls != null) bMap['1'] = totalBalls;
+    if (!primaryBallQty && totalBalls > 0) primaryBallQty = totalBalls;
 
     const iMap = {};
     if (pawSt && pawSt.invMap && typeof pawSt.invMap === 'object') {

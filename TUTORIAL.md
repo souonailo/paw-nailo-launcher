@@ -1,41 +1,56 @@
-# Abrir o PAW Nailo Rust no Windows
+# Como Usar o PAW Nailo no Windows
 
-## 1. Baixe o código
+O PAW Nailo pode ser utilizado de duas formas: **como jogador** (usando a versão pronta compilada, sem precisar instalar ferramentas de desenvolvimento) ou **como desenvolvedor** (compilando a partir do código-fonte).
 
-Para contribuir, crie um fork no GitHub e clone o **seu fork** com Git. Para apenas utilizar, use **Code → Download ZIP** e **Extrair Tudo**. Não execute o `.bat` de dentro do arquivo ZIP compactado.
+---
 
-Escolha uma pasta em que seu usuário tenha permissão de gravação. Mantenha a estrutura completa do projeto, incluindo `src-tauri` e `ui`.
+## 🎮 Método Recomendado (Para Jogadores)
 
-## 2. Abra o inicializador
+Se você quer apenas jogar com suas 4 contas sem configurar ambiente de programação:
 
-Execute **`Abrir PAW Nailo.bat`** na raiz da pasta.
+### 1. Baixe a versão pronta (Release)
+1. Acesse a aba de **[Releases no GitHub](https://github.com/souonailo/paw-nailo-launcher/releases)**.
+2. Baixe o arquivo **`PAW-Nailo-vX.X.X.zip`** da versão mais recente.
+3. Clique com o botão direito no arquivo baixado e selecione **Extrair Tudo** para uma pasta de sua preferência.
+   > ⚠️ **Atenção**: Nunca execute o launcher de dentro do arquivo ZIP sem extrair antes.
 
-- Se o executável já tiver sido compilado (`src-tauri/target/debug/paw-nailo-rust.exe`), o launcher **abre instantaneamente**.
-- Na primeira execução a partir do código puro (sem o executável presente), o script invoca o `cargo build` e compila o backend nativo automaticamente.
+### 2. Inicie o launcher
+- Dê dois cliques em **`Abrir PAW Nailo.bat`** (ou diretamente no executável **`paw-nailo-rust.exe`**).
+- O launcher abrirá **instantaneamente em menos de 1 segundo**.
+- Você **não** precisa instalar Rust, Visual Studio, Node.js nem Python! O único requisito é o Microsoft Edge WebView2, que já vem instalado de fábrica no Windows 10 e 11.
 
-O launcher não requer Node.js nem Python.
+### 3. Crie um atalho
+- Clique com o botão direito em `Abrir PAW Nailo.bat` (ou em `paw-nailo-rust.exe`) e selecione **Enviar para → Área de trabalho (criar atalho)**.
 
-## 3. Pré-requisitos para compilação a partir do código
+---
 
-Se for a primeira vez que você compila um projeto Rust no Windows, você precisará dos seguintes componentes oficiais:
+## 🛠️ Método para Desenvolvedores (Compilar do Código-Fonte)
 
-- **Microsoft Edge WebView2**: [Evergreen Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) (já pré-instalado na maioria dos sistemas Windows 10 e 11).
-- **Rust**: [rustup](https://rustup.rs/), com a toolchain `stable-x86_64-pc-windows-msvc`.
+Se você for modificar o código ou contribuir com o projeto:
+
+### 1. Obtenha o código
+- Clone o repositório ou seu fork:
+  ```bash
+  git clone https://github.com/souonailo/paw-nailo-launcher.git
+  ```
+
+### 2. Pré-requisitos de Compilação
+Para compilar projetos nativos em Rust no Windows, você precisa de:
+- **Rust**: [rustup](https://rustup.rs/) (toolchain `stable-x86_64-pc-windows-msvc`).
 - **Microsoft C++ Build Tools**: [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/), selecionando a carga **Desenvolvimento para desktop com C++** (ferramentas MSVC e Windows SDK).
+  - *Dica via terminal*: Você pode instalar diretamente executando no PowerShell como Administrador:
+    ```powershell
+    winget install Microsoft.VisualStudio.2022.BuildTools --override "--passive --config https://aka.ms/vs/17/release/vs_buildtools.exe --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+    ```
 
-Os pré-requisitos seguem a [documentação oficial do Tauri v2](https://v2.tauri.app/start/prerequisites/).
+### 3. Compilação e Execução
+- Execute **`Abrir PAW Nailo.bat`** na raiz da pasta. Se o executável ainda não existir, o script invocará o `cargo build` e compilará o backend nativo.
+- Para compilar a versão final otimizada e gerar o arquivo ZIP de distribuição, execute **`empacotar-release.bat`**.
 
-## 4. Use suas contas
+---
 
-Na interface do launcher, configure suas contas e clique em **Logar equipe**. 
+## 🔐 Segurança e Dados Locais
 
-O aplicativo armazena as credenciais criptografadas via DPAPI nativa do Windows no diretório `%APPDATA%/pawnailo`. Preserve essa pasta durante atualizações para não perder a configuração de suas contas.
-
-## 5. Crie um atalho
-
-Para praticidade no dia a dia, crie um atalho na sua Área de Trabalho apontando diretamente para o arquivo **`Abrir PAW Nailo.bat`**.
-
-## 6. Desenvolvimento e edições
-
-- **Interface visual**: Edite os arquivos dentro da pasta `ui/`. Ao salvar, basta fechar e reabrir o launcher pelo `.bat` para carregar as alterações.
-- **Backend nativo**: Ao alterar arquivos em `src-tauri/src/`, reabra pelo `.bat` com o parâmetro `--build` (ou execute `cargo build` na pasta `src-tauri`). A compilação é incremental e reaproveita o cache em `src-tauri/target`.
+- O aplicativo armazena suas credenciais criptografadas via **DPAPI nativa do Windows** no diretório `%APPDATA%/pawnailo`.
+- Suas senhas nunca ficam em texto puro no disco.
+- Ao atualizar de versão, **não apague** a pasta `%APPDATA%/pawnailo` para preservar suas contas salvas.

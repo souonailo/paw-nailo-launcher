@@ -67,9 +67,9 @@ pub fn snapshot(app: &AppHandle) -> serde_json::Value {
 
 /// Retain full hardware acceleration without artificial GPU memory capping.
 pub const GAME_BROWSER_ARGS: &str =
-    "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection";
+    "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required";
 const BASELINE_BROWSER_ARGS: &str =
-    "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection";
+    "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required";
 
 // Wry's additional_browser_args replaces its defaults, including --proxy-server.
 // Build both together so memory settings never bypass the account's proxy.
@@ -119,10 +119,10 @@ mod tests {
 
     #[test]
     fn proxy_credentials_are_never_in_browser_command_line() {
-        let proxy = url::Url::parse("http://user:secret@proxy.example:8080").unwrap();
+        let proxy = url::Url::parse("http://user_name:secret@proxy.example:8080").unwrap();
         let args = browser_args(Some(&proxy));
         assert!(args.contains("--proxy-server=http://proxy.example:8080"));
-        assert!(!args.contains("user"));
+        assert!(!args.contains("user_name"));
         assert!(!args.contains("secret"));
         assert!(!browser_args(None).contains("--proxy-server"));
     }

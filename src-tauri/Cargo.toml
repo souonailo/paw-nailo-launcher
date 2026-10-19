@@ -1,12 +1,16 @@
 [package]
 name = "paw-nailo-rust"
-version = "1.0.1"
+version = "1.0.2"
 description = "Launcher nativo em Rust para Poke Ascended World (PAW) multi-contas"
 edition = "2021"
 
 [lib]
 name = "paw_nailo_lib"
 crate-type = ["rlib"]
+
+[[bin]]
+name = "paw-nailo-rust"
+path = "src/main.rs"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

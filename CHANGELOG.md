@@ -4,6 +4,18 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/) e este projeto segue [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.0.2] - 2026-10-19
+
+### Corrigido
+- **Telemetria e Contagem de Pokébolas**:
+  - Corrigida a extração de inventário no bridge de telemetria (`READ_STATE`): a soma de pokébolas antes considerava exclusivamente chaves simbólicas (`ultraBalls`, `greatBalls`), ignorando IDs numéricos mapeados (`1`, `2`, `3`, `4`, `5`) transmitidos pelo servidor do jogo, o que zerava a quantidade total e a bola equipada.
+  - Sincronização robusta de catálogo de bolas com fallback nominal e identificação correta da bola prioritária ativa.
+  - Preservação da autoridade dos estados do servidor no backend headless Rust, eliminando predição especulativa em eventos de batalha que causava dessincronização de estoque.
+- **Reprodução de Áudio e Desbloqueio de Autoplay no WebView2**:
+  - Adicionada a flag de inicialização do Chromium `--autoplay-policy=no-user-gesture-required` no WebView2, permitindo que os efeitos sonoros (SFX de shiny spawn, captura e combate) sejam reproduzidos mesmo sem interação direta com o canvas do jogo.
+  - Resolução de áudio contexts suspensos (`AudioContext.resume()`) e sincronização imediata de `Howler.mute` e `Howler.volume(1.0)` ao desmutar o launcher.
+  - Correção na inicialização dos estados de mudo (`gameMuted`) no topo do script para evitar acessos antes da declaração e manter a integridade visual da interface.
+
 ## [1.0.1] - 2026-10-19
 
 ### Adicionado

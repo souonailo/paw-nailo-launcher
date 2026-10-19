@@ -41,20 +41,15 @@ O PAW Nailo foi construído para máxima eficiência de processamento e estabili
 
 ## 🚀 Bora abrir o launcher
 
-1. Clone este repositório ou seu fork, ou use **Code → Download ZIP** e extraia tudo.
-2. Execute **`Abrir PAW Nailo.bat`** na raiz.
-3. Se já estiver compilado, o launcher **inicia imediatamente**. Na primeira execução sem o executável presente, o script compila o backend Rust automaticamente.
+### 🎮 Para Jogadores (Recomendado)
+1. Acesse a aba de **[Releases](https://github.com/souonailo/paw-nailo-launcher/releases)** e baixe o arquivo `PAW-Nailo-vX.X.X.zip` da versão mais recente.
+2. Extraia tudo para uma pasta de sua escolha.
+3. Execute **`Abrir PAW Nailo.bat`** (ou dê dois cliques diretamente em `paw-nailo-rust.exe`). O launcher abre **instantaneamente em menos de 1 segundo**, sem precisar de compiladores ou ferramentas de programação!
 
-O inicializador utiliza:
-
-| Dependência | Uso |
-|---|---|
-| Rust stable / Cargo, via rustup | Compilação do backend nativo |
-| Microsoft C++ Build Tools (MSVC) | Compilador, linker e SDK do Windows |
-| Microsoft Edge WebView2 Runtime | Interface e páginas isoladas das contas |
-| Crates de `Cargo.lock` | Bibliotecas Rust gerenciadas pelo Cargo |
-
-A instalação dos componentes de desenvolvimento do Windows pode usar o **winget**; instruções detalhadas estão no [tutorial](TUTORIAL.md).
+### 🛠️ Para Desenvolvedores (Compilar do Código)
+1. Clone este repositório ou seu fork.
+2. Certifique-se de ter instalado o **Rust** ([rustup](https://rustup.rs/)) e o **Visual Studio C++ Build Tools** (MSVC).
+3. Execute **`Abrir PAW Nailo.bat`** na raiz para compilar e rodar, ou use **`empacotar-release.bat`** para gerar um pacote de distribuição.
 
 ## 🔄 Manter a equipe em dia
 

@@ -1,4 +1,4 @@
-﻿use futures_util::{SinkExt, StreamExt};
+use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::collections::HashMap;
@@ -1091,7 +1091,9 @@ fn parse_game_message(m: &serde_json::Value, state: &mut HeadlessState) -> bool 
                     changed = true;
                 } else if k == "bola" {
                     state.a.balls += 1;
-                    if let Some(id) = ev.get("ballId") { state.last_ball_id = Some(id.clone()); }
+                    if let Some(id) = ev.get("ballId") {
+                        state.last_ball_id = Some(id.clone());
+                    }
                     changed = true;
                 } else if k == "cura" || k == "potion" || k == "pocao" {
                     state.a.pots_used += 1;
