@@ -4,6 +4,18 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/) e este projeto segue [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.0.4] - 2026-10-19
+
+### Adicionado
+- **Suporte ao Novo Sistema de Conta Única com 4 Personagens (PAW Single Account Model)**:
+  - Adaptação completa do launcher para a nova mecânica oficial do Poke Ascended World (PAW), onde um único e-mail/senha dá acesso a até 4 personagens.
+  - Simplificação do modal de Treinadores: substituído o formulário repetitivo de 4 contas por um card elegante e intuitivo de Conta Única PAW com E-mail, Senha com visualizador (mostrar/ocultar) e ações rápidas para limpar credenciais ou limpar cookies e cache de todos os painéis.
+  - Painel de visualização e edição rápida dos 4 personagens vinculados aos 4 painéis da equipe, com botão de limpeza individual de dados para manutenção de sessões (`conta_1` a `conta_4`).
+  - Propagação atômica das credenciais da conta única para as 4 partições isoladas de WebView2, garantindo que "Logar equipe" e os scripts de preenchimento automático funcionem simultaneamente nos 4 painéis sem conflitos.
+  - Detecção e exibição em tempo real dos nomes reais dos personagens na barra lateral e nos painéis via telemetria autoritativa do servidor.
+  - Atualização em toda a interface do termo "Conta" para "Personagem" (sidebar, contadores de equipe, visualização em lista e traduções em Português, Inglês e Espanhol).
+  - Migração automática no backend Rust (`credentials.rs`) de credenciais legadas de "Conta X" para "Personagem X".
+
 ## [1.0.3] - 2026-10-19
 
 ### Adicionado

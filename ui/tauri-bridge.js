@@ -34,7 +34,7 @@
           return accs;
         }
       } catch (e) { console.error('Falha ao carregar contas:', e); throw e; }
-      return Array.from({ length: 4 }, (_, i) => ({ name: `Conta ${i + 1}`, email: '', senha: '' }));
+      return Array.from({ length: 4 }, (_, i) => ({ name: `Personagem ${i + 1}`, email: '', senha: '' }));
     },
     saveCreds: async (accounts) => {
       cachedAccounts = accounts;
@@ -169,7 +169,7 @@
     onUpdateProgress: (cb) => listen('updater:progress', (e) => cb(e.payload)),
 
     // 11. Metadados
-    appVersion: '1.0.3'
+    appVersion: '1.0.4'
   };
 
   window.PawNailo = window.PawNailo || {};

@@ -9,8 +9,8 @@
   try { namesHidden = localStorage.getItem(privacyKey) === '1'; } catch {}
   let sidebarCollapsed = false;
   try { sidebarCollapsed = localStorage.getItem('hubSidebarCollapsed') === '1'; } catch {}
-  const accountLabel = i => `Conta ${String(i + 1).padStart(2, '0')}`;
-  const displayName = r => namesHidden ? accountLabel(r.i) : (r.name || `Conta ${r.i + 1}`);
+  const accountLabel = i => `Personagem ${String(i + 1).padStart(2, '0')}`;
+  const displayName = r => namesHidden ? accountLabel(r.i) : (r.name || `Personagem ${r.i + 1}`);
   const fmtCompact = (n) => {
     n = +n || 0; const a = Math.abs(n), sg = n < 0 ? '-' : '';
     if (a >= 1e9) return sg + (a / 1e9).toFixed(a >= 1e10 ? 0 : 1).replace('.0','') + 'bi';
@@ -148,9 +148,9 @@
         <div class="leaf-version" id="leafVersion">PawNailo</div>
       </aside>
       <main class="leaf-main" id="leafMain" tabindex="-1">
-        <section id="leafWindowView" class="leaf-view"><h1 class="leaf-sr-only">Janelas das contas</h1></section>
+        <section id="leafWindowView" class="leaf-view"><h1 class="leaf-sr-only">Janelas dos personagens</h1></section>
         <section id="leafListView" class="leaf-view" hidden>
-          <div class="leaf-page-head"><div><h1>Suas contas</h1><p>Acompanhe o time e o rendimento sem abrir cada janela.</p></div><div class="leaf-page-count" id="leafListCount">0 contas</div></div>
+          <div class="leaf-page-head"><div><h1>Seus personagens</h1><p>Acompanhe o time e o rendimento sem abrir cada janela.</p></div><div class="leaf-page-count" id="leafListCount">0 personagens</div></div>
           <div id="leafListRows"></div>
         </section>
       </main>
@@ -297,12 +297,12 @@
   const states = new Map();
   function baseState(i) {
     const hasCreds = Boolean(typeof accounts !== 'undefined' && accounts[i] && accounts[i].email && accounts[i].senha);
-    const n = (typeof accounts !== 'undefined' && accounts[i] && accounts[i].name) || (typeof stName === 'function' ? stName(i) : `Conta ${i+1}`);
+    const n = (typeof accounts !== 'undefined' && accounts[i] && accounts[i].name) || (typeof stName === 'function' ? stName(i) : `Personagem ${i+1}`);
     return { i, ballsKnown:false, inventoryKnown:false, name:n, st:(!hasCreds || (typeof off !== 'undefined' && off[i])) ? 'off' : 'wait', level:0, balls:0, gold:0, hunt:'', a:{}, team:[] };
   }
   function stateStatus(r) {
     const hasCreds = Boolean(typeof accounts !== 'undefined' && accounts[r?.i] && accounts[r.i].email && accounts[r.i].senha);
-    if (!hasCreds || (typeof off !== 'undefined' && off[r?.i])) return ['off','Desligada'];
+    if (!hasCreds || (typeof off !== 'undefined' && off[r?.i])) return ['off','Desligado'];
     const isLive = Boolean(r && r.ok && (r.live || r.level > 0 || r.hunt || (r.a && (r.a.seconds > 0 || r.a.kills > 0)) || (r.team && r.team.length > 0)));
     if (!isLive) {
       const dot = grid.children[r?.i]?.querySelector('.panel-header .dot');
@@ -381,8 +381,8 @@
     Perf.setText($('#leafKpiBalls'), known === 0 ? '—' : ((inf && balls === 0) ? '∞' : (inf ? `${fmtCompact(balls)}+∞` : fmtCompact(balls))));
     Perf.setText($('#leafKpiAttention'), att);
     $('#leafKpiAttention').classList.toggle('warn',att>0);
-    Perf.setText($('#leafConnectedText'), `${online}/${arr.length || 0} conectadas`);
-    Perf.setText($('#leafListCount'), `${arr.length} conta${arr.length===1?'':'s'}`);
+    Perf.setText($('#leafConnectedText'), `${online}/${arr.length || 0} conectados`);
+    Perf.setText($('#leafListCount'), `${arr.length} personagem${arr.length===1?'':'s'}`);
     renderSidebar(arr);
     decoratePanels(arr);
     if (!$('#leafListView').hidden) renderList(arr);
@@ -510,12 +510,12 @@
       }
       const name = $('.panel-header .name',p);
       if (name && !name.querySelector('input')) {
-        const label = namesHidden ? accountLabel(i) : ((typeof accounts !== 'undefined' && accounts[i]?.name) || (typeof defName === 'function' ? defName(i) : `Conta ${i+1}`));
+        const label = namesHidden ? accountLabel(i) : ((typeof accounts !== 'undefined' && accounts[i]?.name) || (typeof defName === 'function' ? defName(i) : `Personagem ${i+1}`));
         if (name.textContent !== label) name.textContent = label;
       }
       const reload = $('.panel-header .reload',p), expand = $('.panel-header .expand',p);
-      if (reload) reload.setAttribute('aria-label',`Recarregar conta ${i+1}`);
-      if (expand) expand.setAttribute('aria-label',p.classList.contains('expanded')?`Voltar conta ${i+1} à grade`:`Expandir conta ${i+1}`);
+      if (reload) reload.setAttribute('aria-label',`Recarregar personagem ${i+1}`);
+      if (expand) expand.setAttribute('aria-label',p.classList.contains('expanded')?`Voltar personagem ${i+1} à grade`:`Expandir personagem ${i+1}`);
       let f=$('.leaf-panel-footer',p); if(!f){ f=document.createElement('div');f.className='leaf-panel-footer';p.appendChild(f); }
       const lead=getLead(r); const spr=pokeSprite(lead);
       const leadSid = lead ? (lead.sid || lead.speciesId || (+String(lead.id || '').replace(/^poke_|^p/i, '')) || 0) : 0;

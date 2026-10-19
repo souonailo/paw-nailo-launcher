@@ -144,47 +144,60 @@ pub fn dpapi_decrypt(data: &[u8]) -> Result<Vec<u8>, String> {
 
 pub fn load_accounts() -> Vec<Account> {
     let path = get_creds_path();
-    if !path.exists() {
-        return (0..4)
-            .map(|i| Account {
-                name: Some(format!("Conta {}", i + 1)),
-                email: Some("".to_string()),
-                senha: Some("".to_string()),
-                proxy: None,
-            })
-            .collect();
-    }
-
-    match fs::read(&path) {
-        Ok(encrypted_bytes) => {
-            // Tenta descriptografar via DPAPI
-            match dpapi_decrypt(&encrypted_bytes) {
-                Ok(plain_bytes) => {
-                    if let Ok(mut accounts) = serde_json::from_slice::<Vec<Account>>(&plain_bytes) {
-                        for a in &mut accounts { a.proxy = None; }
-                        return accounts;
+    let mut accounts: Vec<Account> = if path.exists() {
+        match fs::read(&path) {
+            Ok(encrypted_bytes) => {
+                match dpapi_decrypt(&encrypted_bytes) {
+                    Ok(plain_bytes) => {
+                        serde_json::from_slice::<Vec<Account>>(&plain_bytes).unwrap_or_default()
                     }
-                }
-                Err(_) => {
-                    // Se falhar a descriptografia, tenta interpretar como JSON plano (em caso de migracao)
-                    if let Ok(mut accounts) = serde_json::from_slice::<Vec<Account>>(&encrypted_bytes) {
-                        for a in &mut accounts { a.proxy = None; }
-                        return accounts;
+                    Err(_) => {
+                        serde_json::from_slice::<Vec<Account>>(&encrypted_bytes).unwrap_or_default()
                     }
                 }
             }
+            Err(_) => Vec::new(),
         }
-        Err(_) => {}
+    } else {
+        Vec::new()
+    };
+
+    let primary_email = accounts.first().and_then(|a| a.email.clone()).filter(|e| !e.is_empty());
+    let primary_senha = accounts.first().and_then(|a| a.senha.clone()).filter(|s| !s.is_empty());
+
+    while accounts.len() < 4 {
+        let i = accounts.len();
+        accounts.push(Account {
+            name: Some(format!("Personagem {}", i + 1)),
+            email: primary_email.clone().or_else(|| Some("".to_string())),
+            senha: primary_senha.clone().or_else(|| Some("".to_string())),
+            proxy: None,
+        });
     }
 
-    (0..4)
-        .map(|i| Account {
-            name: Some(format!("Conta {}", i + 1)),
-            email: Some("".to_string()),
-            senha: Some("".to_string()),
-            proxy: None,
-        })
-        .collect()
+    for (i, a) in accounts.iter_mut().enumerate() {
+        a.proxy = None;
+        if let Some(ref mut name) = a.name {
+            if name.starts_with("Conta ") {
+                *name = format!("Personagem {}", i + 1);
+            }
+        } else {
+            a.name = Some(format!("Personagem {}", i + 1));
+        }
+        if a.email.as_deref().unwrap_or("").is_empty() {
+            if let Some(ref e) = primary_email {
+                a.email = Some(e.clone());
+            }
+        }
+        if a.senha.as_deref().unwrap_or("").is_empty() {
+            if let Some(ref s) = primary_senha {
+                a.senha = Some(s.clone());
+            }
+        }
+    }
+
+    accounts.truncate(4);
+    accounts
 }
 
 pub fn save_accounts(mut accounts: Vec<Account>) -> Result<(), String> {
@@ -206,4 +219,65 @@ pub fn save_accounts(mut accounts: Vec<Account>) -> Result<(), String> {
     fs::rename(&tmp_path, &path).map_err(|e| e.to_string())?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_normalize_and_propagate_single_account() {
+        let mut accounts = vec![
+            Account {
+                name: Some("Conta 1".to_string()),
+                email: Some("trainer@example.com".to_string()),
+                senha: Some("secret123".to_string()),
+                proxy: None,
+            }
+        ];
+
+        let primary_email = accounts.first().and_then(|a| a.email.clone()).filter(|e| !e.is_empty());
+        let primary_senha = accounts.first().and_then(|a| a.senha.clone()).filter(|s| !s.is_empty());
+
+        while accounts.len() < 4 {
+            let i = accounts.len();
+            accounts.push(Account {
+                name: Some(format!("Personagem {}", i + 1)),
+                email: primary_email.clone().or_else(|| Some("".to_string())),
+                senha: primary_senha.clone().or_else(|| Some("".to_string())),
+                proxy: None,
+            });
+        }
+
+        for (i, a) in accounts.iter_mut().enumerate() {
+            if let Some(ref mut name) = a.name {
+                if name.starts_with("Conta ") {
+                    *name = format!("Personagem {}", i + 1);
+                }
+            } else {
+                a.name = Some(format!("Personagem {}", i + 1));
+            }
+            if a.email.as_deref().unwrap_or("").is_empty() {
+                if let Some(ref e) = primary_email {
+                    a.email = Some(e.clone());
+                }
+            }
+            if a.senha.as_deref().unwrap_or("").is_empty() {
+                if let Some(ref s) = primary_senha {
+                    a.senha = Some(s.clone());
+                }
+            }
+        }
+
+        assert_eq!(accounts.len(), 4);
+        assert_eq!(accounts[0].name.as_deref(), Some("Personagem 1"));
+        assert_eq!(accounts[0].email.as_deref(), Some("trainer@example.com"));
+        assert_eq!(accounts[1].name.as_deref(), Some("Personagem 2"));
+        assert_eq!(accounts[1].email.as_deref(), Some("trainer@example.com"));
+        assert_eq!(accounts[1].senha.as_deref(), Some("secret123"));
+        assert_eq!(accounts[2].name.as_deref(), Some("Personagem 3"));
+        assert_eq!(accounts[2].email.as_deref(), Some("trainer@example.com"));
+        assert_eq!(accounts[3].name.as_deref(), Some("Personagem 4"));
+        assert_eq!(accounts[3].email.as_deref(), Some("trainer@example.com"));
+    }
 }
