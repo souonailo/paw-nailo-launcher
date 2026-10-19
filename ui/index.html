@@ -2488,6 +2488,7 @@
           title="Esconde o auto-helper, o popup de captura, os avisos de combate e o HUD do canto; a conta e o menu do jogo aparecem ao passar o mouse">🧼
           Limpar jogo</button>
         <button id="eco">⚡ Eco</button>
+        <button id="audioToggle" title="Mutar ou desmutar o som do jogo">🔊 Som</button>
         <button id="tierBtn">🏆 Tierlist</button>
         <button id="dittoBtn" title="Onde caçar com o Ditto (comum ou shiny) e em que pokémon virar, no seu nível">✨
           Ditto</button>
@@ -3005,7 +3006,7 @@
         if (!off[i] && !falhou) { dot.className = 'dot ok'; status.textContent = t('stOnline'); fails = 0; alertedDown = false; } // carregou DE VERDADE: zera o watchdog (a pagina de erro tambem emite dom-ready)
         dlgT[i] = 0; // pagina nova: um dialogo da anterior nao ficou aberto
         try {
-          try { wv.setAudioMuted(true); } catch { }
+          try { wv.setAudioMuted(gameMuted); } catch { }
           wv.setZoomFactor(zoom);
           wv.executeJavaScript('(' + installZoomWheel.toString() + ')()').catch(() => { });
           // reload nao zera a sessao: o jogo continua no servidor, entao re-semeia os contadores de antes
@@ -4159,7 +4160,10 @@
         const esconderChat = Boolean(eco || cleanOn || cardsOn);
         w.executeJavaScript(chatScript(esconderChat)).catch(() => { });
         w.executeJavaScript(COUPON_SCRIPT).catch(() => { });
-        try { w.setAudioMuted(true); } catch { }
+        try { w.setAudioMuted(gameMuted); } catch { }
+        try {
+          w.executeJavaScript(`try { window.__userMuted = ${gameMuted}; if (window.Howler && typeof window.Howler.mute === 'function') { window.Howler.mute(${gameMuted}); } } catch(e){}`).catch(() => {});
+        } catch { }
       } catch (e) { }
     }
 
@@ -4189,6 +4193,32 @@
     ecoBtn.onclick = () => {
       setEco(!eco);
     };
+
+    // ----- Controle Global de Áudio / Som -----
+    let gameMuted = lsGet('gameMuted') === '1'; // Padrão: false (som ativado)
+    const audioToggleBtn = document.getElementById('audioToggle');
+    function syncAudioToggleUI() {
+      if (audioToggleBtn) {
+        audioToggleBtn.textContent = gameMuted ? '🔇 Mudo' : '🔊 Som';
+        audioToggleBtn.classList.toggle('on', !gameMuted);
+      }
+    }
+    function setGameMuted(muted) {
+      gameMuted = Boolean(muted);
+      lsSet('gameMuted', gameMuted ? '1' : '0');
+      applyAllWebviewsSync();
+      syncAudioToggleUI();
+      try {
+        document.dispatchEvent(new CustomEvent('paw-audio-muted-changed', { detail: { muted: gameMuted } }));
+      } catch {}
+    }
+    window.setGameMuted = setGameMuted;
+    window.getGameMuted = () => gameMuted;
+    window.toggleGameMuted = () => setGameMuted(!gameMuted);
+    if (audioToggleBtn) {
+      audioToggleBtn.onclick = () => window.toggleGameMuted();
+      syncAudioToggleUI();
+    }
 
     // ----- Foco por Família na Grade & Otimização de Memória Background -----
     let currentFamilyFocus = 'all';
@@ -4220,7 +4250,7 @@
               wv.executeJavaScript(ultraScript(false)).catch(() => { });
               wv.executeJavaScript(inGameEcoScript(eco)).catch(() => { });
               wv.executeJavaScript(ecoScript(ecoFps())).catch(() => { });
-              try { wv.setAudioMuted(true); } catch { }
+              try { wv.setAudioMuted(gameMuted); } catch { }
             } else {
               // Em segundo plano: Modo Invisível (-70% de RAM e GPU, mantendo farm no servidor)
               wv.executeJavaScript(ultraScript(true)).catch(() => { });
@@ -8528,6 +8558,7 @@ return {portal:isPort,live,sk:!!(P.sock&&P.sock.readyState===1),hasBalls,hasInv,
       r: () => document.getElementById('reloadAll').click(), // Atualizar tudo
       t: () => document.getElementById('accounts').click(),  // Treinadores
       m: () => dockBtn.click(),                              // Menu do jogo (igual F2)
+      s: () => { if (typeof window.toggleGameMuted === 'function') window.toggleGameMuted(); }, // Som/Mudo
       o: () => menu.classList.toggle('show')                 // Opcoes
     };
     document.addEventListener('keydown', (e) => {

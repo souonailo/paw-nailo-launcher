@@ -301,7 +301,7 @@
             if (typeof window.applyWebviewSync === 'function') {
               window.applyWebviewSync(i);
             } else {
-              const isMuted = typeof muted !== 'undefined' ? muted : false;
+              const isMuted = typeof window.getGameMuted === 'function' ? window.getGameMuted() : (typeof muted !== 'undefined' ? muted : false);
               wv.setAudioMuted(isMuted);
               if (typeof ultraScript === 'function') wv.executeJavaScript(ultraScript(false)).catch(() => {});
               const fps = typeof ecoFps === 'function' ? ecoFps() : 0;

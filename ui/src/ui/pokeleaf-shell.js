@@ -80,7 +80,9 @@
       bag:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
       simple:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h5"/></svg>',
       chat:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-      plus:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>'
+      plus:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
+      volume:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>',
+      volumeX:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>'
     };
     return icons[name] || '';
   };
@@ -116,6 +118,7 @@
         </div>
         <button class="leaf-chip" id="leafEco" aria-pressed="false"><span style="width:13px;height:13px">${ico('moon')}</span><span>Modo Eco</span><span class="switch" aria-hidden="true"></span></button>
         <button class="leaf-chip" id="leafHuntOnly"><span style="width:13px;height:13px">${ico('hunt')}</span><span class="txt-hide-sm">Só a caça</span></button>
+        <button class="leaf-chip is-active" id="leafAudio" aria-pressed="true" title="Som do jogo: Ativado (clique para mutar)"><span id="leafAudioIcon" style="width:13px;height:13px">${ico('volume')}</span><span id="leafAudioLabel" class="txt-hide-sm">Som</span><span class="switch" aria-hidden="true"></span></button>
       </div>
       <div class="leaf-top-right">
         <div class="leaf-connected"><span class="dot"></span><span id="leafConnectedText">0/0 conectadas</span></div>
@@ -203,6 +206,17 @@
   // buttons proxy the mature application logic instead of duplicating it.
   $('#leafEco').onclick = () => clickOld('eco');
   $('#leafHuntOnly').onclick = () => clickOld('cleanHud');
+  const audioBtn = $('#leafAudio');
+  if (audioBtn) {
+    audioBtn.onclick = () => {
+      if (typeof window.toggleGameMuted === 'function') {
+        window.toggleGameMuted();
+      } else {
+        clickOld('audioToggle');
+      }
+      syncAudioState();
+    };
+  }
   const triggerLoginAll = () => clickOld('loginAll');
   $('#leafLoginAll').onclick = triggerLoginAll;
   const topLoginBtn = $('#leafLoginAllTop');
@@ -512,6 +526,24 @@
     try{const value=String(arr.length||1);if(grid.style.getPropertyValue('--leaf-panels')!==value)grid.style.setProperty('--leaf-panels',value);}catch{}
   }
 
+  function syncAudioState() {
+    const audioBtn = $('#leafAudio');
+    if (!audioBtn) return;
+    const isMuted = (typeof window.getGameMuted === 'function') ? window.getGameMuted() : (localStorage.getItem('gameMuted') === '1');
+    const isUnmuted = !isMuted;
+    audioBtn.classList.toggle('is-active', isUnmuted);
+    audioBtn.setAttribute('aria-pressed', String(isUnmuted));
+    audioBtn.title = isUnmuted ? 'Som do jogo: Ativado (clique para mutar)' : 'Som do jogo: Mutado (clique para desmutar)';
+    const iconSpan = $('#leafAudioIcon');
+    if (iconSpan) {
+      iconSpan.innerHTML = ico(isUnmuted ? 'volume' : 'volumeX');
+    }
+    const labelSpan = $('#leafAudioLabel');
+    if (labelSpan) {
+      labelSpan.textContent = isUnmuted ? 'Som' : 'Mudo';
+    }
+  }
+
   function syncToggles(){
     syncGameHudHint();
     const Perf = window.NailoPerformance;
@@ -526,6 +558,7 @@
       ecoChip.removeAttribute('aria-disabled');
       ecoChip.title = '';
     }
+    syncAudioState();
   }
 
   const updateLeafVersion = () => {
@@ -539,7 +572,8 @@
   const av = document.getElementById('appVer');
   if (av) new MutationObserver(updateLeafVersion).observe(av, { childList: true, characterData: true, subtree: true });
   const obs = new MutationObserver(()=>syncToggles()); obs.observe(document.body,{attributes:true,attributeFilter:['class'],subtree:false});
-  ['eco','cleanHud','dock','cardsBtn','chat'].forEach(id=>{const e=document.getElementById(id);if(e)new MutationObserver(syncToggles).observe(e,{attributes:true,attributeFilter:['class']});});
+  ['eco','cleanHud','dock','cardsBtn','chat','audioToggle'].forEach(id=>{const e=document.getElementById(id);if(e)new MutationObserver(syncToggles).observe(e,{attributes:true,attributeFilter:['class']});});
+  document.addEventListener('paw-audio-muted-changed', syncAudioState);
   syncToggles();
 
   // Original build/setCount can add/remove panels later. Decorate new panels and refresh immediately.

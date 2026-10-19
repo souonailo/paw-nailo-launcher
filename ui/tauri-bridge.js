@@ -161,9 +161,10 @@
     },
     webviewEval: (index, script) => invoke('webview_eval', { index, script }),
     webviewFillCreds: (index, email, pass) => invoke('webview_fill_creds', { index, email, pass }).catch(() => false),
+    setAudioMuted: (index, muted) => invoke('webview_settings', { index, muted: !!muted }).catch(console.error),
 
     // 10. Metadados
-    appVersion: '1.0.0'
+    appVersion: '1.0.1'
   };
 
   window.PawNailo = window.PawNailo || {};

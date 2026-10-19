@@ -4,6 +4,19 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/) e este projeto segue [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.0.1] - 2026-10-19
+
+### Adicionado
+- **Controle Dinâmico de Áudio (Mutar/Desmutar)**:
+  - Adicionado botão interativo de áudio ("Som" / "Mudo") na barra superior do launcher (`leafAudio`) e no menu de opções (`audioToggle`).
+  - Atalho de teclado rápido (`S`) para alternar som ativo e mudo instantaneamente.
+  - Persistência da preferência de áudio do usuário no armazenamento local (`gameMuted`).
+
+### Corrigido
+- **Áudio Nativo do Jogo**:
+  - Corrigido problema onde o som do jogo ficava 100% mutado de forma incondicional no carregamento das janelas e sincronizações.
+  - Sincronização em dupla camada: aplicação direta no WebView2 nativo do Windows (`ICoreWebView2_8::SetIsMuted`) e no engine de som web (`Howler.mute`).
+
 ## [1.0.0] - 2026-10-18
 
 ### Adicionado
