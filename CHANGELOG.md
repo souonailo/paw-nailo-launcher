@@ -4,6 +4,16 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/) e este projeto segue [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.0.3] - 2026-10-19
+
+### Adicionado
+- **Auto-Atualizador Nativo via GitHub Releases**:
+  - Verificação automática e não intrusiva de novas versões publicadas no repositório GitHub (`souonailo/paw-nailo-launcher`).
+  - Botão interativo e discreto na barra superior (`#leafHeaderUpdate`) que alerta quando uma nova versão com executável estiver disponível, sem interromper as sessões ou desconectar contas em batalha.
+  - Modal de atualização com exibição de notas de lançamento, barra de progresso em tempo real e confirmação segura pelo usuário.
+  - Atualização in-loco (in-place swap) atômica no Windows: descarrega o novo binário em arquivo temporário, renomeia o executável em execução sem travamento de arquivo do sistema operacional, instala o novo `PAW-Nailo.exe`, executa a nova versão e fecha a versão anterior.
+  - Limpeza automática de arquivos temporários (`.old.tmp` e `.download.tmp`) no ciclo de inicialização do launcher.
+
 ## [1.0.2] - 2026-10-19
 
 ### Corrigido

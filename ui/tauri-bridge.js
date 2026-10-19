@@ -163,8 +163,13 @@
     webviewFillCreds: (index, email, pass) => invoke('webview_fill_creds', { index, email, pass }).catch(() => false),
     setAudioMuted: (index, muted) => invoke('webview_settings', { index, muted: !!muted }).catch(console.error),
 
-    // 10. Metadados
-    appVersion: '1.0.2'
+    // 10. Atualizador Automático Nativo
+    checkUpdate: () => invoke('updater_check').catch((e) => ({ update_available: false, error: String(e) })),
+    applyUpdate: (downloadUrl) => invoke('updater_apply', { downloadUrl }),
+    onUpdateProgress: (cb) => listen('updater:progress', (e) => cb(e.payload)),
+
+    // 11. Metadados
+    appVersion: '1.0.3'
   };
 
   window.PawNailo = window.PawNailo || {};

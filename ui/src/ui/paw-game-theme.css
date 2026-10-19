@@ -1784,3 +1784,187 @@ body.cards-on #cards::-webkit-scrollbar {
   width: 0 !important;
   height: 0 !important;
 }
+
+/* ==========================================================================
+   Auto-Updater Modal & Header Chip
+   ========================================================================== */
+.leaf-chip-update {
+  border-color: #ffd166 !important;
+  color: #ffd166 !important;
+  background: linear-gradient(135deg, rgba(255, 209, 102, 0.22), rgba(240, 140, 30, 0.16)),
+              linear-gradient(180deg, #2b2518, #181611) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 209, 102, 0.35), 0 0 12px rgba(255, 209, 102, 0.3) !important;
+  font-weight: 700 !important;
+  animation: pawUpdatePulse 2.5s infinite ease-in-out !important;
+}
+
+.leaf-chip-update:hover {
+  border-color: #ffe08a !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, rgba(255, 209, 102, 0.35), rgba(240, 140, 30, 0.25)),
+              linear-gradient(180deg, #3a3220, #221f16) !important;
+  box-shadow: inset 0 0 0 1px #ffe08a, 0 0 16px rgba(255, 209, 102, 0.5) !important;
+  transform: translateY(-1px) !important;
+}
+
+@keyframes pawUpdatePulse {
+  0%, 100% { box-shadow: inset 0 0 0 1px rgba(255, 209, 102, 0.35), 0 0 10px rgba(255, 209, 102, 0.25); }
+  50% { box-shadow: inset 0 0 0 1px rgba(255, 209, 102, 0.6), 0 0 16px rgba(255, 209, 102, 0.5); }
+}
+
+.paw-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(4, 9, 19, 0.75) !important;
+  backdrop-filter: blur(4px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 99999 !important;
+}
+
+.paw-modal-content {
+  background: linear-gradient(180deg, #13243a 0%, #0a1526 100%) !important;
+  border: 1px solid #5c7896 !important;
+  border-radius: 12px !important;
+  padding: 22px 24px !important;
+  width: 480px !important;
+  max-width: 90vw !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), inset 0 1px rgba(215, 239, 255, 0.25) !important;
+  color: #eef8ff !important;
+}
+
+.paw-modal-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 8px !important;
+}
+
+.paw-modal-head h2 {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #8fe8f9 !important;
+  margin: 0 !important;
+}
+
+.paw-modal-close {
+  background: transparent !important;
+  border: none !important;
+  color: #8aa2bd !important;
+  font-size: 16px !important;
+  cursor: pointer !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+}
+
+.paw-modal-close:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.paw-modal-desc {
+  font-size: 12px !important;
+  color: #8aa2bd !important;
+  margin: 0 0 14px 0 !important;
+  line-height: 1.5 !important;
+}
+
+.paw-modal-notes {
+  background: rgba(7, 19, 36, 0.8) !important;
+  border: 1px solid #233b57 !important;
+  border-radius: 6px !important;
+  padding: 10px 12px !important;
+  max-height: 140px !important;
+  overflow-y: auto !important;
+  font-size: 11px !important;
+  color: #c0d3e5 !important;
+  white-space: pre-wrap !important;
+  margin-bottom: 16px !important;
+  line-height: 1.4 !important;
+}
+
+.paw-progress-container {
+  margin-bottom: 16px !important;
+}
+
+.paw-progress-meta {
+  display: flex !important;
+  justify-content: space-between !important;
+  font-size: 11px !important;
+  color: #8fe8f9 !important;
+  margin-bottom: 6px !important;
+}
+
+.paw-progress-track {
+  background: #071324 !important;
+  border: 1px solid #284463 !important;
+  border-radius: 999px !important;
+  height: 8px !important;
+  overflow: hidden !important;
+}
+
+.paw-progress-fill {
+  height: 100% !important;
+  background: linear-gradient(90deg, #38a0e0, #8fe8f9) !important;
+  transition: width 0.2s ease !important;
+}
+
+.paw-modal-error {
+  color: #ff7b72 !important;
+  font-size: 11px !important;
+  margin-bottom: 12px !important;
+  padding: 6px 10px !important;
+  background: rgba(255, 123, 114, 0.1) !important;
+  border: 1px solid rgba(255, 123, 114, 0.3) !important;
+  border-radius: 6px !important;
+}
+
+.paw-modal-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+}
+
+.paw-btn-secondary {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid #4a6380 !important;
+  border-radius: 6px !important;
+  color: #8aa2bd !important;
+  padding: 8px 16px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.paw-btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  border-color: #5c7896 !important;
+}
+
+.paw-btn-primary {
+  background: linear-gradient(180deg, #254463, #152c44) !important;
+  border: 1px solid #aff5ff !important;
+  border-radius: 6px !important;
+  color: #eefcff !important;
+  padding: 8px 18px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  box-shadow: 0 0 12px rgba(105, 204, 243, 0.25) !important;
+  transition: all 0.15s ease !important;
+}
+
+.paw-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #32567c, #1d3856) !important;
+  box-shadow: 0 0 16px rgba(129, 228, 248, 0.45) !important;
+  transform: translateY(-1px) !important;
+}
+
+.paw-btn-primary:disabled,
+.paw-btn-secondary:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}

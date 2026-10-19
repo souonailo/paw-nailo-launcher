@@ -121,6 +121,9 @@
         <button class="leaf-chip is-active" id="leafAudio" aria-pressed="true" title="Som do jogo: Ativado (clique para mutar)"><span id="leafAudioIcon" style="width:13px;height:13px">${ico('volume')}</span><span id="leafAudioLabel" class="txt-hide-sm">Som</span><span class="switch" aria-hidden="true"></span></button>
       </div>
       <div class="leaf-top-right">
+        <button class="leaf-chip leaf-chip-update" id="leafHeaderUpdate" style="display:none;" title="Nova versão disponível">
+          <span style="font-size:12px">🚀</span><span id="leafUpdateText" class="txt-hide-sm">Atualização</span>
+        </button>
         <div class="leaf-connected"><span class="dot"></span><span id="leafConnectedText">0/0 conectadas</span></div>
         <button class="leaf-chip leaf-chip-login-all" id="leafHeaderLoginAll" title="Logar equipe"><span>▶</span><span>Logar equipe</span></button>
       </div>
@@ -151,6 +154,30 @@
           <div id="leafListRows"></div>
         </section>
       </main>
+    </div>
+    <div id="pawUpdaterOverlay" class="paw-modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="pawUpdaterTitle">
+      <div class="paw-modal-content">
+        <div class="paw-modal-head">
+          <h2 id="pawUpdaterTitle">🚀 Nova versão disponível!</h2>
+          <button type="button" class="paw-modal-close" id="pawUpdaterClose" aria-label="Fechar">✕</button>
+        </div>
+        <p class="paw-modal-desc" id="pawUpdaterDesc">Uma versão mais recente do PAW Nailo está disponível no GitHub.</p>
+        <div id="pawUpdaterNotes" class="paw-modal-notes" style="display:none;"></div>
+        <div id="pawUpdaterProgress" class="paw-progress-container" style="display:none;">
+          <div class="paw-progress-meta">
+            <span id="pawUpdaterProgressLabel">Baixando atualização...</span>
+            <span id="pawUpdaterProgressPct">0%</span>
+          </div>
+          <div class="paw-progress-track">
+            <div id="pawUpdaterProgressBar" class="paw-progress-fill" style="width:0%;"></div>
+          </div>
+        </div>
+        <div id="pawUpdaterError" class="paw-modal-error" style="display:none;"></div>
+        <div class="paw-modal-actions" id="pawUpdaterActions">
+          <button type="button" class="paw-btn-secondary" id="pawUpdaterDismiss">Lembrar mais tarde</button>
+          <button type="button" class="paw-btn-primary" id="pawUpdaterApply">Atualizar e Reiniciar</button>
+        </div>
+      </div>
     </div>`;
   document.body.insertBefore(shell, document.body.firstChild);
   $('#leafWindowView').appendChild(grid);
@@ -624,4 +651,114 @@
   const wantSimple = simpleIsOn();
   if (wantSimple && !oldOn('cardsBtn') && typeof applyCards === 'function') { try { applyCards(); } catch { } }
   setView(wantSimple ? 'simple' : 'windows');
+
+  // -------------------------------------------------------------
+  // Auto Updater
+  // -------------------------------------------------------------
+  let currentUpdate = null;
+  const updateBtn = $('#leafHeaderUpdate');
+  const updateText = $('#leafUpdateText');
+  const updateOverlay = $('#pawUpdaterOverlay');
+  const updateClose = $('#pawUpdaterClose');
+  const updateDismiss = $('#pawUpdaterDismiss');
+  const updateApply = $('#pawUpdaterApply');
+  const updateDesc = $('#pawUpdaterDesc');
+  const updateNotes = $('#pawUpdaterNotes');
+  const updateProgress = $('#pawUpdaterProgress');
+  const updateProgressBar = $('#pawUpdaterProgressBar');
+  const updateProgressPct = $('#pawUpdaterProgressPct');
+  const updateProgressLabel = $('#pawUpdaterProgressLabel');
+  const updateError = $('#pawUpdaterError');
+
+  function openUpdateModal() {
+    if (!currentUpdate) return;
+    if (updateDesc) {
+      updateDesc.textContent = `A versão v${currentUpdate.latest_version} está pronta para instalação (versão atual: v${currentUpdate.current_version}).`;
+    }
+    if (updateNotes) {
+      if (currentUpdate.release_notes) {
+        updateNotes.textContent = currentUpdate.release_notes;
+        updateNotes.style.display = 'block';
+      } else {
+        updateNotes.style.display = 'none';
+      }
+    }
+    if (updateProgress) updateProgress.style.display = 'none';
+    if (updateError) updateError.style.display = 'none';
+    if (updateApply) {
+      updateApply.disabled = false;
+      updateApply.textContent = 'Atualizar e Reiniciar';
+    }
+    if (updateDismiss) updateDismiss.disabled = false;
+    if (updateOverlay) updateOverlay.style.display = 'flex';
+  }
+
+  function closeUpdateModal() {
+    if (updateApply?.disabled && updateProgress?.style.display === 'block') {
+      return; // Em download
+    }
+    if (updateOverlay) updateOverlay.style.display = 'none';
+  }
+
+  updateBtn?.addEventListener('click', openUpdateModal);
+  updateClose?.addEventListener('click', closeUpdateModal);
+  updateDismiss?.addEventListener('click', closeUpdateModal);
+  updateOverlay?.addEventListener('click', (e) => {
+    if (e.target === updateOverlay) closeUpdateModal();
+  });
+
+  updateApply?.addEventListener('click', async () => {
+    if (!currentUpdate?.download_url) return;
+    if (updateApply) updateApply.disabled = true;
+    if (updateDismiss) updateDismiss.disabled = true;
+    if (updateProgress) updateProgress.style.display = 'block';
+    if (updateError) updateError.style.display = 'none';
+    if (updateProgressLabel) updateProgressLabel.textContent = 'Baixando atualização...';
+    if (updateProgressBar) updateProgressBar.style.width = '0%';
+    if (updateProgressPct) updateProgressPct.textContent = '0%';
+
+    try {
+      await window.pokeAPI.applyUpdate(currentUpdate.download_url);
+    } catch (err) {
+      if (updateError) {
+        updateError.textContent = 'Falha ao atualizar: ' + (err?.message || String(err));
+        updateError.style.display = 'block';
+      }
+      if (updateApply) {
+        updateApply.disabled = false;
+        updateApply.textContent = 'Tentar novamente';
+      }
+      if (updateDismiss) updateDismiss.disabled = false;
+    }
+  });
+
+  window.pokeAPI?.onUpdateProgress?.((p) => {
+    if (!p) return;
+    const pct = Math.round(p.percent || 0);
+    if (updateProgressBar) updateProgressBar.style.width = `${pct}%`;
+    if (updateProgressPct) updateProgressPct.textContent = `${pct}%`;
+    if (pct >= 100) {
+      if (updateProgressLabel) updateProgressLabel.textContent = 'Instalando e reiniciando...';
+    }
+  });
+
+  async function checkForUpdates() {
+    if (!window.pokeAPI?.checkUpdate) return;
+    try {
+      const res = await window.pokeAPI.checkUpdate();
+      if (res && res.update_available && res.download_url) {
+        currentUpdate = res;
+        if (updateBtn) {
+          updateBtn.style.display = 'inline-flex';
+          if (updateText) updateText.textContent = `v${res.latest_version}`;
+          updateBtn.title = `Nova versão v${res.latest_version} disponível! Clique para atualizar.`;
+        }
+      }
+    } catch (e) {
+      console.warn('Verificação de atualização falhou:', e);
+    }
+  }
+
+  setTimeout(checkForUpdates, 3000);
+  setInterval(checkForUpdates, 2 * 60 * 60 * 1000);
 })();

@@ -4,6 +4,7 @@ pub mod desktop_settings;
 pub mod game_headless;
 pub mod webview_manager;
 pub mod webview_memory;
+pub mod auto_updater;
 
 use std::fs;
 use std::path::PathBuf;
@@ -15,6 +16,16 @@ use serde_json::json;
 #[tauri::command]
 fn app_version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
+}
+
+#[tauri::command]
+async fn updater_check() -> Result<auto_updater::UpdateCheckResult, String> {
+    auto_updater::check_update(env!("CARGO_PKG_VERSION")).await
+}
+
+#[tauri::command]
+async fn updater_apply(app: AppHandle, download_url: String) -> Result<(), String> {
+    auto_updater::apply_update(app, download_url).await
 }
 
 #[tauri::command]
@@ -694,6 +705,7 @@ pub fn run() {
                 WebviewWindowBuilder::from_config(app,&app.config().app.windows[0])?.data_directory(PathBuf::from(path)).build()?;
             }
             let handle = app.handle().clone();
+            auto_updater::cleanup_old_updates();
             if let Err(error)=desktop_settings::setup_tray(&handle){eprintln!("Bandeja indisponível: {error}");}
             tauri::async_runtime::spawn_blocking(move||{
                 if desktop_settings::autostart_enabled(){let _=desktop_settings::set_autostart(true);}
@@ -760,7 +772,9 @@ pub fn run() {
             webview_eval_result,
             game_console_message,
             webview_fill_creds,
-            webview_settings
+            webview_settings,
+            updater_check,
+            updater_apply
         ])
         .run(context)
         .expect("erro ao rodar o aplicativo PAW Nailo em Rust");
