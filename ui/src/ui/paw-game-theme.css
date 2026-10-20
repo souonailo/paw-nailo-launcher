@@ -1788,7 +1788,9 @@ body.cards-on #cards::-webkit-scrollbar {
 /* ==========================================================================
    Auto-Updater Modal & Header Chip
    ========================================================================== */
+#leafHeaderUpdate,
 .leaf-chip-update {
+  display: none !important;
   border-color: #ffd166 !important;
   color: #ffd166 !important;
   background: linear-gradient(135deg, rgba(255, 209, 102, 0.22), rgba(240, 140, 30, 0.16)),
@@ -1796,6 +1798,11 @@ body.cards-on #cards::-webkit-scrollbar {
   box-shadow: inset 0 0 0 1px rgba(255, 209, 102, 0.35), 0 0 12px rgba(255, 209, 102, 0.3) !important;
   font-weight: 700 !important;
   animation: pawUpdatePulse 2.5s infinite ease-in-out !important;
+}
+
+#leafHeaderUpdate.has-update,
+.leaf-chip-update.has-update {
+  display: inline-flex !important;
 }
 
 .leaf-chip-update:hover {
@@ -1817,10 +1824,14 @@ body.cards-on #cards::-webkit-scrollbar {
   inset: 0 !important;
   background: rgba(4, 9, 19, 0.75) !important;
   backdrop-filter: blur(4px) !important;
-  display: flex !important;
+  display: none !important;
   align-items: center !important;
   justify-content: center !important;
   z-index: 99999 !important;
+}
+
+.paw-modal-overlay.show {
+  display: flex !important;
 }
 
 .paw-modal-content {

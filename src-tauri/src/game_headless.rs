@@ -233,11 +233,31 @@ impl GameHeadlessManager {
             return;
         }
 
+        if t == "character_selected" {
+            if let Some(nick) = data.get("nick").and_then(|v| v.as_str()) {
+                let trimmed = nick.trim();
+                if !is_placeholder_character_name(trimmed) {
+                    let mut nicks = self.nicks.write().await;
+                    nicks.insert(index, trimmed.to_string());
+                    drop(nicks);
+                    let mut states = self.states.write().await;
+                    if let Some(state) = states.get_mut(&index) {
+                        state.name = trimmed.to_string();
+                        let _ = app.emit("st:push", serde_json::json!({
+                            "index": index,
+                            "state": state
+                        }));
+                    }
+                }
+            }
+            return;
+        }
+
         let mut states = self.states.write().await;
         let nick = self
             .get_nick(index)
             .await
-            .unwrap_or_else(|| format!("Conta {}", index + 1));
+            .unwrap_or_else(|| format!("Personagem {}", index + 1));
         let state = states
             .entry(index)
             .or_insert_with(|| HeadlessState::new(index, nick));
@@ -696,6 +716,16 @@ fn update_player_location(player: &serde_json::Value, state: &mut HeadlessState)
     true
 }
 
+pub(crate) fn is_placeholder_character_name(name: &str) -> bool {
+    let trimmed = name.trim();
+    trimmed.is_empty()
+        || trimmed.starts_with("Personagem ")
+        || trimmed.starts_with("Conta ")
+        || trimmed.eq_ignore_ascii_case("Sem líder")
+        || trimmed == "—"
+        || trimmed == "-"
+}
+
 fn parse_game_message(m: &serde_json::Value, state: &mut HeadlessState) -> bool {
     let t = m.get("t").and_then(|v| v.as_str()).unwrap_or("");
     let msg_type = m.get("type").and_then(|v| v.as_str()).unwrap_or("");
@@ -872,8 +902,19 @@ fn parse_game_message(m: &serde_json::Value, state: &mut HeadlessState) -> bool 
     if t == "welcome" {
         state.live = true;
         if let Some(est) = data.get("estado").or_else(|| m.get("estado")) {
-            if let Some(nick) = est.get("nick").or_else(|| est.get("nome")).and_then(|v| v.as_str()) {
-                state.name = nick.to_string();
+            let nick_opt = est.get("trainerName")
+                .or_else(|| est.get("characterName"))
+                .or_else(|| est.get("charName"))
+                .or_else(|| est.get("name"))
+                .or_else(|| est.get("nick"))
+                .or_else(|| est.get("nome"))
+                .or_else(|| est.get("character").and_then(|c| c.get("name")))
+                .and_then(|v| v.as_str());
+            if let Some(nick) = nick_opt {
+                let trimmed = nick.trim();
+                if !is_placeholder_character_name(trimmed) || is_placeholder_character_name(&state.name) {
+                    state.name = trimmed.to_string();
+                }
             }
             if let Some(gold) = est.get("gold").and_then(|v| v.as_i64()) {
                 state.gold = gold;
@@ -1125,8 +1166,20 @@ fn parse_game_message(m: &serde_json::Value, state: &mut HeadlessState) -> bool 
             for member in &mut state.team { member.ld = Some(member.id.as_ref() == Some(active)); }
             changed = true;
         }
-        if let Some(nick) = est.get("nick").or_else(|| est.get("nome")).and_then(|v| v.as_str()) {
-            state.name = nick.to_string();
+        let nick_opt = est.get("trainerName")
+            .or_else(|| est.get("characterName"))
+            .or_else(|| est.get("charName"))
+            .or_else(|| est.get("name"))
+            .or_else(|| est.get("nick"))
+            .or_else(|| est.get("nome"))
+            .or_else(|| est.get("character").and_then(|c| c.get("name")))
+            .and_then(|v| v.as_str());
+        if let Some(nick) = nick_opt {
+            let trimmed = nick.trim();
+            if !is_placeholder_character_name(trimmed) || is_placeholder_character_name(&state.name) {
+                state.name = trimmed.to_string();
+                changed = true;
+            }
         }
         if let Some(gold) = est.get("gold").and_then(|v| v.as_i64()) {
             state.gold = gold;
@@ -1151,10 +1204,11 @@ fn parse_game_message(m: &serde_json::Value, state: &mut HeadlessState) -> bool 
         changed |= update_player_location(est, state);
 
         if let Some(pokemons) = est.get("pokemons").and_then(|v| v.as_array()) {
-            state.team = pokemons
-                .iter()
-                .enumerate()
-                .map(|(idx, pk)| {
+            if !pokemons.is_empty() || state.team.is_empty() {
+                state.team = pokemons
+                    .iter()
+                    .enumerate()
+                    .map(|(idx, pk)| {
                     let is_active = state.active_id.as_ref().map(|act| act == pk.get("id").unwrap_or(&serde_json::Value::Null)).unwrap_or(false);
                     let is_ld = if state.active_id.is_some() {
                         is_active
@@ -1182,7 +1236,8 @@ fn parse_game_message(m: &serde_json::Value, state: &mut HeadlessState) -> bool 
                     }
                 })
                 .collect();
-            changed = true;
+                changed = true;
+            }
         }
         if let Some(pk_mud) = est.get("pkMud").and_then(|v| v.as_array()) {
             for pk in pk_mud {
@@ -1442,6 +1497,39 @@ mod identity_tests {
         assert_eq!(s.cid,"43");
         parse_game_message(&json!({"t":"welcome","estado":{"nick":"Unknown"}}), &mut s);
         assert!(s.cid.is_empty());
+    }
+
+    #[test]
+    fn character_name_extracted_from_all_variants_and_preserves_against_placeholders() {
+        let mut s = HeadlessState::new(0, "Personagem 1".into());
+        // Resolves from trainerName
+        parse_game_message(&json!({"t":"welcome","estado":{"trainerName":"Nailo"}}), &mut s);
+        assert_eq!(s.name, "Nailo");
+
+        // Incoming placeholder does not overwrite real character name
+        parse_game_message(&json!({"t":"estado","estado":{"nick":"Personagem 1"}}), &mut s);
+        assert_eq!(s.name, "Nailo");
+
+        // Resolves from characterName
+        parse_game_message(&json!({"t":"estado","estado":{"characterName":"Nailo2"}}), &mut s);
+        assert_eq!(s.name, "Nailo2");
+
+        // Resolves from character.name
+        parse_game_message(&json!({"t":"estado","estado":{"character":{"name":"Nailo3"}}}), &mut s);
+        assert_eq!(s.name, "Nailo3");
+    }
+
+    #[test]
+    fn non_empty_team_is_preserved_when_empty_pokemons_array_received() {
+        let mut s = HeadlessState::new(0, "Personagem 1".into());
+        parse_game_message(&json!({"t":"welcome","estado":{"pokemons":[{"id":1,"speciesId":1,"nome":"Bulbasaur","level":5,"slot":0}]}}), &mut s);
+        assert_eq!(s.team.len(), 1);
+        assert_eq!(s.team[0].name.as_deref(), Some("Bulbasaur"));
+
+        // Empty pokemons array in subsequent estado does NOT erase team
+        parse_game_message(&json!({"t":"estado","estado":{"pokemons":[]}}), &mut s);
+        assert_eq!(s.team.len(), 1);
+        assert_eq!(s.team[0].name.as_deref(), Some("Bulbasaur"));
     }
 }
 

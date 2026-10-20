@@ -169,7 +169,7 @@
     onUpdateProgress: (cb) => listen('updater:progress', (e) => cb(e.payload)),
 
     // 11. Metadados
-    appVersion: '1.0.4'
+    appVersion: '1.0.11'
   };
 
   window.PawNailo = window.PawNailo || {};
@@ -235,7 +235,9 @@
     }
 
     // Preserva membros do time se o incoming não enviou o time, ou mescla propriedades enriquecidas (img, sid, hp, etc.)
-    if (Array.isArray(incoming.team)) {
+    if (Array.isArray(incoming.team) && incoming.team.length === 0) {
+      state.team = [];
+    } else if (Array.isArray(incoming.team) && incoming.team.length > 0) {
       const prevTeam = Array.isArray(previous.team) ? previous.team : [];
       state.team = incoming.team.map((inc, idx) => {
         if (!inc) return inc;
@@ -271,34 +273,58 @@
       state.hunt = previous.hunt;
     }
 
-    // Preserva identidade se incoming não possuir
+    // Preserva identidade se incoming não possuir ou enviar placeholder
     if (!incoming.cid && previous.cid) state.cid = previous.cid;
-    if ((!incoming.name || incoming.name.startsWith('Conta ')) && previous.name && !previous.name.startsWith('Conta ')) {
+    const isPlaceholderName = (nm) => {
+      if (!nm || typeof nm !== 'string') return true;
+      const s = nm.trim();
+      return !s || s.startsWith('Conta ') || s.startsWith('Personagem ') || /^Personagem\s*\d+$/i.test(s) || /^Conta\s*\d+$/i.test(s) || s === '—' || s.toLowerCase() === 'sem líder';
+    };
+    if (isPlaceholderName(incoming.name) && previous.name && !isPlaceholderName(previous.name)) {
       state.name = previous.name;
+    } else if (incoming.name && !isPlaceholderName(incoming.name)) {
+      state.name = incoming.name.trim();
+      if (typeof window.tabNames !== 'undefined') window.tabNames[index] = state.name;
+      if (cachedAccounts && cachedAccounts[index]) {
+        cachedAccounts[index].name = state.name;
+      }
+      if (typeof accounts !== 'undefined' && accounts[index] && accounts[index].name !== state.name) {
+        accounts[index].name = state.name;
+        if (typeof save === 'function') save();
+        window.pokeAPI?.saveCreds?.(accounts);
+      }
     }
     if (!incoming.level && previous.level) state.level = previous.level;
 
     // Preserva inventário e catálogo de bolas apenas quando o push não for autoritativo sobre estoques
+    const hasIncomingBalls = incoming.ballMap && typeof incoming.ballMap === 'object' && Object.keys(incoming.ballMap).length > 0;
+    const prevHasBalls = previous.ballMap && typeof previous.ballMap === 'object' && Object.keys(previous.ballMap).length > 0;
+
     if (typeof incoming.ballsKnown === 'boolean') {
       state.ballsKnown = incoming.ballsKnown;
-      if (incoming.ballMap !== undefined) {
+      if (!incoming.ballsKnown) {
+        state.ballMap = {};
+      } else if (incoming.ballMap !== undefined) {
+        state.ballMap = incoming.ballMap;
+      } else if (prevHasBalls) {
+        state.ballMap = previous.ballMap;
+
+      } else if (incoming.ballMap !== undefined) {
         state.ballMap = incoming.ballMap;
       } else if (!incoming.ballsKnown) {
         state.ballMap = {};
-      } else if (previous.ballMap) {
-        state.ballMap = previous.ballMap;
       }
-      if (incoming.ballCatalog !== undefined) {
+      if (incoming.ballCatalog !== undefined && incoming.ballCatalog.length) {
         state.ballCatalog = incoming.ballCatalog;
       } else if (previous.ballCatalog && previous.ballCatalog.length) {
         state.ballCatalog = previous.ballCatalog;
       }
-    } else if (incoming.ballMap !== undefined) {
+    } else if (hasIncomingBalls) {
       state.ballMap = incoming.ballMap;
-      state.ballsKnown = state.ballsKnown ?? (incoming.ballMap != null);
-    } else if (previous.ballMap) {
+      state.ballsKnown = true;
+    } else if (prevHasBalls) {
       state.ballMap = previous.ballMap;
-      state.ballsKnown = previous.ballsKnown ?? false;
+      state.ballsKnown = previous.ballsKnown ?? true;
       if (previous.ballCatalog && previous.ballCatalog.length && (!state.ballCatalog || !state.ballCatalog.length)) {
         state.ballCatalog = previous.ballCatalog;
       }
@@ -321,17 +347,19 @@
       state.inventoryKnown = previous.inventoryKnown ?? false;
     }
     if (!incoming.equippedBall && previous.equippedBall) state.equippedBall = previous.equippedBall;
-    if (incoming.balls == null && previous.balls != null) state.balls = previous.balls;
+    if ((incoming.balls == null || (incoming.balls === 0 && !hasIncomingBalls && prevHasBalls)) && previous.balls != null) {
+      state.balls = previous.balls;
+    }
 
     for (const [map, known] of [['ballMap','ballsKnown'],['invMap','inventoryKnown']]) {
       if (Object.hasOwn(state, map) && state[known] === undefined) state[known] = state[map] != null;
     }
 
     // Desconexão explícita sem incoming.live || previous.live
-    if (typeof incoming.live === 'boolean') {
-      state.live = incoming.live;
-    } else if (incoming.disconnected === true) {
+    if (incoming.disconnected === true) {
       state.live = false;
+    } else if (typeof incoming.live === 'boolean') {
+      state.live = incoming.live;
     } else if (previous.live !== undefined) {
       state.live = previous.live;
     } else {
@@ -458,7 +486,10 @@
     }
     // Dispara atualização direta para o shell atualizar sidebar, rodapé e lista
     document.dispatchEvent(new CustomEvent('paw-telemetry-update', { detail: { index, state: projected } }));
+    return projected;
   }
+
+  window.PawNailo.dispatchTelemetry = dispatchToApp;
 
   listen('game:console', (e) => {
     const {index, message} = e.payload || {};
@@ -504,10 +535,16 @@
     '#menu.show',
     'body.leaf-tools-open #leafToolsMenu',
     'body.leaf-settings-open #leafSettingsDrawer',
-    '#ivCard.show'
+    '#ivCard.show',
+    '#pawUpdaterOverlay.show',
+    '.paw-modal-overlay.show'
   ].join(', ');
 
   function isAnyModalOpen() {
+    const updater = document.getElementById('pawUpdaterOverlay');
+    if (updater && updater.classList.contains('show')) {
+      return true;
+    }
     return Array.from(document.querySelectorAll(REAL_MODAL_SELECTORS)).some(el => {
       const style = window.getComputedStyle(el);
       return style.display !== 'none' && style.visibility !== 'hidden';
@@ -544,18 +581,20 @@
     updateVisibilityTimer = setTimeout(updateAllWebviewsVisibility, 60);
   }
 
-  // Observa apenas aberturas de modais com debouncing
+  // Observa aberturas de modais com debouncing
   document.addEventListener('click', debouncedUpdateVisibility);
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') debouncedUpdateVisibility();
   });
   window.addEventListener('resize', debouncedUpdateVisibility);
+  document.addEventListener('leaf-modal-toggle', debouncedUpdateVisibility);
+  window.addEventListener('leaf-modal-toggle', debouncedUpdateVisibility);
 
-  // Observa mudanças de classe no body e painéis para stats-open, cards-on, modais e is-hud-active
+  // Observa mudanças de classe e estilo no body e painéis para stats-open, cards-on, modais e is-hud-active
   const bodyObserver = new MutationObserver(() => {
     debouncedUpdateVisibility();
   });
-  const observeBody = () => bodyObserver.observe(document.body, {attributes: true, attributeFilter: ['class'], subtree: true});
+  const observeBody = () => bodyObserver.observe(document.body, {attributes: true, attributeFilter: ['class', 'style'], subtree: true});
   if (document.body) observeBody();
   else document.addEventListener('DOMContentLoaded', observeBody, {once: true});
 

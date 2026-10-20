@@ -1,6 +1,6 @@
 [package]
 name = "paw-nailo-rust"
-version = "1.0.4"
+version = "1.0.11"
 description = "Launcher nativo em Rust para Poke Ascended World (PAW) multi-contas"
 edition = "2021"
 

@@ -9,8 +9,15 @@
   try { namesHidden = localStorage.getItem(privacyKey) === '1'; } catch {}
   let sidebarCollapsed = false;
   try { sidebarCollapsed = localStorage.getItem('hubSidebarCollapsed') === '1'; } catch {}
+  const isPlaceholderName = (nm) => !nm || nm.startsWith('Conta ') || nm.startsWith('Personagem ') || /^Personagem\s*\d+$/i.test(nm) || /^Conta\s*\d+$/i.test(nm) || nm === '—' || nm.toLowerCase() === 'sem líder';
   const accountLabel = i => `Personagem ${String(i + 1).padStart(2, '0')}`;
-  const displayName = r => namesHidden ? accountLabel(r.i) : (r.name || `Personagem ${r.i + 1}`);
+  const displayName = r => {
+    if (namesHidden) return accountLabel(r.i);
+    if (r.name && !isPlaceholderName(r.name)) return r.name;
+    if (typeof tabNames !== 'undefined' && tabNames[r.i] && !isPlaceholderName(tabNames[r.i])) return tabNames[r.i];
+    if (typeof accounts !== 'undefined' && accounts[r.i]?.name && !isPlaceholderName(accounts[r.i].name)) return accounts[r.i].name;
+    return r.name || `Personagem ${r.i + 1}`;
+  };
   const fmtCompact = (n) => {
     n = +n || 0; const a = Math.abs(n), sg = n < 0 ? '-' : '';
     if (a >= 1e9) return sg + (a / 1e9).toFixed(a >= 1e10 ? 0 : 1).replace('.0','') + 'bi';
@@ -121,7 +128,7 @@
         <button class="leaf-chip is-active" id="leafAudio" aria-pressed="true" title="Som do jogo: Ativado (clique para mutar)"><span id="leafAudioIcon" style="width:13px;height:13px">${ico('volume')}</span><span id="leafAudioLabel" class="txt-hide-sm">Som</span><span class="switch" aria-hidden="true"></span></button>
       </div>
       <div class="leaf-top-right">
-        <button class="leaf-chip leaf-chip-update" id="leafHeaderUpdate" style="display:none;" title="Nova versão disponível">
+        <button class="leaf-chip leaf-chip-update" id="leafHeaderUpdate" style="display:none !important;" title="Nova versão disponível">
           <span style="font-size:12px">🚀</span><span id="leafUpdateText" class="txt-hide-sm">Atualização</span>
         </button>
         <div class="leaf-connected"><span class="dot"></span><span id="leafConnectedText">0/0 conectadas</span></div>
@@ -338,6 +345,19 @@
         }
         if (d && d.ok) {
           const s = (typeof stSane === 'function' ? stSane(d) : null) || (window.stSane ? window.stSane(d) : null) || d;
+          if (pc && pc.d && pc.d.ok) {
+            if ((!s.team || s.team.length === 0) && pc.d.team && pc.d.team.length > 0) s.team = pc.d.team;
+            if ((!s.balls || s.balls === 0) && pc.d.balls > 0) {
+              s.balls = pc.d.balls;
+              s.ballMap = pc.d.ballMap;
+              s.equippedBall = pc.d.equippedBall;
+              s.ballsKnown = pc.d.ballsKnown;
+            }
+            if (isPlaceholderName(s.name) && pc.d.name && !isPlaceholderName(pc.d.name)) s.name = pc.d.name;
+            if (!s.hunt && pc.d.hunt) s.hunt = pc.d.hunt;
+            if (!s.level && pc.d.level) s.level = pc.d.level;
+            if (pc.d.live === true && !s.live) s.live = true;
+          }
           if (typeof stCache !== 'undefined') stCache[i] = { t: Date.now(), d: s };
           if (window.stCache) window.stCache[i] = { t: Date.now(), d: s };
           d = s;
@@ -349,7 +369,14 @@
       }
     } catch {}
     if (!d || !d.ok) d = baseState(i); else d.i = i;
-    if (d.name && typeof tabNames !== 'undefined') tabNames[i] = d.name;
+    if (d.name && !isPlaceholderName(d.name)) {
+      if (typeof tabNames !== 'undefined') tabNames[i] = d.name;
+      if (typeof accounts !== 'undefined' && accounts[i] && (isPlaceholderName(accounts[i].name) || accounts[i].name !== d.name)) {
+        accounts[i].name = d.name;
+        if (typeof save === 'function') save();
+        window.pokeAPI?.saveCreds?.(accounts);
+      }
+    }
     states.set(i,d);
     return d;
   }
@@ -510,7 +537,11 @@
       }
       const name = $('.panel-header .name',p);
       if (name && !name.querySelector('input')) {
-        const label = namesHidden ? accountLabel(i) : ((typeof accounts !== 'undefined' && accounts[i]?.name) || (typeof defName === 'function' ? defName(i) : `Personagem ${i+1}`));
+        const liveName = (r && r.name && !isPlaceholderName(r.name)) ? r.name : null;
+        const tabName = (typeof tabNames !== 'undefined' && tabNames[i] && !isPlaceholderName(tabNames[i])) ? tabNames[i] : null;
+        const accName = (typeof accounts !== 'undefined' && accounts[i]?.name && !isPlaceholderName(accounts[i].name)) ? accounts[i].name : null;
+        const resolvedName = liveName || tabName || accName || (typeof defName === 'function' ? defName(i) : `Personagem ${i+1}`);
+        const label = namesHidden ? accountLabel(i) : resolvedName;
         if (name.textContent !== label) name.textContent = label;
       }
       const reload = $('.panel-header .reload',p), expand = $('.panel-header .expand',p);
@@ -690,14 +721,28 @@
       updateApply.textContent = 'Atualizar e Reiniciar';
     }
     if (updateDismiss) updateDismiss.disabled = false;
-    if (updateOverlay) updateOverlay.style.display = 'flex';
+    if (updateOverlay) {
+      updateOverlay.classList.add('show');
+      updateOverlay.style.display = 'flex';
+    }
+    if (window.pokeAPI?.webviewSetVisible) {
+      for (let i = 0; i < 4; i++) window.pokeAPI.webviewSetVisible(i, false);
+    }
+    document.dispatchEvent(new CustomEvent('leaf-modal-toggle', { detail: { open: true } }));
   }
 
   function closeUpdateModal() {
     if (updateApply?.disabled && updateProgress?.style.display === 'block') {
       return; // Em download
     }
-    if (updateOverlay) updateOverlay.style.display = 'none';
+    if (updateOverlay) {
+      updateOverlay.classList.remove('show');
+      updateOverlay.style.display = 'none';
+    }
+    document.dispatchEvent(new CustomEvent('leaf-modal-toggle', { detail: { open: false } }));
+    if (window.pokeAPI?.webviewSetVisible) {
+      for (let i = 0; i < 4; i++) window.pokeAPI.webviewSetVisible(i, true);
+    }
   }
 
   updateBtn?.addEventListener('click', openUpdateModal);
@@ -749,13 +794,22 @@
       if (res && res.update_available && res.download_url) {
         currentUpdate = res;
         if (updateBtn) {
-          updateBtn.style.display = 'inline-flex';
+          updateBtn.classList.add('has-update');
           if (updateText) updateText.textContent = `v${res.latest_version}`;
           updateBtn.title = `Nova versão v${res.latest_version} disponível! Clique para atualizar.`;
+        }
+      } else {
+        currentUpdate = null;
+        if (updateBtn) {
+          updateBtn.classList.remove('has-update');
         }
       }
     } catch (e) {
       console.warn('Verificação de atualização falhou:', e);
+      currentUpdate = null;
+      if (updateBtn) {
+        updateBtn.classList.remove('has-update');
+      }
     }
   }
 

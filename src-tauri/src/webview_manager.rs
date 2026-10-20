@@ -1,4 +1,4 @@
-﻿use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 use std::sync::{Mutex, atomic::{AtomicU64, Ordering}};
 use std::path::PathBuf;
 use tauri::{
@@ -36,15 +36,20 @@ pub fn generate_autofill_script(index: usize, email: &str, pass: &str) -> String
             }}
 
             const ACCOUNT_INDEX = {index};
+            window.__PAW_PANEL_INDEX = ACCOUNT_INDEX;
             const EMAIL = {email_json};
             const SENHA = {pass_json};
+
+            const getInvoke = () => (window.__TAURI_INTERNALS__ && window.__TAURI_INTERNALS__.invoke) ||
+                                    (window.__TAURI__ && window.__TAURI__.core && window.__TAURI__.core.invoke);
 
             // Se a sessão já estiver presente no localStorage, reporta via IPC nativo
             try {{
                 const s = localStorage.getItem('sessao');
                 const n = localStorage.getItem('nick');
-                if (s && s.length > 20 && window.__TAURI_INTERNALS__ && typeof window.__TAURI_INTERNALS__.invoke === 'function') {{
-                    window.__TAURI_INTERNALS__.invoke('report_gameplay', {{ session: 'autofill-' + ACCOUNT_INDEX, event: {{t: 'session_token', data: {{token: s, nick: n || ''}}}} }}).catch(() => {{}});
+                const inv = getInvoke();
+                if (s && s.length > 20 && typeof inv === 'function') {{
+                    inv('report_gameplay', {{ session: 'autofill-' + ACCOUNT_INDEX, event: {{t: 'session_token', data: {{token: s, nick: n || ''}}}} }}).catch(() => {{}});
                 }}
             }} catch (_) {{}}
 
@@ -67,32 +72,130 @@ pub fn generate_autofill_script(index: usize, email: &str, pass: &str) -> String
                 el.dispatchEvent(new Event('change', {{ bubbles: true }}));
             }}
 
-            function findBtn() {{
-                return Array.from(document.querySelectorAll('button')).find(x =>
-                    x.type === 'submit' ||
-                    /auth-imgbtn/.test(x.className) ||
-                    x.id === 'entrar' ||
-                    /entrar/i.test(x.textContent || '')
-                );
-            }}
+            try {{
+                if (!document.getElementById('__paw_login_fit')) {{
+                    const st = document.createElement('style');
+                    st.id = '__paw_login_fit';
+                    st.textContent = `
+                        #auth-dialog.site-auth-dialog, dialog#auth-dialog {{
+                            max-height: 96vh !important;
+                            max-width: 96vw !important;
+                            padding: 8px 12px !important;
+                            margin: auto !important;
+                            overflow-y: auto !important;
+                            box-sizing: border-box !important;
+                        }}
+                        #auth-dialog .auth-content {{
+                            padding: 8px 14px 10px !important;
+                        }}
+                        #auth-dialog #auth-kicker {{
+                            font-size: 8px !important;
+                            margin-bottom: 2px !important;
+                        }}
+                        #auth-dialog h2#auth-title {{
+                            font-size: 15px !important;
+                            line-height: 1.2 !important;
+                            margin: 2px 0 4px !important;
+                        }}
+                        #auth-dialog .auth-intro {{
+                            font-size: 10px !important;
+                            margin-bottom: 6px !important;
+                        }}
+                        #auth-dialog .auth-tabs {{
+                            margin-bottom: 6px !important;
+                        }}
+                        #auth-dialog .auth-tabs button {{
+                            padding: 3px 10px !important;
+                            font-size: 10px !important;
+                        }}
+                        #auth-dialog #auth-form label {{
+                            margin-bottom: 4px !important;
+                            font-size: 10px !important;
+                        }}
+                        #auth-dialog #auth-form input {{
+                            padding: 4px 8px !important;
+                            font-size: 11px !important;
+                            height: 28px !important;
+                        }}
+                        #auth-dialog .password-field button {{
+                            font-size: 10px !important;
+                        }}
+                        #auth-dialog .password-help {{
+                            display: none !important;
+                        }}
+                        #auth-dialog .auth-security {{
+                            margin: 4px 0 !important;
+                        }}
+                        #auth-dialog .auth-submit {{
+                            padding: 6px 12px !important;
+                            font-size: 11px !important;
+                            min-height: 30px !important;
+                            margin-top: 4px !important;
+                        }}
+                        #auth-dialog .auth-bottom {{
+                            margin-top: 4px !important;
+                            font-size: 9px !important;
+                        }}
+                    `;
+                    (document.head || document.documentElement).appendChild(st);
+                }}
+            }} catch (_) {{}}
 
-            function fill() {{
-                const portal = document.getElementById('portal');
-                const app = document.getElementById('app');
-                if (portal && portal.classList.contains('hidden') && app && !app.classList.contains('hidden')) {{
+            function isTurnstileResolved() {{
+                if (location.pathname.includes('/characters') || location.pathname.includes('/play')) {{
                     return true;
                 }}
 
+                const tk = document.querySelector('input[name="cf-turnstile-response"]');
+                if (tk && tk.value && tk.value.trim().length > 20) {{
+                    return true;
+                }}
+
+                try {{
+                    if (window.turnstile && typeof window.turnstile.getResponse === 'function') {{
+                        const token = window.turnstile.getResponse() || window.turnstile.getResponse('entrar');
+                        if (token && typeof token === 'string' && token.trim().length > 20) {{
+                            return true;
+                        }}
+                    }}
+                }} catch (_) {{}}
+
+                const secStatus = document.querySelector('.auth-security small[role="status"]');
+                if (secStatus && /conclu[ií]da/i.test(secStatus.textContent || '')) {{
+                    return true;
+                }}
+
+                const hasWidget = !!document.querySelector('#login-turnstile, .cf-turnstile, [data-sitekey], iframe[src*="cloudflare"], iframe[src*="turnstile"]');
+                if (!hasWidget) {{
+                    return true;
+                }}
+
+                return false;
+            }}
+
+            function fillLoginForm() {{
+                if (location.pathname.includes('/characters')) {{
+                    return false;
+                }}
+
+                try {{
+                    const d = document.getElementById('auth-dialog');
+                    if (d && !d.open && typeof d.showModal === 'function') {{
+                        d.showModal();
+                    }}
+                }} catch (_) {{}}
+
                 const inputs = Array.from(document.querySelectorAll('input'));
                 const u = inputs.find(i =>
+                    i.name === 'email' ||
                     i.autocomplete === 'username' ||
                     i.type === 'email' ||
                     i.name === 'id' ||
-                    i.name === 'email' ||
                     i.id === 'email' ||
                     i.id === 'username'
                 );
                 const p = inputs.find(i =>
+                    i.name === 'password' ||
                     i.autocomplete === 'current-password' ||
                     i.type === 'password' ||
                     i.name === 'password' ||
@@ -107,51 +210,175 @@ pub fn generate_autofill_script(index: usize, email: &str, pass: &str) -> String
                 return false;
             }}
 
-            fill();
-
-            if (!window.__pokeNativeAutofill) {{
-                window.__pokeNativeAutofill = true;
-                let c = 0;
-                const t = setInterval(() => {{
-                    c++;
-                    const ok = fill();
-                    const btn = findBtn();
-
-                    let turnstileResolved = false;
-                    try {{
-                        if (window.turnstile && typeof window.turnstile.getResponse === 'function') {{
-                            const token = window.turnstile.getResponse('entrar') || window.turnstile.getResponse();
-                            if (token && typeof token === 'string' && token.trim().length > 30) {{
-                                turnstileResolved = true;
-                            }}
-                        }}
-                    }} catch (_) {{}}
-
-                    if (!turnstileResolved) {{
-                        const tk = document.querySelector('input[name="cf-turnstile-response"]');
-                        if (tk && tk.value && tk.value.trim().length > 30) {{
-                            turnstileResolved = true;
-                        }}
+            function findLoginSubmitBtn() {{
+                const form = document.querySelector('#auth-form, form');
+                if (form) {{
+                    const subInForm = form.querySelector('#auth-submit, button[type="submit"], input[type="submit"]');
+                    if (subInForm) return subInForm;
+                }}
+                const p = document.querySelector('input[type="password"], input[autocomplete="current-password"]');
+                const allButtons = Array.from(document.querySelectorAll('button'));
+                return allButtons.find(x => {{
+                    const isTab = x.getAttribute('role') === 'tab' || /tab|nav/i.test(x.className);
+                    if (isTab) return false;
+                    if (p && !(p.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING)) {{
+                        return false;
                     }}
-
-                    // Se não há widget de Turnstile na tela, considera resolvido
-                    const hasTurnstile = !!document.querySelector('.cf-turnstile, [data-sitekey], iframe[src*="cloudflare"], iframe[src*="turnstile"]');
-                    if (!hasTurnstile) {{
-                        turnstileResolved = true;
-                    }}
-
-                    if (ok && btn && turnstileResolved && !btn.disabled) {{
-                        clearInterval(t);
-                        window.__pokeNativeAutofill = false;
-                        btn.click();
-                        return;
-                    }}
-                    if (c > 120) {{
-                        clearInterval(t);
-                        window.__pokeNativeAutofill = false;
-                    }}
-                }}, 400);
+                    return x.type === 'submit' ||
+                        /auth-imgbtn|btn-primary|submit|auth-submit/i.test(x.className) ||
+                        x.id === 'entrar' ||
+                        x.id === 'auth-submit' ||
+                        /entrar|logar|sign in|login/i.test(x.textContent || '');
+                }});
             }}
+
+            function tryCharacterLobbySelection() {{
+                if (!location.pathname.includes('/characters')) {{
+                    return null;
+                }}
+
+                const nt = document.getElementById('lobby-new-tab');
+                if (nt) {{
+                    nt.checked = false;
+                    nt.disabled = true;
+                }}
+
+                const card = document.querySelector('[data-character-slot="' + ACCOUNT_INDEX + '"]');
+                const allCards = Array.from(document.querySelectorAll('.lobby-character-card'));
+                const targetCard = card || (allCards.length > ACCOUNT_INDEX ? allCards[ACCOUNT_INDEX] : null);
+
+                if (!targetCard) return null;
+
+                const cNick = targetCard.querySelector('h2, h3, .character-name, .lobby-character-name, b, strong')?.textContent?.trim();
+                if (cNick && !cNick.startsWith('Personagem ') && !cNick.startsWith('Conta ')) {{
+                    const inv = getInvoke();
+                    if (typeof inv === 'function') {{
+                        inv('report_gameplay', {{ session: 'lobby-' + ACCOUNT_INDEX, event: {{t: 'character_selected', data: {{index: ACCOUNT_INDEX, nick: cNick}}}} }}).catch(() => {{}});
+                    }}
+                }}
+
+                const enterBtn = targetCard.querySelector('button[data-enter]') ||
+                    Array.from(targetCard.querySelectorAll('button')).find(b => {{
+                        if (b.disabled) return false;
+                        const txt = (b.textContent || '').trim().toLowerCase();
+                        const cls = (b.className || '').toLowerCase();
+                        if (/excluir|delet|apagar|remover|danger|trash/.test(txt + ' ' + cls)) return false;
+                        return /entrar|jogar|play|enter/.test(txt) || /primary|enter|play/.test(cls);
+                    }}) ||
+                    Array.from(targetCard.querySelectorAll('button')).find(b => !b.disabled && !/excluir|delet|apagar|remover|danger|trash/.test((b.textContent || '') + ' ' + (b.className || ''))) ||
+                    targetCard;
+
+                if (enterBtn && !enterBtn.disabled) {{
+                    return enterBtn;
+                }}
+                return null;
+            }}
+
+            let lastLoginSubmit = 0;
+            let lastLobbyClick = 0;
+            let stepCount = 0;
+            let isDone = false;
+
+            function cleanup() {{
+                isDone = true;
+                if (window.__pawAutofillTimer) {{
+                    clearInterval(window.__pawAutofillTimer);
+                    window.__pawAutofillTimer = null;
+                }}
+                if (window.__pawAutofillObserver) {{
+                    try {{ window.__pawAutofillObserver.disconnect(); }} catch (_) {{}}
+                    window.__pawAutofillObserver = null;
+                }}
+                window.__pokeNativeAutofill = false;
+                window.__pokeNativeAutofillRunner = null;
+            }}
+
+            function runStep() {{
+                if (isDone) return;
+                stepCount++;
+
+                // 1. Já está conectado no jogo (#app ativo e sem diálogos de autenticação)
+                const hasAuthDialog = !!document.querySelector('#auth-dialog, .site-auth-dialog, #login-turnstile, #auth-form');
+                const app = document.getElementById('app');
+                const isGameRunning = app && !app.classList.contains('hidden') && !hasAuthDialog && (location.pathname.startsWith('/play') || location.pathname === '/');
+                if (isGameRunning && !location.pathname.includes('/characters')) {{
+                    cleanup();
+                    return;
+                }}
+
+                // 2. Tela de seleção de personagens (/characters)
+                if (location.pathname.includes('/characters')) {{
+                    const lobbyBtn = tryCharacterLobbySelection();
+                    if (lobbyBtn) {{
+                        const now = Date.now();
+                        if (now - lastLobbyClick > 1800) {{
+                            lastLobbyClick = now;
+                            try {{ lobbyBtn.scrollIntoView({{ block: 'nearest' }}); }} catch (_) {{}}
+                            lobbyBtn.click();
+                        }}
+                    }}
+                    return;
+                }}
+
+                // 3. Tela de formulário de login (/welcome, /login)
+                const ok = fillLoginForm();
+                const btn = findLoginSubmitBtn();
+                const turnstileOk = isTurnstileResolved() || (stepCount > 8 && !document.querySelector('#login-turnstile, iframe[src*="cloudflare"]'));
+
+                if (btn) {{
+                    try {{ btn.scrollIntoView({{ block: 'nearest' }}); }} catch (_) {{}}
+                }}
+
+                if (ok && btn && turnstileOk && !btn.disabled) {{
+                    const now = Date.now();
+                    const minInterval = 4000;
+                    if (now - lastLoginSubmit > minInterval) {{
+                        lastLoginSubmit = now;
+                        const stagger = (stepCount === 1) ? (ACCOUNT_INDEX * 200) : 0;
+                        setTimeout(() => {{
+                            try {{ if (!btn.disabled) btn.click(); }} catch (_) {{}}
+                        }}, stagger);
+                    }}
+                }}
+
+                // Limite de segurança: 60s (500 ticks * 120ms = 60s)
+                if (stepCount > 500) {{
+                    cleanup();
+                }}
+            }}
+
+            // Dispara imediatamente o step se o runner já estiver ativo
+            if (window.__pokeNativeAutofillRunner) {{
+                window.__pokeNativeAutofillRunner();
+                return;
+            }}
+
+            window.__pokeNativeAutofill = true;
+            window.__pokeNativeAutofillRunner = runStep;
+
+            window.addEventListener('popstate', runStep);
+            window.addEventListener('hashchange', runStep);
+            window.addEventListener('paw:locationchange', runStep);
+
+            const startObserver = () => {{
+                try {{
+                    const target = document.documentElement || document.body;
+                    if (target) {{
+                        const obs = new MutationObserver(() => runStep());
+                        obs.observe(target, {{ childList: true, subtree: true }});
+                        window.__pawAutofillObserver = obs;
+                    }}
+                }} catch (_) {{}}
+            }};
+
+            if (document.documentElement || document.body) {{
+                startObserver();
+            }} else {{
+                document.addEventListener('DOMContentLoaded', startObserver);
+            }}
+
+            window.__pawAutofillTimer = setInterval(runStep, 150);
+            runStep();
         }})();
         "#
     )

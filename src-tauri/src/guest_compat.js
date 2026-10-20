@@ -88,4 +88,42 @@
       }
     };
   };
+
+  // Intercepta rotas de Single Page Application (SPA) para notificar mudanças de tela no launcher
+  try {
+    if (!window.__pawHistoryPatched) {
+      window.__pawHistoryPatched = true;
+      const _origPush = history.pushState;
+      history.pushState = function() {
+        const ret = _origPush.apply(this, arguments);
+        try { window.dispatchEvent(new Event('paw:locationchange')); } catch (_) {}
+        return ret;
+      };
+      const _origReplace = history.replaceState;
+      history.replaceState = function() {
+        const ret = _origReplace.apply(this, arguments);
+        try { window.dispatchEvent(new Event('paw:locationchange')); } catch (_) {}
+        return ret;
+      };
+    }
+  } catch (_) {}
+
+  // Garante que o checkbox de nova aba (#lobby-new-tab) fique sempre desmarcado no launcher
+  const lockLobbyNewTab = () => {
+    try {
+      const nt = document.getElementById('lobby-new-tab');
+      if (nt) {
+        nt.checked = false;
+        nt.defaultChecked = false;
+        nt.disabled = true;
+      }
+    } catch (_) {}
+  };
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', lockLobbyNewTab);
+  } else {
+    lockLobbyNewTab();
+  }
+  window.addEventListener('paw:locationchange', lockLobbyNewTab);
+  window.addEventListener('popstate', lockLobbyNewTab);
 })();

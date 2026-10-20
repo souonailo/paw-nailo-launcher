@@ -361,11 +361,24 @@
       }
     }
 
+    const resolvedCharName = prog.trainerName
+      || prog.characterName
+      || prog.charName
+      || (prog.character && prog.character.name)
+      || (prog.selectedCharacter && prog.selectedCharacter.name)
+      || prog.name
+      || prog.nick
+      || prog.nome
+      || '';
+
     return {
       cheio: true,
       id: prog.uid || prog.id || '',
-      nick: prog.trainerName || prog.name || prog.nick || '',
-      nome: prog.trainerName || prog.name || prog.nick || '',
+      nick: resolvedCharName,
+      nome: resolvedCharName,
+      name: resolvedCharName,
+      trainerName: resolvedCharName,
+      characterName: resolvedCharName,
       level: prog.trainerLevel != null ? prog.trainerLevel : (prog.level || 0),
       trainerLevel: prog.trainerLevel != null ? prog.trainerLevel : (prog.level || 0),
       gold: prog.coins != null ? prog.coins : (prog.gold || 0),
@@ -557,6 +570,16 @@
     } else {
       // Non-wire message without progress (market, chat, erro): do not reuse stale wireState
       if (awaitingSnapshot) return;
+    }
+
+    const extCharName = payload.character?.name || payload.trainerName || payload.characterName || raw.character?.name || raw.trainerName || null;
+    if (extCharName && progToEmit) {
+      if (!progToEmit.trainerName) progToEmit.trainerName = extCharName;
+      if (!progToEmit.characterName) progToEmit.characterName = extCharName;
+      if (wireState) {
+        if (!wireState.trainerName) wireState.trainerName = extCharName;
+        if (!wireState.characterName) wireState.characterName = extCharName;
+      }
     }
 
     if (progToEmit && typeof window !== 'undefined') {

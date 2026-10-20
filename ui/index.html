@@ -2782,6 +2782,7 @@
     ];
 
     const blank = () => ({ name: '', email: '', senha: '', proxy: null });
+    const escH = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     function normalize(arr) {
       const raw = Array.isArray(arr) ? arr.slice(0, 4) : [];
       const primary = raw.find(a => a && String(a.email || '').trim() && String(a.senha || '').trim());
@@ -2878,7 +2879,13 @@
       wv.partition = 'persist:conta' + (i + 1);
       panel.appendChild(wv);
       grid.appendChild(panel);
-      if (window.PawBattleHud || window.PioBattleHud) (window.PawBattleHud || window.PioBattleHud).mount(panel, i);
+      if (window.PawBattleHud || window.PioBattleHud) {
+        try {
+          (window.PawBattleHud || window.PioBattleHud).mount(panel, i);
+        } catch (e) {
+          console.error('Falha ao montar Battle HUD no painel ' + i, e);
+        }
+      }
       webviews.push(wv);
       const hasAnyCreds = accounts.some(a => a && a.email && a.senha);
       const hasCreds = Boolean(accounts[i] && accounts[i].email && accounts[i].senha) || (!hasAnyCreds && i === 0);
@@ -3065,22 +3072,32 @@
       const autoLogin = (e) => {
         const c = accounts[i];
         if (off[i] || !c || !c.email || !c.senha) return;
-        if (!String(e.url || '').startsWith(LOGIN_URL)) return;
+        const u = String(e.url || '');
+        const isPawAuth = u.includes('pokeascendedworld.com') && (u.includes('/play') || u.includes('/welcome') || u.includes('/characters'));
+        if (!u.startsWith(LOGIN_URL) && !isPawAuth) return;
         if (typeof isLoggingIn !== 'undefined' && isLoggingIn[i]) return;
         if (!trocou[i] && ((stCache[i] && stCache[i].d && stCache[i].d.live) || (sessSnap[i] && sessSnap[i].sk && Date.now() - sessSnap[i].t < 15000))) return;
-        if (Date.now() - lastLogin[i] < 15000) return; // ja tentou ha pouco: nao ressubmete em loop
 
-        // Debounce de 3s: da tempo para a pagina carregar e conectar sozinha caso a sessao persistente esteja viva
+        const isLobby = u.includes('/characters');
+        if (!isLobby && Date.now() - lastLogin[i] < 15000) return; // no login previne spam; no lobby seleciona o slot imediatamente
+
+        // Debounce: no lobby executa rapidamente (40ms); no login dá tempo hábil para restaurar sessão (250ms)
+        const delay = isLobby ? 40 : 250;
         if (autoLoginTimer[i]) clearTimeout(autoLoginTimer[i]);
         autoLoginTimer[i] = setTimeout(() => {
           autoLoginTimer[i] = null;
           if (off[i] || !c || !c.email || !c.senha) return;
           if (typeof isLoggingIn !== 'undefined' && isLoggingIn[i]) return;
           if (!trocou[i] && ((stCache[i] && stCache[i].d && stCache[i].d.live) || (sessSnap[i] && sessSnap[i].sk && Date.now() - sessSnap[i].t < 15000))) return;
-          if (Date.now() - lastLogin[i] < 15000) return;
-          lastLogin[i] = Date.now(); trocou[i] = false;
-          loginPanel(wv, c);
-        }, 3000);
+          if (!isLobby && Date.now() - lastLogin[i] < 15000) return;
+          if (!isLobby) lastLogin[i] = Date.now();
+          trocou[i] = false;
+          if (window.pokeAPI?.webviewFillCreds) {
+            window.pokeAPI.webviewFillCreds(i, c.email, c.senha);
+          } else {
+            loginPanel(wv, c);
+          }
+        }, delay);
       };
       wv.addEventListener('did-navigate', autoLogin);
       wv.addEventListener('did-navigate-in-page', (e) => { if (e.isMainFrame !== false) autoLogin(e); }); // Sair pelo dock: rota interna pra /login, sem did-navigate
@@ -3534,22 +3551,35 @@
         el.dispatchEvent(new Event('input', { bubbles: true }));
         el.dispatchEvent(new Event('change', { bubbles: true }));
       };
-      // o botao de enviar nao tem atributo type=submit; acha por propriedade/classe
-      const findBtn = () => [...document.querySelectorAll('button')].find(x => x.type === 'submit' || /auth-imgbtn/.test(x.className));
+      // o botao de enviar: ignora tabs e busca o submit real
+      const findBtn = () => {
+        const p = document.querySelector('input[type="password"], input[autocomplete="current-password"]');
+        const form = document.querySelector('form');
+        if (form) {
+          const subInForm = form.querySelector('button[type="submit"], input[type="submit"]');
+          if (subInForm) return subInForm;
+        }
+        return [...document.querySelectorAll('button')].find(x => {
+          const isTab = x.getAttribute('role') === 'tab' || /tab|nav/i.test(x.className);
+          if (isTab) return false;
+          if (p && !(p.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING)) return false;
+          return x.type === 'submit' || /auth-imgbtn|btn-primary|submit/i.test(x.className) || x.id === 'entrar' || /entrar|logar|login/i.test(x.textContent || '');
+        });
+      };
       for (let t = 0; t < 40; t++) {
+        if (location.pathname === '/play' || location.pathname.startsWith('/play')) return 'ja-logado';
         const pNow = document.getElementById('portal'), aNow = document.getElementById('app');
         if (pNow && pNow.classList.contains('hidden') && aNow && !aNow.classList.contains('hidden')) return 'ja-logado';
         const inputs = [...document.querySelectorAll('input')];
-        const u = inputs.find(i => i.autocomplete === 'username');
-        const p = inputs.find(i => i.autocomplete === 'current-password');
+        const u = inputs.find(i => i.autocomplete === 'username' || i.name === 'email' || i.type === 'email' || i.id === 'email');
+        const p = inputs.find(i => i.autocomplete === 'current-password' || i.type === 'password' || i.name === 'password' || i.id === 'password');
         const b = findBtn();
         if (u && p && b) {
           const EMAIL = ${JSON.stringify(cred.email)}, SENHA = ${JSON.stringify(cred.senha)};
-          // reenche so o que estiver diferente e devolve true quando os DOIS estao certos.
           const preenche = () => {
             const ii = [...document.querySelectorAll('input')];
-            const uu = ii.find(i => i.autocomplete === 'username');
-            const pp = ii.find(i => i.autocomplete === 'current-password');
+            const uu = ii.find(i => i.autocomplete === 'username' || i.name === 'email' || i.type === 'email' || i.id === 'email');
+            const pp = ii.find(i => i.autocomplete === 'current-password' || i.type === 'password' || i.name === 'password' || i.id === 'password');
             if (uu && uu.value !== EMAIL) setVal(uu, EMAIL);
             if (pp && pp.value !== SENHA) setVal(pp, SENHA);
             return !!(uu && pp && uu.value === EMAIL && pp.value === SENHA);
@@ -3590,8 +3620,13 @@
         if (sessSnap[i] && sessSnap[i].sk && Date.now() - sessSnap[i].t < 15000 && !trocou[i]) return;
         trocou[i] = false;
         const currentUrl = (typeof wv.getURL === 'function') ? (wv.getURL() || '') : '';
-        if (currentUrl && currentUrl.startsWith(LOGIN_URL)) {
-          loginPanel(wv, c);
+        const isPawAuth = currentUrl.includes('pokeascendedworld.com') && (currentUrl.includes('/play') || currentUrl.includes('/welcome') || currentUrl.includes('/characters'));
+        if (currentUrl && (currentUrl.startsWith(LOGIN_URL) || isPawAuth)) {
+          if (window.pokeAPI?.webviewFillCreds) {
+            window.pokeAPI.webviewFillCreds(i, c.email, c.senha);
+          } else {
+            loginPanel(wv, c);
+          }
         } else {
           try { wv.loadURL(LOGIN_URL); } catch { loginPanel(wv, c); }
         }
@@ -3814,16 +3849,38 @@
     function readPanelState(i) {
       if ((window.PawBattleHud || window.PioBattleHud)?.isBlasterActive(i)) return Promise.resolve(stCache[i]?.d || null);
       return stateReads.read(i, webviews[i]).then(d => {
+        if (!d || !d.ok) return stCache[i]?.d || null;
+        if (window.PawNailo && typeof window.PawNailo.dispatchTelemetry === 'function') {
+          const dispatched = window.PawNailo.dispatchTelemetry(i, d);
+          if (dispatched) return dispatched;
+        }
         const proj = (window.PawInventory || window.PioInventory).project(d);
         if (proj && proj.ok) {
           proj.i = i;
+          const prev = stCache[i]?.d;
+          if (prev) {
+            if ((!proj.team || proj.team.length === 0) && prev.team && prev.team.length > 0) proj.team = prev.team;
+            if ((!proj.balls || proj.balls === 0) && prev.balls > 0) {
+              proj.balls = prev.balls;
+              proj.ballMap = prev.ballMap;
+              proj.equippedBall = prev.equippedBall;
+              proj.ballsKnown = prev.ballsKnown;
+            }
+            const isPlaceholderName = (nm) => !nm || nm.startsWith('Conta ') || nm.startsWith('Personagem ') || /^Personagem\s*\d+$/i.test(nm) || /^Conta\s*\d+$/i.test(nm) || nm === '—' || nm.toLowerCase() === 'sem líder';
+            if (isPlaceholderName(proj.name) && prev.name && !isPlaceholderName(prev.name)) {
+              proj.name = prev.name;
+            }
+            if (!proj.hunt && prev.hunt) proj.hunt = prev.hunt;
+            if (!proj.level && prev.level) proj.level = prev.level;
+            if (prev.live === true && !proj.live) proj.live = true;
+          }
           stCache[i] = { t: Date.now(), d: proj };
           document.dispatchEvent(new CustomEvent('paw-telemetry-update', { detail: { index: i, state: proj } }));
           const p = grid && grid.children[i];
           const hud = window.PawBattleHud || window.PioBattleHud;
           if (p && hud && typeof hud.update === 'function') hud.update(p, i, proj);
         }
-        return proj;
+        return proj || stCache[i]?.d || null;
       });
     }
     // Depot por conta (pedido do Semai: "aparece o depot da familia?"). Busca preguicosa: so com o
@@ -6003,8 +6060,34 @@ return {portal:isPort,live,sk:!!(P.sock&&P.sock.readyState===1),hasBalls,hasInv,
     if (!pawSt && lsSave) pawSt = lsSave;
 
     // Trainer identity & level
+    const isPlaceholderStr = (s) => {
+      if (!s || typeof s !== 'string') return true;
+      const t = s.trim();
+      return !t || t.startsWith('Conta ') || t.startsWith('Personagem ') || /^Personagem\s*\d+$/i.test(t) || /^Conta\s*\d+$/i.test(t) || t === '—' || t.toLowerCase() === 'sem líder';
+    };
+
     const pawUser = bootUser || lsUser || (typeof window !== 'undefined' && window.PAW_ACCOUNT ? window.PAW_ACCOUNT.user : null) || {};
-    let cName = (pawSt && pawSt.trainerName) || pawUser.name || ch.name || P.nick || (P.estado && P.estado.nick) || (window.estado && window.estado.eu && window.estado.eu.nick) || '';
+    let cName = (pawSt && (pawSt.trainerName || pawSt.characterName || pawSt.charName || (pawSt.character && pawSt.character.name) || (pawSt.selectedCharacter && pawSt.selectedCharacter.name) || pawSt.name || pawSt.nick))
+      || ch.name
+      || (typeof window !== 'undefined' && window.PAW_CHARACTER && window.PAW_CHARACTER.name)
+      || P.nick
+      || (P.estado && (P.estado.trainerName || P.estado.nick || P.estado.name))
+      || (window.estado && window.estado.eu && window.estado.eu.nick)
+      || '';
+
+    if (isPlaceholderStr(cName)) {
+      cName = '';
+    }
+
+    if (!cName && typeof localStorage !== 'undefined') {
+      try {
+        const lsNick = localStorage.getItem('nick') || localStorage.getItem('characterName') || localStorage.getItem('paw_character_name');
+        if (lsNick && !isPlaceholderStr(lsNick)) {
+          cName = lsNick.trim();
+        }
+      } catch (e) {}
+    }
+
     let cid = (pawSt && (pawSt.uid || pawSt.id)) || pawUser.id || ch.id || P.cid || (P.estado && P.estado.id) || '';
     let cLevel = 0;
     if (typeof window !== 'undefined' && typeof window.trainerLevel === 'function') {
@@ -6037,8 +6120,30 @@ return {portal:isPort,live,sk:!!(P.sock&&P.sock.readyState===1),hasBalls,hasInv,
     // DOM fallback for Trainer profile and balances
     if (typeof document !== 'undefined') {
       if (!cName) {
-        const nameEl = document.querySelector('.trainer-profile .profile b, .trainer-profile .profile strong, #tr-nick');
-        if (nameEl && nameEl.textContent && nameEl.textContent !== '—') cName = nameEl.textContent.trim();
+        const nameEl = document.querySelector('.expedition-card .profile b, .expedition-card .profile strong, .trainer-profile .profile b, .trainer-profile .profile strong, .profile b, #tr-nick');
+        if (nameEl && nameEl.textContent) {
+          const txt = nameEl.textContent.trim();
+          if (!isPlaceholderStr(txt)) cName = txt;
+        }
+      }
+      if (!cName) {
+        const chatFooterSpan = document.querySelector('#game-chat .chat-footer span:first-child');
+        if (chatFooterSpan && chatFooterSpan.textContent) {
+          const clean = chatFooterSpan.textContent.replace(/^(?:conectado como|logged in as|conectado|online as)\s*:?\s*/i, '').trim();
+          if (!isPlaceholderStr(clean)) cName = clean;
+        }
+      }
+      if (!cName && location.pathname.includes('/characters')) {
+        try {
+          const accIdx = (typeof window.__PAW_PANEL_INDEX === 'number') ? window.__PAW_PANEL_INDEX : null;
+          const card = (accIdx != null) ? document.querySelector('[data-character-slot="' + accIdx + '"]') : null;
+          const allCards = Array.from(document.querySelectorAll('.lobby-character-card'));
+          const targetCard = card || (accIdx != null && allCards[accIdx]) || null;
+          if (targetCard) {
+            const cCardName = targetCard.querySelector('h2, h3, .character-name, .lobby-character-name, b, strong')?.textContent?.trim();
+            if (cCardName && !isPlaceholderStr(cCardName)) cName = cCardName;
+          }
+        } catch (e) {}
       }
       if (!cLevel) {
         const lvEl = document.querySelector('#trainer-level b, #trainer-level, #tr-level');
@@ -6065,6 +6170,13 @@ return {portal:isPort,live,sk:!!(P.sock&&P.sock.readyState===1),hasBalls,hasInv,
     }
     if (pawSt && pawSt.balls && typeof pawSt.balls === 'object') {
       Object.assign(bMap, pawSt.balls);
+    }
+    if (pawSt) {
+      if (typeof pawSt.balls === 'number') bMap['1'] = Number(pawSt.balls) || 0;
+      if (pawSt.normalBalls != null) bMap['1'] = Number(pawSt.normalBalls) || 0;
+      if (pawSt.greatBalls != null) bMap['2'] = Number(pawSt.greatBalls) || 0;
+      if (pawSt.ultraBalls != null) bMap['4'] = Number(pawSt.ultraBalls) || 0;
+      if (pawSt.idleBalls != null) bMap['5'] = Number(pawSt.idleBalls) || 0;
     }
     if (ws && ws.balls && typeof ws.balls.counts === 'object') {
       Object.assign(bMap, ws.balls.counts);
@@ -6245,21 +6357,31 @@ return {portal:isPort,live,sk:!!(P.sock&&P.sock.readyState===1),hasBalls,hasInv,
 
     // Team (Party slots + collection)
     let team = [];
-    if (pawSt && Array.isArray(pawSt.team) && pawSt.team.length > 0) {
-      const partyUids = Array.isArray(pawSt.partySlots) ? pawSt.partySlots.filter(Boolean) : [];
-      const partyList = partyUids.length ? partyUids.map(uid => pawSt.team.find(p => p && p.uid === uid)).filter(Boolean) : pawSt.team.slice(0, 6);
+    const sourceTeam = (pawSt && (Array.isArray(pawSt.team) ? pawSt.team : (Array.isArray(pawSt.pokemons) ? pawSt.pokemons : null)))
+      || (typeof window !== 'undefined' && window.state && (Array.isArray(window.state.team) ? window.state.team : (Array.isArray(window.state.pokemons) ? window.state.pokemons : null)))
+      || (P && P.estado && (Array.isArray(P.estado.pokemons) ? P.estado.pokemons : (Array.isArray(P.estado.team) ? P.estado.team : null)))
+      || [];
+
+    if (sourceTeam.length > 0) {
+      const partyUids = Array.isArray(pawSt && pawSt.partySlots) ? pawSt.partySlots.filter(Boolean) : (Array.isArray(pawSt && pawSt.partyUIDs) ? pawSt.partyUIDs.filter(Boolean) : []);
+      let partyList = partyUids.length
+        ? partyUids.map(uid => sourceTeam.find(p => p && (p.uid === uid || p.id === uid || String(p.uid) === String(uid) || String(p.id) === String(uid)))).filter(Boolean)
+        : [];
+      if (partyList.length === 0) {
+        partyList = sourceTeam.slice(0, 6);
+      }
 
       let leadObj = null;
       if (typeof window !== 'undefined' && typeof window.lead === 'function') {
         try { leadObj = window.lead(); } catch (e) {}
       }
       if (!leadObj) {
-        const lIdx = (pawSt.leader != null && typeof pawSt.leader === 'number') ? pawSt.leader : 0;
+        const lIdx = (pawSt && pawSt.leader != null && typeof pawSt.leader === 'number') ? pawSt.leader : 0;
         leadObj = partyList[lIdx] || partyList[0];
       }
 
       team = partyList.map((pk, idx) => {
-        const isLd = (leadObj && pk.uid && leadObj.uid === pk.uid) || idx === (pawSt.leader || 0);
+        const isLd = (leadObj && pk.uid && leadObj.uid === pk.uid) || idx === ((pawSt && pawSt.leader) || 0);
         let sName = '';
         if (typeof window !== 'undefined') {
           if (typeof window.data === 'function') {
@@ -6309,15 +6431,15 @@ return {portal:isPort,live,sk:!!(P.sock&&P.sock.readyState===1),hasBalls,hasInv,
 
     // DOM fallback for Team
     if (team.length === 0 && typeof document !== 'undefined') {
-      const rosterRows = document.querySelectorAll('#expedition-team .expedition-pokemon');
+      const rosterRows = document.querySelectorAll('.expedition-card .expedition-pokemon, button.expedition-pokemon, #expedition-team .expedition-pokemon, .roster-item-row .expedition-pokemon');
       if (rosterRows.length > 0) {
         rosterRows.forEach((row, idx) => {
-          const nameEl = row.querySelector('.roster-name strong');
-          const lvEl = row.querySelector('.roster-level b');
-          const imgEl = row.querySelector('.roster-portrait img');
+          const nameEl = row.querySelector('.roster-name strong, .roster-name, h3');
+          const lvEl = row.querySelector('.roster-level b, .roster-level');
+          const imgEl = row.querySelector('.roster-portrait img, img');
           const isLd = row.classList.contains('is-leader') || idx === 0;
           const isSh = row.classList.contains('is-shiny');
-          const sidMatch = (imgEl && imgEl.src ? imgEl.src : '').match(/pokemon\\/(\\d+)\\.png/);
+          const sidMatch = (imgEl && imgEl.src ? imgEl.src : '').match(/pokemon\/(\d+)\.png/);
           const sid = sidMatch ? +sidMatch[1] : 0;
           team.push({
             id: 'dom_' + idx,

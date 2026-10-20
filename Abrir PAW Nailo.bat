@@ -4,6 +4,7 @@ cd /d "%~dp0"
 
 echo Fechando instancia anterior (se houver)...
 taskkill /F /IM paw-nailo-rust.exe >nul 2>&1
+taskkill /F /IM PAW-Nailo.exe >nul 2>&1
 
 set "EXE="
 if exist "%~dp0PAW-Nailo.exe" set "EXE=%~dp0PAW-Nailo.exe"

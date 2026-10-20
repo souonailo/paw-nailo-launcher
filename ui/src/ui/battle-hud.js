@@ -224,8 +224,7 @@
     return { initial, runDrops, current: finalCurrent };
   }
 
-
-
+  const PawBattleHud = {
     isHudActive(i) {
       try {
         return localStorage.getItem('bsh_mode_' + i) === '1' || this.isBlasterActive(i);
@@ -567,7 +566,9 @@
 
       // Insere o HUD no painel
       panel.appendChild(hud);
-      this.updateSocial(panel, i);
+      if (typeof this.updateSocial === 'function') {
+        this.updateSocial(panel, i);
+      }
 
       // 2. Adiciona botões no cabeçalho do painel (.panel-header)
       const header = panel.querySelector('.panel-header');
