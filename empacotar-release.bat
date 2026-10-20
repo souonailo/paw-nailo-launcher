@@ -18,7 +18,10 @@ if %ERRORLEVEL% NEQ 0 (
 
 cd /d "%~dp0"
 set "DIST_DIR=%~dp0dist\PAW-Nailo"
-set "ZIP_FILE=%~dp0dist\PAW-Nailo-v1.0.2.zip"
+set "VER=1.0.12"
+for /f "tokens=3 delims= " %%v in ('findstr /r "^version = " "%~dp0src-tauri\Cargo.toml"') do set "VER=%%~v"
+set "ZIP_FILE=%~dp0dist\PAW-Nailo-v%VER%.zip"
+set "GENERIC_ZIP=%~dp0dist\PAW-Nailo.zip"
 
 echo 2. Criando pasta de distribuicao em %DIST_DIR%...
 if not exist "%~dp0dist" mkdir "%~dp0dist"
@@ -27,7 +30,9 @@ mkdir "%DIST_DIR%"
 mkdir "%DIST_DIR%\ui"
 
 echo 3. Copiando executavel e arquivos essenciais...
-copy /y "%~dp0src-tauri\target\release\paw-nailo-rust.exe" "%DIST_DIR%\" >nul
+copy /y "%~dp0src-tauri\target\release\paw-nailo-rust.exe" "%DIST_DIR%\paw-nailo-rust.exe" >nul
+copy /y "%~dp0src-tauri\target\release\paw-nailo-rust.exe" "%DIST_DIR%\PAW-Nailo.exe" >nul
+copy /y "%~dp0src-tauri\target\release\paw-nailo-rust.exe" "%~dp0PAW-Nailo.exe" >nul
 copy /y "%~dp0Abrir PAW Nailo.bat" "%DIST_DIR%\" >nul
 copy /y "%~dp0COMO USAR.txt" "%DIST_DIR%\" >nul
 copy /y "%~dp0icon.ico" "%DIST_DIR%\" >nul
@@ -39,6 +44,7 @@ xcopy "%~dp0ui" "%DIST_DIR%\ui" /e /i /y /q >nul
 
 echo 5. Gerando arquivo ZIP portatil...
 powershell -NoProfile -Command "Compress-Archive -Path '%DIST_DIR%\*' -DestinationPath '%ZIP_FILE%' -Force"
+copy /y "%ZIP_FILE%" "%GENERIC_ZIP%" >nul
 
 echo.
 echo ===================================================

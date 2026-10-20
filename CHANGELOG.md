@@ -4,6 +4,17 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/) e este projeto segue [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.0.12] - 2026-10-20
+
+### Corrigido
+- **Interface do Modal de Contas e Treinadores (`ui/index.html` e `ui/src/ui/paw-game-theme.css`)**:
+  - Eliminado o conflito de especificidade CSS (`#modal button` com `!important`) que impunha bordas de 36px e preenchimento volumoso sobre os botões de limpeza `.acc-char-wipe`, fazendo com que transbordassem para fora dos cartões de personagem nas colunas da grade.
+  - Substituídos todos os emojis de visual artificial (`🧹`, `🗑`, `🔐`, `👁`) por ícones SVG minimalistas baseados em traçado limpo (`stroke="currentColor" fill="none" stroke-width="1.8"`), garantindo consistência visual profissional e sem artefatos gráficos.
+  - Fixadas as dimensões e alinhamentos dos cartões de personagem (`.acc-char-card`, `.acc-char-input`, `.acc-char-wipe`) com `overflow: hidden`, truncamento suave e estados de hover dedicados.
+- **Botão de Treinadores e Gerenciamento de Contas na Sidebar (`ui/src/ui/pokeleaf-shell.js` e `ui/src/ui/paw-game-theme.css`)**:
+  - Redesenhado o botão `#leafAddAccount` na barra de título da sidebar (`.leaf-sidebar-title`): substituído o antigo botão quadrado genérico (com corte visual sobre a linha divisória) por um botão integrado e legível com ícone e texto `Treinadores`.
+  - Ajustadas as propriedades de layout (`width: auto`, `height: 22px`, `padding: 0 8px`, `gap: 5px`, `font-size: 10px`, `border-radius: 5px`) em `paw-game-theme.css` e `pokeleaf-shell.css`, prevenindo sobreposições na linha de gradiente e respeitando integralmente as regras do design system.
+
 ## [1.0.11] - 2026-10-20
 
 ### Corrigido

@@ -147,7 +147,7 @@
           <div class="leaf-summary-item"><div class="k">Bolas</div><div class="v" id="leafKpiBalls">—</div></div>
           <div class="leaf-summary-item"><div class="k">Atenção</div><div class="v" id="leafKpiAttention">0</div></div>
         </div>
-        <div class="leaf-sidebar-title"><span>Equipe em campo</span><span class="leaf-sidebar-rule"></span><button class="leaf-add-account" id="leafAddAccount" title="Treinadores" aria-label="Editar treinadores">${ico('user')}</button></div>
+        <div class="leaf-sidebar-title"><span>Equipe em campo</span><span class="leaf-sidebar-rule"></span><button class="leaf-add-account" id="leafAddAccount" title="Treinadores / Conta do Jogo" aria-label="Editar treinadores e conta">${ico('user')}<span>Treinadores</span></button></div>
         <div id="leafAccountList"></div>
         <div class="leaf-side-footer">
           <button class="leaf-login-all" id="leafLoginAll">⇥ &nbsp; Logar equipe</button>
