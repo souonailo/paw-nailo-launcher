@@ -704,6 +704,15 @@ pub fn run() {
             if let Some(path)=std::env::var_os("PAW_NAILO_TEST_PROFILE").or_else(|| std::env::var_os("PIO_NAILO_TEST_PROFILE")) {
                 WebviewWindowBuilder::from_config(app,&app.config().app.windows[0])?.data_directory(PathBuf::from(path)).build()?;
             }
+            #[cfg(windows)]
+            {
+                use windows::Win32::System::Power::{
+                    SetThreadExecutionState, ES_CONTINUOUS, ES_SYSTEM_REQUIRED,
+                };
+                unsafe {
+                    SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED);
+                }
+            }
             let handle = app.handle().clone();
             auto_updater::cleanup_old_updates();
             if let Err(error)=desktop_settings::setup_tray(&handle){eprintln!("Bandeja indisponível: {error}");}

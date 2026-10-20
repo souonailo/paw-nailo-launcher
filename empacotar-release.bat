@@ -18,7 +18,7 @@ if %ERRORLEVEL% NEQ 0 (
 
 cd /d "%~dp0"
 set "DIST_DIR=%~dp0dist\PAW-Nailo"
-set "VER=1.0.12"
+set "VER=1.0.15"
 for /f "tokens=3 delims= " %%v in ('findstr /r "^version = " "%~dp0src-tauri\Cargo.toml"') do set "VER=%%~v"
 set "ZIP_FILE=%~dp0dist\PAW-Nailo-v%VER%.zip"
 set "GENERIC_ZIP=%~dp0dist\PAW-Nailo.zip"

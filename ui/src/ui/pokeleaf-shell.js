@@ -302,6 +302,10 @@
   window.PawView = window.PIWView = { set: (view) => setView(view), current: () => currentView };
 
   const states = new Map();
+  function hasLiveTelemetry(r) {
+    return Boolean(r && r.ok && r.live !== false && r.disconnected !== true &&
+      (r.live === true || r.level > 0 || r.hunt || (r.a && (r.a.seconds > 0 || r.a.kills > 0)) || (r.team && r.team.length > 0)));
+  }
   function baseState(i) {
     const hasCreds = Boolean(typeof accounts !== 'undefined' && accounts[i] && accounts[i].email && accounts[i].senha);
     const n = (typeof accounts !== 'undefined' && accounts[i] && accounts[i].name) || (typeof stName === 'function' ? stName(i) : `Personagem ${i+1}`);
@@ -310,7 +314,7 @@
   function stateStatus(r) {
     const hasCreds = Boolean(typeof accounts !== 'undefined' && accounts[r?.i] && accounts[r.i].email && accounts[r.i].senha);
     if (!hasCreds || (typeof off !== 'undefined' && off[r?.i])) return ['off','Desligado'];
-    const isLive = Boolean(r && r.ok && (r.live || r.level > 0 || r.hunt || (r.a && (r.a.seconds > 0 || r.a.kills > 0)) || (r.team && r.team.length > 0)));
+    const isLive = hasLiveTelemetry(r);
     if (!isLive) {
       const dot = grid.children[r?.i]?.querySelector('.panel-header .dot');
       return dot?.classList.contains('err') ? ['err','Erro'] : ['wait','Conectando'];
@@ -319,15 +323,15 @@
   }
   function attention(r) {
     if (!r || !r.ok) return false;
-    const bInf = Boolean((r.equippedBall && r.equippedBall.infinite) || (+r.balls >= 999999));
+    const bInf = Boolean((r.equippedBall && r.equippedBall.infinite) || (r.balls === '∞'));
     if (r.ballsKnown !== false && !bInf && (+r.balls || 0) < 100) return true;
     const lead=getLead(r);
     return !!(lead && lead.hm > 0 && lead.hp <= 0);
   }
   async function collectOne(i) {
-    let d = null;
+    const pc = (typeof stCache !== 'undefined' ? stCache[i] : null) || (window.stCache ? window.stCache[i] : null);
+    let d = pc && pc.d && pc.d.ok ? pc.d : null;
     try {
-      const pc = (typeof stCache !== 'undefined' ? stCache[i] : null) || (window.stCache ? window.stCache[i] : null);
       const hasTelemetry = pc && pc.d && pc.d.ok && (
         (pc.d.hunt && pc.d.hunt !== 'centro') ||
         (pc.d.team && pc.d.team.length > 0) ||
@@ -343,31 +347,36 @@
           const rs = (typeof READ_STATE !== 'undefined' ? READ_STATE : null) || window.READ_STATE;
           if (rs) d = await webviews[i].executeJavaScript(rs);
         }
-        if (d && d.ok) {
+        const latest = (typeof stCache !== 'undefined' ? stCache[i] : null) || window.stCache?.[i];
+        if (latest !== pc) d = latest?.d?.ok ? latest.d : null;
+        if (d && d.ok && d !== latest?.d) {
           const s = (typeof stSane === 'function' ? stSane(d) : null) || (window.stSane ? window.stSane(d) : null) || d;
-          if (pc && pc.d && pc.d.ok) {
-            if ((!s.team || s.team.length === 0) && pc.d.team && pc.d.team.length > 0) s.team = pc.d.team;
-            if ((!s.balls || s.balls === 0) && pc.d.balls > 0) {
+          if (pc && pc.d && pc.d.ok && (!s.cid || !pc.d.cid || String(s.cid) === String(pc.d.cid))) {
+            if (s.team == null && pc.d.team) s.team = pc.d.team;
+            if (s.balls == null && s.ballsKnown === undefined && s.ballMap === undefined && pc.d.ballsKnown !== false && pc.d.balls != null) {
               s.balls = pc.d.balls;
               s.ballMap = pc.d.ballMap;
               s.equippedBall = pc.d.equippedBall;
               s.ballsKnown = pc.d.ballsKnown;
             }
             if (isPlaceholderName(s.name) && pc.d.name && !isPlaceholderName(pc.d.name)) s.name = pc.d.name;
-            if (!s.hunt && pc.d.hunt) s.hunt = pc.d.hunt;
-            if (!s.level && pc.d.level) s.level = pc.d.level;
-            if (pc.d.live === true && !s.live) s.live = true;
+            if (s.hunt == null && pc.d.hunt) s.hunt = pc.d.hunt;
+            if (s.level == null && pc.d.level) s.level = pc.d.level;
+            if (typeof s.live !== 'boolean' && s.disconnected !== true && typeof pc.d.live === 'boolean') s.live = pc.d.live;
           }
           if (typeof stCache !== 'undefined') stCache[i] = { t: Date.now(), d: s };
           if (window.stCache) window.stCache[i] = { t: Date.now(), d: s };
           d = s;
-        } else if (pc && pc.d && pc.d.ok) {
+        } else if ((!d || !d.ok) && latest === pc && pc && pc.d && pc.d.ok) {
           d = pc.d;
         }
       } else if (pc && pc.d && pc.d.ok) {
         d = pc.d;
       }
-    } catch {}
+    } catch {
+      const latest = (typeof stCache !== 'undefined' ? stCache[i] : null) || window.stCache?.[i];
+      d = latest?.d?.ok ? latest.d : null;
+    }
     if (!d || !d.ok) d = baseState(i); else d.i = i;
     if (d.name && !isPlaceholderName(d.name)) {
       if (typeof tabNames !== 'undefined') tabNames[i] = d.name;
@@ -394,11 +403,11 @@
   }
 
   function renderAll(arr) {
-    const online = arr.filter(x => x && x.ok).length;
+    const online = arr.filter(hasLiveTelemetry).length;
     let balls = 0, inf = false, att = 0, known = 0;
     arr.forEach(x => {
       if (x.ballsKnown !== false) known++;
-      const bInf = Boolean((x.equippedBall && x.equippedBall.infinite) || (+x.balls >= 999999));
+      const bInf = Boolean((x.equippedBall && x.equippedBall.infinite) || (x.balls === '∞'));
       if (bInf) inf = true;
       else balls += +x.balls || 0;
       if (attention(x)) att++;
@@ -460,7 +469,7 @@
           </div>
           <div class="leaf-hunt-row"><span class="leaf-hunt-glyph">${ico('hunt')}</span><span class="leaf-hunt-name">Em caça <b>${escH(hunt)}</b></span><span class="leaf-hunt-time">${(a.seconds || r.sessStart) ? ((s => Math.floor(s/3600)+'h '+String(Math.floor(s%3600/60)).padStart(2,'0')+'m')(a.seconds || Math.max(0, Math.floor((Date.now() - r.sessStart) / 1000)))) : '—'}</span></div>
           <div class="leaf-account-metrics">
-            <div class="leaf-metric" title="${(r.equippedBall && r.equippedBall.name) ? `${escH(r.equippedBall.name)}: ${r.ballsKnown === false ? '—' : (((r.equippedBall && r.equippedBall.infinite) || (+r.balls >= 999999)) ? '∞' : fmtCompact(r.balls))}` : `Bolas: ${r.ballsKnown === false ? '—' : (((r.equippedBall && r.equippedBall.infinite) || (+r.balls >= 999999)) ? '∞' : fmtCompact(r.balls))}`}"><div class="mk">Bolas</div><div class="mv">${r.ballsKnown === false ? '—' : (((r.equippedBall && r.equippedBall.infinite) || (+r.balls >= 999999)) ? '∞' : fmtCompact(r.balls))}</div></div>
+            <div class="leaf-metric" title="${(r.equippedBall && r.equippedBall.name) ? `${escH(r.equippedBall.name)}: ${r.ballsKnown === false ? '—' : (((r.equippedBall && r.equippedBall.infinite) || (r.balls === '∞')) ? '∞' : fmtCompact(r.balls))}` : `Bolas: ${r.ballsKnown === false ? '—' : (((r.equippedBall && r.equippedBall.infinite) || (r.balls === '∞')) ? '∞' : fmtCompact(r.balls))}`}"><div class="mk">Bolas</div><div class="mv">${r.ballsKnown === false ? '—' : (((r.equippedBall && r.equippedBall.infinite) || (r.balls === '∞')) ? '∞' : fmtCompact(r.balls))}</div></div>
             <div class="leaf-metric" title="Shiny"><div class="mk">Shiny</div><div class="mv">${a.shinyFound!=null?fmtCompact(a.shinyFound):'—'}</div></div>
             <div class="leaf-metric" title="XP/h"><div class="mk">XP/h</div><div class="mv">${(a.xph!=null||r.xph!=null)?fmtCompact(a.xph!=null?a.xph:r.xph):'—'}</div></div>
             <div class="leaf-metric" title="Kills/h"><div class="mk">Kills/h</div><div class="mv">${(a.kph!=null||r.kph!=null)?fmtCompact(a.kph!=null?a.kph:r.kph):'—'}</div></div>
@@ -510,7 +519,7 @@
         <div class="leaf-list-identity"><span class="leaf-list-index">${String(r.i+1).padStart(2,'0')}</span><div class="avatar">${spr?`<img src="${spr}" width="48" height="48" alt="" loading="lazy" onerror="this.remove()">`:ico('user')}</div>
           <div class="leaf-list-person"><div class="name">${escH(displayName(r))}</div><div class="sub">${stateStatus(r)[1]}${r.level?' · Nv '+escH(r.level):''}${lead?' · '+escH(lead.name):''}</div></div><span class="leaf-list-state ${stateStatus(r)[0]}">${stateStatus(r)[1]}</span></div>
         <div class="leaf-list-hunt"><span>Caça atual</span><b>${escH(prettyHunt(r.hunt)||'Aguardando dados')}</b></div>
-        <div class="leaf-list-stats"><div class="leaf-list-cell" title="${(r.equippedBall && r.equippedBall.name) ? `${escH(r.equippedBall.name)}: ${r.ballsKnown === false ? '—' : (((r.equippedBall && r.equippedBall.infinite) || (+r.balls >= 999999)) ? '∞' : fmtCompact(r.balls))}` : `Bolas: ${r.ballsKnown === false ? '—' : (((r.equippedBall && r.equippedBall.infinite) || (+r.balls >= 999999)) ? '∞' : fmtCompact(r.balls))}`}"><div class="label">Bolas</div><div class="value">${r.ballsKnown === false ? '—' : (((r.equippedBall && r.equippedBall.infinite) || (+r.balls >= 999999)) ? '∞' : fmtCompact(r.balls))}</div></div>
+        <div class="leaf-list-stats"><div class="leaf-list-cell" title="${(r.equippedBall && r.equippedBall.name) ? `${escH(r.equippedBall.name)}: ${r.ballsKnown === false ? '—' : (((r.equippedBall && r.equippedBall.infinite) || (r.balls === '∞')) ? '∞' : fmtCompact(r.balls))}` : `Bolas: ${r.ballsKnown === false ? '—' : (((r.equippedBall && r.equippedBall.infinite) || (r.balls === '∞')) ? '∞' : fmtCompact(r.balls))}`}"><div class="label">Bolas</div><div class="value">${r.ballsKnown === false ? '—' : (((r.equippedBall && r.equippedBall.infinite) || (r.balls === '∞')) ? '∞' : fmtCompact(r.balls))}</div></div>
           <div class="leaf-list-cell"><div class="label">Shiny</div><div class="value">${a.shinyFound!=null?fmtCompact(a.shinyFound):'—'}</div></div>
           <div class="leaf-list-cell"><div class="label">EXP</div><div class="value">${(a.xpg!=null||a.xp!=null||r.xp!=null)?fmtCompact(a.xpg!=null?a.xpg:(a.xp!=null?a.xp:r.xp)):'—'}</div></div>
           <div class="leaf-list-cell"><div class="label">Kills/h</div><div class="value">${(a.kph!=null||r.kph!=null)?fmtCompact(a.kph!=null?a.kph:r.kph):'—'}</div></div></div>
@@ -572,7 +581,7 @@
       if (leadBox) leadBox.title = lead ? `Líder: ${leadName}${lead.level ? ` (Nv ${lead.level})` : ''}` : 'Sem líder na equipe';
 
       const huntText = prettyHunt(r.hunt)||'Aguardando dados';
-      const bInf = Boolean((r.equippedBall && r.equippedBall.infinite) || (+r.balls >= 999999));
+      const bInf = Boolean((r.equippedBall && r.equippedBall.infinite) || (r.balls === '∞'));
       const ballsText = r.ballsKnown === false ? '—' : (bInf ? '∞' : fmtCompact(r.balls));
       const huntEl = $('.pf-hunt-val', f) || $('.pf-hunt b', f);
       const ballsEl = $('.pf-balls-val', f) || $('.pf-balls b', f);

@@ -65,11 +65,11 @@ pub fn snapshot(app: &AppHandle) -> serde_json::Value {
     serde_json::json!({ "requestedBackground": *policy.views.lock().unwrap(), "windowBackground": *policy.windows.lock().unwrap() })
 }
 
-/// Retain full hardware acceleration without artificial GPU memory capping.
+/// Retain full hardware acceleration without artificial GPU memory capping and prevent background timer throttling.
 pub const GAME_BROWSER_ARGS: &str =
-    "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required";
+    "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,ThrottleDisplayNoneAndVisibilityHiddenCrossOriginIframes --autoplay-policy=no-user-gesture-required";
 const BASELINE_BROWSER_ARGS: &str =
-    "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required";
+    "--disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-renderer-backgrounding --disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,ThrottleDisplayNoneAndVisibilityHiddenCrossOriginIframes --autoplay-policy=no-user-gesture-required";
 
 // Wry's additional_browser_args replaces its defaults, including --proxy-server.
 // Build both together so memory settings never bypass the account's proxy.

@@ -11,6 +11,7 @@
     : ('sess_' + Date.now() + '_' + Math.random().toString(36).slice(2));
 
   let latestSocket = null;
+  let sourceGeneration = 0, sourceValid = false;
   let pending = [], pendingBytes = 0, inFlight = false, timer = undefined;
   let awaitingSnapshot = false;
   let wireRevision = null, wireState = null;
@@ -86,11 +87,22 @@
   };
 
   // Real ball catalog and costs from PAW supply-model.js (no synthetic legacy prices or non-existent Super Ball 50)
+  const ELEMENTAL_BALL_CATALOG = [
+    ['normal', 'Normal'], ['fire', 'Fogo'], ['water', 'Água'], ['electric', 'Elétrico'],
+    ['grass', 'Planta'], ['ice', 'Gelo'], ['fighting', 'Lutador'], ['poison', 'Veneno'],
+    ['ground', 'Terra'], ['flying', 'Voador'], ['psychic', 'Psíquico'], ['bug', 'Inseto'],
+    ['rock', 'Pedra'], ['ghost', 'Fantasma'], ['dragon', 'Dragão'], ['dark', 'Sombrio'],
+    ['steel', 'Aço'], ['fairy', 'Fada']
+  ].map(([type, name]) => ({
+    id: type + 'Balls', key: type + 'Balls', nome: 'Bola de ' + name, name: 'Bola de ' + name,
+    cost: 108, craftOnly: true, infinite: false, catchRate: 1, matchingCapture: 5.5, type: name
+  }));
   const REAL_BALL_CATALOG = [
     { id: 1, key: 'balls', nome: 'Poké Ball', name: 'Poké Ball', priceGold: 5, cost: 5, infinite: false, catchRate: 1 },
     { id: 2, key: 'greatBalls', nome: 'Great Ball', name: 'Great Ball', priceGold: 20, cost: 20, infinite: false, catchRate: 1.5 },
     { id: 4, key: 'ultraBalls', nome: 'Ultra Ball', name: 'Ultra Ball', priceGold: 130, cost: 130, infinite: false, catchRate: 4 },
-    { id: 5, key: 'idleBalls', nome: 'Idle Ball', name: 'Idle Ball', priceGold: 0, cost: 0, infinite: false, catchRate: 6 }
+    { id: 5, key: 'idleBalls', nome: 'Idle Ball', name: 'Idle Ball', priceGold: 0, cost: 0, infinite: false, catchRate: 6 },
+    ...ELEMENTAL_BALL_CATALOG
   ];
 
   function resolveSpeciesName(id) {
@@ -185,7 +197,6 @@
     } else if (typeof prog.balls === 'number') {
       ballMap['1'] = prog.balls;
     }
-    if (prog.normalBalls != null) ballMap['1'] = Number(prog.normalBalls) || 0;
     if (prog.greatBalls != null) ballMap['2'] = Number(prog.greatBalls) || 0;
     if (prog.ultraBalls != null) ballMap['4'] = Number(prog.ultraBalls) || 0;
     if (prog.idleBalls != null) ballMap['5'] = Number(prog.idleBalls) || 0;
@@ -193,7 +204,7 @@
       ballMap['1'] = Number(prog.balls) || 0;
     }
 
-    const ballKeys = ['fireBalls', 'waterBalls', 'electricBalls', 'grassBalls', 'iceBalls', 'fightingBalls', 'poisonBalls', 'groundBalls', 'flyingBalls', 'psychicBalls', 'bugBalls', 'rockBalls', 'ghostBalls', 'dragonBalls', 'darkBalls', 'steelBalls', 'fairyBalls'];
+    const ballKeys = ELEMENTAL_BALL_CATALOG.map(ball => ball.key);
     for (const bk of ballKeys) {
       if (prog[bk] != null) ballMap[bk] = Number(prog[bk]) || 0;
     }
@@ -394,7 +405,8 @@
       revives: totalRevives,
       ballsKnown: true,
       inventoryKnown: true,
-      ballCatalog: [{ id: 1, name: 'Poké Ball', priceGold: 5, infinite: false }],
+      ballCatalog: REAL_BALL_CATALOG,
+      catalogoBolas: REAL_BALL_CATALOG,
       automation: automation,
       auto: autoActive,
       autoCaptureBall: automation.autoCaptureBall,
@@ -541,7 +553,7 @@
         awaitingSnapshot = false;
         progToEmit = PAW_WIRE.clone(wireState);
       } else if (Array.isArray(payload.patch)) {
-        if (payload.base === wireRevision && wireState && !awaitingSnapshot) {
+        if (payload.base === wireRevision && wireState) {
           try {
             wireState = PAW_WIRE.apply(wireState, payload.patch);
             wireRevision = payload.revision;
@@ -583,6 +595,7 @@
     }
 
     if (progToEmit && typeof window !== 'undefined') {
+      sourceValid = true;
       window.__idleioTelemetryLive = true;
       window.__poke = window.__poke || {};
       window.__poke.estado = wireState;
@@ -605,6 +618,7 @@
     if (timer === undefined && !inFlight && pending.length) timer = setTimeout(() => { timer = undefined; void flush(); }, 16);
   }
   function invalidate(session, reason) {
+    if (reason === 'patch_gap') sourceValid = false;
     if (typeof window !== 'undefined') window.__idleioTelemetryLive = false;
     pending = []; pendingBytes = 0; awaitingSnapshot = true; metrics.gaps++;
     const event = { t: 'telemetry_gap', data: { reason } };
@@ -616,6 +630,7 @@
     if (inFlight || !pending.length) return;
     const batch = pending.splice(0, BATCH_EVENTS);
     const session = batch[0].session;
+    const generation = sourceGeneration;
     pendingBytes -= batch.reduce((n, item) => n + item.bytes, 0);
     updateMetrics(); inFlight = true;
     const started = performance.now();
@@ -624,9 +639,15 @@
       if (!invoke) throw new Error('Bridge unavailable');
       await invoke('report_gameplay_batch', { session, events: batch.map(item => item.event), metrics: { ...metrics } });
       metrics.batches++; metrics.events += batch.length;
+      if (session === activeSession && generation === sourceGeneration && sourceValid && batch.some(item => item.event.t === 'telemetry_gap')) {
+        if (wireState) {
+          const est = mapPawProgress(wireState);
+          if (est) report(session, { t: 'estado', data: est });
+        }
+      }
     } catch {
       metrics.failures++;
-      if (session === activeSession) {
+      if (session === activeSession && generation === sourceGeneration) {
         pending = []; pendingBytes = 0; awaitingSnapshot = true; metrics.gaps++;
         const invoke = window.__TAURI_INTERNALS__?.invoke || window.__TAURI__?.core?.invoke;
         if (invoke) {
@@ -634,7 +655,7 @@
           pendingBytes = 128;
         }
       }
-      if (session === activeSession && batch.some(item => item.event.t === 'telemetry_gap')) { pending = []; pendingBytes = 0; }
+      if (session === activeSession && generation === sourceGeneration && batch.some(item => item.event.t === 'telemetry_gap')) { pending = []; pendingBytes = 0; }
     } finally {
       metrics.lastLatencyMs = Math.round(performance.now() - started);
       inFlight = false; updateMetrics(); schedule();
@@ -642,6 +663,8 @@
   }
   function report(session, event) {
     if (event.t === 'reset' || event.t === 'disconnected') {
+      sourceGeneration++;
+      sourceValid = false;
       if (typeof window !== 'undefined') window.__idleioTelemetryLive = false;
       if (event.t === 'reset') {
         activeSession = session; pending = []; pendingBytes = 0; awaitingSnapshot = false;
@@ -666,6 +689,52 @@
     updateMetrics(); schedule();
   }
 
+  // Robust background heartbeat keepalive for WebSocket connections (prevents idle timeouts in background / tray / taskbar)
+  let heartbeatHandle = null;
+  function startHeartbeat(socket) {
+    stopHeartbeat();
+    const sendPing = () => {
+      try {
+        if (socket && socket === latestSocket && socket.readyState === NativeWebSocket.OPEN) {
+          socket.send(JSON.stringify({ t: 'ping' }));
+        }
+      } catch (_) {}
+    };
+
+    let worker = null;
+    try {
+      if (typeof Worker !== 'undefined' && typeof Blob !== 'undefined' && typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+        const blob = new Blob([
+          'let t = setInterval(function() { postMessage("p"); }, 20000); self.onmessage = function() { clearInterval(t); };'
+        ], { type: 'application/javascript' });
+        const workerUrl = URL.createObjectURL(blob);
+        worker = new Worker(workerUrl);
+        worker.onmessage = () => sendPing();
+        URL.revokeObjectURL(workerUrl);
+      }
+    } catch (_) {
+      worker = null;
+    }
+
+    const intervalId = setInterval(sendPing, 20000);
+    heartbeatHandle = {
+      stop() {
+        if (worker) {
+          try { worker.postMessage('stop'); worker.terminate(); } catch (_) {}
+          worker = null;
+        }
+        clearInterval(intervalId);
+      }
+    };
+  }
+
+  function stopHeartbeat() {
+    if (heartbeatHandle) {
+      try { heartbeatHandle.stop(); } catch (_) {}
+      heartbeatHandle = null;
+    }
+  }
+
   window.WebSocket = new Proxy(NativeWebSocket, {
     construct(target, args) {
       const socket = Reflect.construct(target, args);
@@ -676,6 +745,8 @@
                          cleanHost === 'pokeascendedworld.com' || cleanHost.endsWith('.pokeascendedworld.com') ||
                          cleanHost === 'poke.idleworld.online' || cleanHost.endsWith('.idleworld.online');
       if (!isGameHost) return socket;
+      sourceGeneration++;
+      sourceValid = false;
       latestSocket = socket;
 
       // Extract session token from WS URL query parameter if present
@@ -700,17 +771,26 @@
       socket.addEventListener('open', () => {
         if (socket !== latestSocket) return;
         if (typeof window !== 'undefined') window.__idleioTelemetryLive = true;
-        // WS connection opened: re-sync existing state snapshot to avoid state blanking
-        if (wireState) {
-          const est = mapPawProgress(wireState);
-          if (est) report(activeSession, { t: 'estado', data: est });
-        }
+        startHeartbeat(socket);
+        // Wait for an observed payload before replaying a previous connection's state.
       });
 
       socket.addEventListener('close', () => {
         if (socket === latestSocket) {
+          stopHeartbeat();
           if (typeof window !== 'undefined') window.__idleioTelemetryLive = false;
           report(activeSession, { t: 'disconnected' });
+          try {
+            const app = typeof document !== 'undefined' && document.getElementById('app');
+            const hasAuth = typeof document !== 'undefined' && !!document.querySelector('#auth-dialog, .site-auth-dialog, #login-turnstile, #auth-form');
+            if (app && !app.classList.contains('hidden') && !hasAuth && typeof location !== 'undefined' && location.pathname.startsWith('/play')) {
+              setTimeout(() => {
+                if (!latestSocket || latestSocket.readyState !== NativeWebSocket.OPEN) {
+                  try { location.reload(); } catch (_) {}
+                }
+              }, 8000);
+            }
+          } catch (_) {}
         }
       });
 
@@ -721,6 +801,17 @@
           ingestPawPayload(activeSession, raw);
 
           const t = raw.t ?? raw.type, data = raw.data ?? raw;
+          if (t === 'welcome' || t === 'estado') sourceValid = true;
+          const evId = raw.eventId ?? data?.eventId;
+          if (evId != null && (t === 'morte' || t === 'batalha' || t === 'capturado' || t === 'loot.received')) {
+            if (seenEventIds.has(evId)) return;
+            seenEventIds.add(evId);
+            if (seenEventIds.size > 512) {
+              const arr = Array.from(seenEventIds).slice(-256);
+              seenEventIds.clear();
+              arr.forEach(id => seenEventIds.add(id));
+            }
+          }
           if (t === 'welcome') {
             try {
               const sessToken = localStorage.getItem('sessao');
@@ -788,9 +879,33 @@
   // Fallback periodic inspection of window.state (authoritative client store)
   setInterval(() => {
     try {
-      if (typeof window !== 'undefined' && window.state && activeSession) {
+      if (sourceValid && !awaitingSnapshot && typeof window !== 'undefined' && window.state && activeSession) {
         handlePawPayload(activeSession, window.state, window.state.scene || null, null);
       }
     } catch (_) {}
   }, 2500);
+
+  // Window focus & visibility recovery to prevent telemetry blanking after tab away / focus loss
+  if (typeof window !== 'undefined') {
+    const handleFocusOrResume = () => {
+      try {
+        if (sourceValid && awaitingSnapshot && wireState && activeSession) {
+          const est = mapPawProgress(wireState);
+          if (est) report(activeSession, { t: 'estado', data: est });
+        }
+        if (!inFlight && pending.length) {
+          if (timer !== undefined) { clearTimeout(timer); timer = undefined; }
+          void flush();
+        }
+      } catch (_) {}
+    };
+    if (typeof window.addEventListener === 'function') {
+      window.addEventListener('focus', handleFocusOrResume);
+    }
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) handleFocusOrResume();
+      });
+    }
+  }
 })();

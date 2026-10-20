@@ -703,7 +703,7 @@
 
       const ballsValEl = hud.querySelector('.bsh-val-balls');
       if (ballsValEl) {
-        const bInf = Boolean((state.equippedBall && state.equippedBall.infinite) || (+state.balls >= 999999));
+        const bInf = Boolean((state.equippedBall && state.equippedBall.infinite) || (state.balls === '∞'));
         const ballsFormatted = state.ballsKnown === false ? '—' : (bInf ? '∞' : fmtNumber(state.balls || 0));
         if (ballsValEl.textContent !== ballsFormatted) ballsValEl.textContent = ballsFormatted;
       }

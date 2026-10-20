@@ -67,6 +67,10 @@ TELEMETRY-TESTING.md
 *.test.mjs
 *.spec.js
 
+# Regressões permanentes da continuidade de telemetria
+!ui/telemetry-shell-regression.test.js
+!ui/telemetry-capture.test.js
+
 # Backups & Arquivos de Benchmark
 backups/
 backup-*/
@@ -114,3 +118,5 @@ pokeidle_maps/
 src/ui/themes/pokemon/**/*.json
 src/ui/themes/pokemon/**/*.md
 tools/
+
+!ui/ball-inventory-har.test.js

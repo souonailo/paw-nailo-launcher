@@ -4,6 +4,39 @@ Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/) e este projeto segue [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.0.15] - 2026-10-20
+
+### Corrigido
+- **Prevenção de Desconexão e Queda em Segundo Plano (Barra de Tarefas e Tray)**:
+  - Adicionados argumentos Chromium ao runtime do WebView2 (`--disable-background-timer-throttling`, `--disable-backgrounding-occluded-windows`, `--disable-renderer-backgrounding` e flags de desativação de `CalculateNativeWinOcclusion` e `IntensiveWakeUpThrottling`), impedindo o estrangulamento de timers de JavaScript (clamping de 60s) e rebaixamento de prioridade quando o launcher é minimizado para a barra de tarefas ou enviado para a bandeja do sistema (tray).
+  - Implementado heartbeat keepalive periódico (`t: "ping"`) a cada 20 segundos em `gameplay_bridge.js` sobre conexões ativas do Poke Ascended World (`pokeascendedworld.com`), com suporte a Web Worker dedicado para garantir envio ininterrupto mesmo com renderização suspensa.
+  - Corrigido o loop de keepalive em `launcher_gameplay.js` e `ui/index.html`, eliminando o retorno prematuro em domínios PAW e enviando o comando de ping nativo esperado pelo servidor.
+  - Configurado `SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)` na inicialização em Rust no Windows, impedindo que o sistema operacional coloque os adaptadores de rede e a CPU em suspensão.
+  - Adicionada rotina de restauração automática caso o socket seja encerrado abruptamente enquanto o jogador estiver autenticado e em partida, prevenindo que a conta permaneça offline acumulando bônus de ausência indevido.
+
+## [1.0.14] - 2026-10-20
+
+### Corrigido
+- Separação do estoque de Poké Balls comuns e bolas elementais do tipo Normal.
+- Catálogo completo de bolas elementais e identificação correta da Idle Ball na telemetria do inventário.
+- Seleção automática deixa de manter uma bola esgotada quando há outro estoque disponível.
+- Quantidades finitas elevadas deixam de ser interpretadas como estoque infinito.
+
+### Testes
+- Regressões de estoque, seleção de bola e normalização baseadas no contrato dos scripts públicos presentes nos HARs dos modos normal e carta.
+
+## [1.0.13] - 2026-10-20
+
+### Corrigido
+- Recuperação da telemetria após falhas temporárias de entrega e excesso de eventos na fila, preservando a continuidade dos deltas válidos do jogo.
+- Preservação da última leitura das contas quando uma consulta ao jogo falha, sem renovar artificialmente a idade do cache.
+- Proteção contra consultas atrasadas sobrescreverem uma atualização mais recente.
+- Respeito à desconexão explícita e ao estoque conhecido igual a zero na composição dos cartões.
+- O watchdog deixa de recarregar a partida apenas por timeout de telemetria e só reconhece login quando o portal existe e o jogo está oculto.
+
+### Testes
+- Adicionadas regressões para continuidade da coleta, falhas de consulta, concorrência entre leitura e push e estado de conexão.
+
 ## [1.0.12] - 2026-10-20
 
 ### Corrigido

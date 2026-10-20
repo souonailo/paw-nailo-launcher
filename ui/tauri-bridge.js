@@ -169,7 +169,7 @@
     onUpdateProgress: (cb) => listen('updater:progress', (e) => cb(e.payload)),
 
     // 11. Metadados
-    appVersion: '1.0.12'
+    appVersion: '1.0.15'
   };
 
   window.PawNailo = window.PawNailo || {};

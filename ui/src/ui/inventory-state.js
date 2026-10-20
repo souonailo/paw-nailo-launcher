@@ -9,9 +9,16 @@
       .map(([id, value]) => [id, quantity(value)])
   );
   const names = {
-    1: 'Poké Ball', 2: 'Great Ball', 3: 'Super Ball', 4: 'Ultra Ball', 5: 'Beast Ball',
+    1: 'Poké Ball', 2: 'Great Ball', 3: 'Super Ball', 4: 'Ultra Ball', 5: 'Idle Ball',
     'poke-ball': 'Poké Ball', 'great-ball': 'Great Ball', 'super-ball': 'Super Ball', 'ultra-ball': 'Ultra Ball'
   };
+  const elementalNames = {
+    normal: 'Normal', fire: 'Fogo', water: 'Água', electric: 'Elétrico', grass: 'Planta',
+    ice: 'Gelo', fighting: 'Lutador', poison: 'Veneno', ground: 'Terra', flying: 'Voador',
+    psychic: 'Psíquico', bug: 'Inseto', rock: 'Pedra', ghost: 'Fantasma', dragon: 'Dragão',
+    dark: 'Sombrio', steel: 'Aço', fairy: 'Fada'
+  };
+  for (const [type, name] of Object.entries(elementalNames)) names[type + 'Balls'] = 'Bola de ' + name;
 
   const POTION_GROUPS = [
     ['200', 'potion', 'potions', 'crafted:potion'],
@@ -49,7 +56,7 @@
     const ballMap = ballsKnown ? cleanMap(state.ballMap) : {};
     const invMap = inventoryKnown ? cleanMap(state.invMap) : {};
     const catalog = Object.fromEntries((state.ballCatalog || []).filter(b => b && b.id != null).map(b => [String(b.id), b]));
-    const infinite = id => ballMap[id] === '∞' || !!(catalog[id]?.infinite || catalog[id]?.infinito) || (Number(ballMap[id]) >= 999999 && !catalog[id]?.priceGold);
+    const infinite = id => ballMap[id] === '∞' || !!(catalog[id]?.infinite || catalog[id]?.infinito);
     for (const id of Object.keys(ballMap)) if (infinite(id)) ballMap[id] = '∞';
     const available = id => ballMap[id] === '∞' || Number(ballMap[id]) > 0;
 
@@ -62,6 +69,8 @@
       selected = [String(state.automation.captureBall)];
     } else if (state.automation?.ball != null) {
       selected = [String(state.automation.ball)];
+    } else if (state.autoCaptureBall != null || state.captureBall != null) {
+      selected = [String(state.autoCaptureBall ?? state.captureBall)];
     }
     // PAW preferences use supply keys while the native bridge also supports legacy numeric IDs.
     const supplyIds = { balls: '1', greatBalls: '2', ultraBalls: '4', idleBalls: '5' };
@@ -72,8 +81,10 @@
     });
 
     let id = selected.find(available) ?? selected[0];
-    if (id == null && state.lastBallId != null && own(ballMap, String(state.lastBallId))) id = String(state.lastBallId);
-    if (id == null) id = Object.keys(ballMap).filter(available).sort((a,b) => Number(catalog[b]?.catchRate ?? b) - Number(catalog[a]?.catchRate ?? a))[0] ?? Object.keys(ballMap)[0];
+    if (id == null && state.lastBallId != null && available(String(state.lastBallId))) id = String(state.lastBallId);
+    const rates = { '1': 1, '2': 1.5, '4': 4, '5': 6, balls: 1, greatBalls: 1.5, ultraBalls: 4, idleBalls: 6 };
+    const rate = id => Number(catalog[id]?.catchRate ?? rates[id] ?? 1);
+    if (id == null) id = Object.keys(ballMap).filter(available).sort((a,b) => rate(b) - rate(a))[0] ?? Object.keys(ballMap)[0];
     const equippedBall = ballsKnown && id != null ? {
       id,
       name: catalog[id]?.nome || catalog[id]?.name || names[id] || `Bola ${id}`,
